@@ -5,9 +5,9 @@ node_modules/
 .env
 .env.local
 
-# Database
-*.sqlite
-*.db
+# Database (comentado para demo - incluir sqlite con datos)
+# *.sqlite
+# *.db
 
 # Logs
 *.log
