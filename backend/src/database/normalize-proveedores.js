@@ -1,0 +1,298 @@
+/**
+ * Script para normalizar los nombres de proveedores en vehículos
+ * para que coincidan con la tabla de proveedores
+ */
+const initSqlJs = require('sql.js');
+const fs = require('fs');
+const path = require('path');
+
+// Mapeo de variantes a nombre normalizado
+const NORMALIZACION = {
+  // 399 PROYECT DEVELOPMENT
+  '399 PROYECT DEVELOPMENT': '399 PROYECT DEVELOPMENT, S.A. DE C.V.',
+  '399 PROYECT DEVELOPMENT, S.A DE C.V': '399 PROYECT DEVELOPMENT, S.A. DE C.V.',
+  '399 PROYECT DEVELOPMENT, S.A DE CV': '399 PROYECT DEVELOPMENT, S.A. DE C.V.',
+  '399 PROYECT DEVELOPMENT,S.A DE C.V': '399 PROYECT DEVELOPMENT, S.A. DE C.V.',
+  '399 PROYECT DEVOLPMENT, S.A DE C.V': '399 PROYECT DEVELOPMENT, S.A. DE C.V.',
+  '399 PROYECT DEVOPMENT, S.A DE C.V': '399 PROYECT DEVELOPMENT, S.A. DE C.V.',
+  'PROYECT DEVELOPMENT': '399 PROYECT DEVELOPMENT, S.A. DE C.V.',
+  'PROYECT DEVELOPMENT, S.A DE C.V': '399 PROYECT DEVELOPMENT, S.A. DE C.V.',
+  'PROJECT DEVELOPMENT, S.A DE C.V': '399 PROYECT DEVELOPMENT, S.A. DE C.V.',
+  '513': '399 PROYECT DEVELOPMENT, S.A. DE C.V.',
+  
+  // ADAMED
+  'ADAME,S.A DE C.V': 'ADAMED, S.A. DE C.V.',
+  'ADAMED S.A DE C.V': 'ADAMED, S.A. DE C.V.',
+  'ADAMED, .S.A DE C.V': 'ADAMED, S.A. DE C.V.',
+  'ADAMED, .SA DE C.V': 'ADAMED, S.A. DE C.V.',
+  'ADAMED, S.A D E C.V': 'ADAMED, S.A. DE C.V.',
+  'ADAMED, S.A DE C,V': 'ADAMED, S.A. DE C.V.',
+  'ADAMED, S.A DE C.V': 'ADAMED, S.A. DE C.V.',
+  'ADAMED,S .A DE C.V': 'ADAMED, S.A. DE C.V.',
+  'ADAMED,S A. DE C.V': 'ADAMED, S.A. DE C.V.',
+  'ADAMED,S A.DE C.V': 'ADAMED, S.A. DE C.V.',
+  'ADAMED,S.A DE C.V': 'ADAMED, S.A. DE C.V.',
+  'ADAMED,S.A DE XC.V': 'ADAMED, S.A. DE C.V.',
+  
+  // AKTUELLE
+  'AKTUELLE (COPIA)': 'AKTUELLE, S.A. DE C.V.',
+  'AKTUELLE, S.A DE C.V': 'AKTUELLE, S.A. DE C.V.',
+  'AKTUELLE,S A.DE C.V': 'AKTUELLE, S.A. DE C.V.',
+  'AKTUELLE,S.A DE C.V': 'AKTUELLE, S.A. DE C.V.',
+  
+  // AUTO DIEZ VERACRUZ
+  'AUTO DIEZ VERACRUZ, S.A DE C.V': 'AUTO DIEZ VERACRUZ, S.A. DE C.V.',
+  'AUTO DIEZ VERACRUZ,S A. DE C.V': 'AUTO DIEZ VERACRUZ, S.A. DE C.V.',
+  
+  // AUTO IDEAL
+  'AUTO IDEAL, S.A DE C.V': 'AUTO IDEAL, S.A. DE C.V.',
+  'AUTO IDEAL,S.A DE C.V': 'AUTO IDEAL, S.A. DE C.V.',
+  
+  // AUTOMOTORES ANTEQUERA
+  'AUTOMOTORES ANTEQUERA, S.A DE C.V': 'AUTOMOTORES ANTEQUERA, S.A. DE C.V.',
+  
+  // AUTOMOTORES TUXPAN
+  'AUTOMOTORES TUXPAN, S.A DE C.V': 'AUTOMOTORES TUXPAN, S.A. DE C.V.',
+  
+  // AUTOMOTRIZ DEL PAPALOAPAN
+  'AUTOMOTRIZ DEL PAPALOAPAN, S.A DE C.V': 'AUTOMOTRIZ DEL PAPALOAPAN, S.A. DE C.V.',
+  
+  // AUTOMOVILISTICA VERACRUZANA
+  'AUTOMOVILISTICA VERACRUZANA, S.A DE C.V': 'AUTOMOVILISTICA VERACRUZANA, S.A. DE C.V.',
+  'AUTOMOVILISTICA VERARUZANA, S.A DE C.V': 'AUTOMOVILISTICA VERACRUZANA, S.A. DE C.V.',
+  
+  // BARUQUI MOTORS
+  'BARUQUI MOTORS, S.A DE C.V': 'BARUQUI MOTORS, S.A. DE C.V.',
+  
+  // CAR ONE AMERICANA
+  'CAR ONE AMERICANA': 'CAR ONE AMERICANA, S.A. DE C.V.',
+  'CAR ONE AMERICANA S,A DE C.V': 'CAR ONE AMERICANA, S.A. DE C.V.',
+  'CAR ONE AMERICANA S.A DE C.V': 'CAR ONE AMERICANA, S.A. DE C.V.',
+  'CAR ONE AMERICANA, S.A DE C.V': 'CAR ONE AMERICANA, S.A. DE C.V.',
+  'CAR ONE AMERTICANA, SA. DE C.,V': 'CAR ONE AMERICANA, S.A. DE C.V.',
+  'Car One Americana S.A de C:V': 'CAR ONE AMERICANA, S.A. DE C.V.',
+  '2172/REA CAR ONE AMERICANA S.A DE C.V': 'CAR ONE AMERICANA, S.A. DE C.V.',
+  
+  // CONSORCIO PEREDO
+  'CONSORCIO PEREDO, S.A DE C.V': 'CONSORCIO PEREDO, S.A. DE C.V.',
+  'CONSORCIO PEREDO, SA. DE C.V': 'CONSORCIO PEREDO, S.A. DE C.V.',
+  
+  // COUNTRY MOTORS
+  'COUNTRY MOTORS, S.A DE C.V': 'COUNTRY MOTORS, S.A. DE C.V.',
+  
+  // CUERNAVACA AUTOMOTRIZ
+  'CUERNAVACA AOTOMOTRIZ S.A DE C.V': 'CUERNAVACA AUTOMOTRIZ, S.A. DE C.V.',
+  'CUERNAVACA AUTMOTRIZ S.A DE C.V': 'CUERNAVACA AUTOMOTRIZ, S.A. DE C.V.',
+  'CUERNAVACA AUTOMOTRIZ  S.A DE C.V': 'CUERNAVACA AUTOMOTRIZ, S.A. DE C.V.',
+  'CUERNAVACA AUTOMOTRIZ S.A DE C.V': 'CUERNAVACA AUTOMOTRIZ, S.A. DE C.V.',
+  'CUERNAVACA AUTOMOTRIZ S.A E C.V': 'CUERNAVACA AUTOMOTRIZ, S.A. DE C.V.',
+  'CUERNAVACA AUTOMOTRIZ SA DE CV': 'CUERNAVACA AUTOMOTRIZ, S.A. DE C.V.',
+  'CUERNAVACA AUTOMOTRIZ, S.A DE C.V': 'CUERNAVACA AUTOMOTRIZ, S.A. DE C.V.',
+  'CUERNAVACA AUTOMOTRIZ,S.A DE C.V': 'CUERNAVACA AUTOMOTRIZ, S.A. DE C.V.',
+  'CUERNAVCA AUTOMOTRIZ S.A DE C.V': 'CUERNAVACA AUTOMOTRIZ, S.A. DE C.V.',
+  'iFA 1691 CUERNAVACA AUTOMOTRIZ S.A DE C.V': 'CUERNAVACA AUTOMOTRIZ, S.A. DE C.V.',
+  
+  // DIEZ ORIZABA
+  'DIEZ ORIZABA, S.A DE C.V': 'DIEZ ORIZABA, S.A. DE C.V.',
+  
+  // DINA COMERCIALIZACION
+  'DINA COMERCIALIZACION AUTOMOTRIZ S.A DE C.V': 'DINA COMERCIALIZACION AUTOMOTRIZ, S.A. DE C.V.',
+  'DINA COMERCIALIZACIÓN AUTMOTRIZ S.A DE C.V': 'DINA COMERCIALIZACION AUTOMOTRIZ, S.A. DE C.V.',
+  'DINA COMERCIALIZACIÓN AUTOMOTRIZ S.A DE C.V': 'DINA COMERCIALIZACION AUTOMOTRIZ, S.A. DE C.V.',
+  'DINA COMERCIALIZACIÓN AUTOMOTRIZ, S.A DE C.V': 'DINA COMERCIALIZACION AUTOMOTRIZ, S.A. DE C.V.',
+  
+  // EUROFRANCE
+  'EUFRANCE, S.A DE C.V': 'EUROFRANCE, S.A. DE C.V.',
+  'EUROFRANCE, S.A DE C.V': 'EUROFRANCE, S.A. DE C.V.',
+  'WUFRANCE, S.A DE C.V': 'EUROFRANCE, S.A. DE C.V.',
+  
+  // GOMSA
+  'GOMSA AUTOMOTRIZ XALAPA, S.A DE C.V': 'GOMSA AUTOMOTRIZ, S.A. DE C.V.',
+  'GOMSA AUTOMOTRIZ XALAPA, SA. DE C.V': 'GOMSA AUTOMOTRIZ, S.A. DE C.V.',
+  'GOMSA AUTOMOTRIZ XALAPA. S.A DE C.V': 'GOMSA AUTOMOTRIZ, S.A. DE C.V.',
+  'GOMSA AUTOMOTRIZ, S.A DE C.V': 'GOMSA AUTOMOTRIZ, S.A. DE C.V.',
+  'GOMSA CAMIONES, S.A DE C.V': 'GOMSA AUTOMOTRIZ, S.A. DE C.V.',
+  
+  // HELITAFE
+  '0 UNINDUSTRIAS S.A DE C.V': 'UNINDUSTRIAS, S.A. DE C.V.', // Parece un error
+  'HELITAFE': 'HELITAFE',
+  
+  // I MOTORS XALAPA
+  'I MOTORS XALAPA, S. DE R.L DE C.V': 'I MOTORS XALAPA, S. DE R.L. DE C.V.',
+  
+  // IMPERIO AUTOMOTRIZ
+  'IMPERIO AUTOMOTRIZ DE VERACRUZ, S.A DE C.V': 'IMPERIO AUTOMOTRIZ DE VERACRUZ, S.A. DE C.V.',
+  
+  // JUAN OSORIO LOPEZ
+  'JUAN OSORIO LOPEZ AUTOS MINATITLAN, S.A DE C.V': 'JUAN OSORIO LOPEZ AUTOS MINATITLAN, S.A. DE C.V.',
+  'JUANOSORIO LOPEZ AUTOS MINATITLAN, S.A DE C.V': 'JUAN OSORIO LOPEZ AUTOS MINATITLAN, S.A. DE C.V.',
+  
+  // KASTRO
+  'KASTRO AUTOMOTRIZ, S.A DE C.V': 'KASTRO AUTOMOTRIZ, S.A. DE C.V.',
+  
+  // LUX MOTORS
+  'LUX MOTORS VERACRUZ, S.A DE C.V': 'LUX MOTORS VERACRUZ, S.A. DE C.V.',
+  'LUX MOTORS VERACRUZ, SA. DE C.V': 'LUX MOTORS VERACRUZ, S.A. DE C.V.',
+  'LUX MOTORS VERACRUZ,S A.DE C.V': 'LUX MOTORS VERACRUZ, S.A. DE C.V.',
+  
+  // MARISCAL
+  'MARISCAL MOTORS, S.A DE C.V': 'MARISCAL MOTORS, S.A. DE C.V.',
+  
+  // MOTORS VERACRUZ
+  'Motors Veracruz, S.A de C.V': 'MOTORS VERACRUZ, S.A. DE C.V.',
+  
+  // NISSAN
+  'NISSAN ATIZAPAN AUTOS Y CAMIONES, SA. DE CV.': 'NISSAN ATIZAPAN AUTOS Y CAMIONES, S.A. DE C.V.',
+  
+  // PANDAL
+  'PANDAL MOTORES, S.A DE C.V': 'PANDAL MOTORES, S.A. DE C.V.',
+  
+  // PERALES
+  'PERALES AUTOMOTRIZ, S.A DE C.V': 'PERALES AUTOMOTRIZ, S.A. DE C.V.',
+  
+  // RAMSA
+  'RAMSA MOTORS, S.A DE C.V': 'RAMSA MOTORS, S.A. DE C.V.',
+  
+  // REAHBIMEDIC
+  'REAHBIMEDIC, S.A DE C.V': 'REAHBIMEDIC, S.A. DE C.V.',
+  
+  // REFORMA MOTORS
+  'REFORMA MOTORS, S.A DE C.V': 'REFORMA MOTORS, S.A. DE C.V.',
+  
+  // SABALO
+  'SABALO DE XALAPA, S.A DE C.V': 'SABALO DE XALAPA, S.A. DE C.V.',
+  
+  // SAMURAI MOTORS
+  'SAMURAI MOTORS  XALAPA, S DE R.L DE C.V': 'SAMURAI MOTORS XALAPA, S. DE R.L. DE C.V.',
+  'SAMURAI MOTORS XALAPA S DE RL. DE C.V': 'SAMURAI MOTORS XALAPA, S. DE R.L. DE C.V.',
+  'SAMURAI MOTORS XALAPA, S DE R.L DE C.V': 'SAMURAI MOTORS XALAPA, S. DE R.L. DE C.V.',
+  'SAMURAI MOTORS XALAPA, S. DE R.L DE C.V': 'SAMURAI MOTORS XALAPA, S. DE R.L. DE C.V.',
+  'SAMURAI MOTORS XALAPA, S.D R.L DE C.V': 'SAMURAI MOTORS XALAPA, S. DE R.L. DE C.V.',
+  'SAMURAI MOTORS XALAPA, S.DE R.L DE C.V': 'SAMURAI MOTORS XALAPA, S. DE R.L. DE C.V.',
+  'SAMURAI MOTORS XALAPA. S DE R.L DE C.V': 'SAMURAI MOTORS XALAPA, S. DE R.L. DE C.V.',
+  'SAMURAI MOTROS XALAPA, S.DE R.L DE C.V': 'SAMURAI MOTORS XALAPA, S. DE R.L. DE C.V.',
+  
+  // SHINYU
+  'SHIINYU AUTOMOTRIZ, S.A DE C.V': 'SHINYU AUTOMOTRIZ, S.A. DE C.V.',
+  'SHINYU AUTOMORIZ, S.A DE C.V': 'SHINYU AUTOMOTRIZ, S.A. DE C.V.',
+  'SHINYU AUTOMOTRIZ S.A DE C.V': 'SHINYU AUTOMOTRIZ, S.A. DE C.V.',
+  'SHINYU AUTOMOTRIZ, S.A DE C.V': 'SHINYU AUTOMOTRIZ, S.A. DE C.V.',
+  'SHINYU AUTOMOTRIZ,S .A DE C.V': 'SHINYU AUTOMOTRIZ, S.A. DE C.V.',
+  'SHINYU AUTOMOTRIZ,S.A DE C.V': 'SHINYU AUTOMOTRIZ, S.A. DE C.V.',
+  
+  // SUPER AUTOS JALAPA
+  'SUPER AUTOS JALAPA, S.A DE C.V': 'SUPER AUTOS JALAPA, S.A. DE C.V.',
+  'AUPER AUTOS JALAPA, S.A DE C.V': 'SUPER AUTOS JALAPA, S.A. DE C.V.',
+  
+  // SUPER MOTORS
+  'SUPER MOTORS, S.A DE C.V': 'SUPER MOTORS, S.A. DE C.V.',
+  
+  // THE ANGLO MEXICAN
+  'THE ANGLO MEXICAN MOTOR, Co., S.A DE C.V': 'THE ANGLO MEXICAN MOTOR CO., S.A. DE C.V.',
+  
+  // TLAHUAC
+  'TLAHUAC MOTORS, S.A DE C.V': 'TLAHUAC MOTORS, S.A. DE C.V.',
+  
+  // UNICONSTRUCCIONES
+  'UNICONSTRUCCIONES AUTOMOTRICES, S.A': 'UNICONSTRUCCIONES AUTOMOTRICES, S.A.',
+  
+  // UNINDUSTRIAS
+  '0 UNINDUSTRIAS S.A DE C.V': 'UNINDUSTRIAS, S.A. DE C.V.',
+  'UNIINDUSTRIAS, .SA DE C.V': 'UNINDUSTRIAS, S.A. DE C.V.',
+  'UNIINDUSTRIAS, S.A DE C.V': 'UNINDUSTRIAS, S.A. DE C.V.',
+  'UNIINDUSTRIAS,S.A DE C.V': 'UNINDUSTRIAS, S.A. DE C.V.',
+  'UNINDUSTRIA S.A DE C.V': 'UNINDUSTRIAS, S.A. DE C.V.',
+  'UNINDUSTRIAS S.A DE C.V': 'UNINDUSTRIAS, S.A. DE C.V.',
+  'INDUSTRIAS, S.A DE C.V': 'UNINDUSTRIAS, S.A. DE C.V.',
+  'INDUSTRIAS,S.A DE C.V': 'UNINDUSTRIAS, S.A. DE C.V.',
+  'FACT 1055 UNINDUSTRIAS S.A DE C.V': 'UNINDUSTRIAS, S.A. DE C.V.',
+  'FACT 1079 INDUSTRIAS, S.A DE C.V': 'UNINDUSTRIAS, S.A. DE C.V.',
+  
+  // VEHICULOS PERFECTOS
+  'VEHICULOS PERFECTOS, S.A DE C.V': 'VEHICULOS PERFECTOS, S.A. DE C.V.',
+  
+  // VILLAAUTOS
+  'VILLAAUTOS, S.A DE C.V': 'VILLAAUTOS, S.A. DE C.V.',
+  
+  // AMBULANCE NETWORK
+  'AMBULANCE NETWORK, INC': 'AMBULANCE NETWORK, INC',
+  
+  // ANDRADE TLALPAN
+  'ANDRADE TLALPAN, S.A DE C.V': 'ANDRADE TLALPAN, S.A. DE C.V.',
+  
+  // GRUPO VAFE
+  'GRUPO VAFE': 'GRUPO VAFE',
+  
+  // Valores inválidos - marcar como NULL
+  '0577': null,
+  'A07412': null,
+  'V09240': null,
+  'EXTRAVIADA': null,
+  'SIN DATO': null,
+  'COPIA': null,
+  'CENTRO DE FORMACIÓN TACTICA INTEGRAL, SA. DE C.V': null, // No es proveedor de vehículos
+};
+
+async function normalize() {
+  const SQL = await initSqlJs();
+  const dbPath = path.join(__dirname, '..', '..', 'flota_veracruz.sqlite');
+  const fileBuffer = fs.readFileSync(dbPath);
+  const db = new SQL.Database(fileBuffer);
+  
+  console.log('=== NORMALIZANDO PROVEEDORES EN VEHÍCULOS ===\n');
+  
+  let totalActualizados = 0;
+  let noEncontrados = [];
+  
+  for (const [original, normalizado] of Object.entries(NORMALIZACION)) {
+    if (normalizado === null) {
+      // Marcar como NULL
+      const result = db.run(
+        'UPDATE vehiculos SET proveedor_arrendadora = NULL WHERE proveedor_arrendadora = ?',
+        [original]
+      );
+      const count = db.getRowsModified();
+      if (count > 0) {
+        console.log(`❌ "${original}" -> NULL (${count} vehículos)`);
+        totalActualizados += count;
+      }
+    } else {
+      const result = db.run(
+        'UPDATE vehiculos SET proveedor_arrendadora = ? WHERE proveedor_arrendadora = ?',
+        [normalizado, original]
+      );
+      const count = db.getRowsModified();
+      if (count > 0) {
+        console.log(`✅ "${original}" -> "${normalizado}" (${count} vehículos)`);
+        totalActualizados += count;
+      }
+    }
+  }
+  
+  // Verificar si quedaron proveedores sin normalizar
+  const restantes = db.exec(`
+    SELECT DISTINCT proveedor_arrendadora, COUNT(*) as cantidad 
+    FROM vehiculos 
+    WHERE proveedor_arrendadora IS NOT NULL 
+    GROUP BY proveedor_arrendadora
+    ORDER BY proveedor_arrendadora
+  `);
+  
+  console.log('\n=== PROVEEDORES DESPUÉS DE NORMALIZAR ===');
+  restantes[0]?.values.forEach(v => {
+    console.log(`  ${v[0]}: ${v[1]} vehículos`);
+  });
+  console.log(`Total proveedores únicos: ${restantes[0]?.values.length || 0}`);
+  
+  // Guardar cambios
+  const data = db.export();
+  const buffer = Buffer.from(data);
+  fs.writeFileSync(dbPath, buffer);
+  
+  console.log(`\n✅ Total de vehículos actualizados: ${totalActualizados}`);
+  console.log('Base de datos guardada.');
+  
+  db.close();
+}
+
+normalize().catch(console.error);
