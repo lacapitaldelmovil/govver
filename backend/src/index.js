@@ -90,16 +90,37 @@ app.use('/api/reportes', reportesRoutes);
 app.use('/api/proveedores', proveedoresRoutes);
 
 // ============================================
-// MANEJO DE ERRORES
+// SERVIR FRONTEND EN PRODUCCIÓN
 // ============================================
 
-// Ruta no encontrada
-app.use('*', (req, res) => {
-  res.status(404).json({
-    error: 'Ruta no encontrada',
-    path: req.originalUrl
-  });
+// Servir archivos estáticos del frontend compilado
+const frontendPath = path.join(__dirname, '../../frontend/dist');
+app.use(express.static(frontendPath));
+
+// Para SPA: cualquier ruta que no sea /api/* sirve el index.html
+app.get('*', (req, res, next) => {
+  // Si es una ruta de API, pasar al siguiente middleware
+  if (req.originalUrl.startsWith('/api/')) {
+    return next();
+  }
+  // Servir el frontend
+  const indexPath = path.join(frontendPath, 'index.html');
+  const fs = require('fs');
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(200).json({
+      message: 'API de Flota Vehicular Veracruz funcionando',
+      version: '1.0.0',
+      endpoints: '/api/auth, /api/vehiculos, /api/dashboard, etc.',
+      nota: 'Ejecuta "npm run build" en frontend/ para generar la app'
+    });
+  }
 });
+
+// ============================================
+// MANEJO DE ERRORES
+// ============================================
 
 // Manejador global de errores
 app.use(errorHandler);
