@@ -1448,6 +1448,34 @@ function generarReporteEjecutivo(req) {
               </div>` : ''}
             </div>
           </div>
+          <!-- Tabla de marcas -->
+          <table class="tabla-datos" style="margin-top: 15px; font-size: 10px;">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Marca</th>
+                <th class="numero">Cantidad</th>
+                <th class="porcentaje">%</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${topMarcas.slice(0, 3).map((m, i) => `
+              <tr>
+                <td>${i + 1}</td>
+                <td><strong>${m.marca || 'Sin marca'}</strong></td>
+                <td class="numero">${formatNumber(m.cantidad)}</td>
+                <td class="porcentaje">${totalVehiculos > 0 ? ((m.cantidad/totalVehiculos)*100).toFixed(1) : 0}%</td>
+              </tr>
+              `).join('')}
+              ${topMarcas.length > 3 ? `
+              <tr style="background-color: #f5f5f5;">
+                <td></td>
+                <td>Otras marcas (${topMarcas.length - 3})</td>
+                <td class="numero">${formatNumber(topMarcas.slice(3).reduce((s, m) => s + m.cantidad, 0))}</td>
+                <td class="porcentaje">${totalVehiculos > 0 ? ((topMarcas.slice(3).reduce((s, m) => s + m.cantidad, 0)/totalVehiculos)*100).toFixed(1) : 0}%</td>
+              </tr>` : ''}
+            </tbody>
+          </table>
         </div>
       </div>
       
@@ -1494,6 +1522,34 @@ function generarReporteEjecutivo(req) {
               </div>` : ''}
             </div>
           </div>
+          <!-- Tabla de proveedores -->
+          <table class="tabla-datos" style="margin-top: 15px; font-size: 10px;">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Proveedor</th>
+                <th class="numero">Cantidad</th>
+                <th class="porcentaje">%</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${topProveedores.slice(0, 3).map((p, i) => `
+              <tr>
+                <td>${i + 1}</td>
+                <td><strong>${p.proveedor_arrendadora.substring(0,30)}${p.proveedor_arrendadora.length > 30 ? '...' : ''}</strong></td>
+                <td class="numero">${formatNumber(p.cantidad)}</td>
+                <td class="porcentaje">${totalVehiculos > 0 ? ((p.cantidad/totalVehiculos)*100).toFixed(1) : 0}%</td>
+              </tr>
+              `).join('')}
+              ${topProveedores.length > 3 ? `
+              <tr style="background-color: #f5f5f5;">
+                <td></td>
+                <td>Otros proveedores (${topProveedores.length - 3})</td>
+                <td class="numero">${formatNumber(topProveedores.slice(3).reduce((s, p) => s + p.cantidad, 0))}</td>
+                <td class="porcentaje">${totalVehiculos > 0 ? ((topProveedores.slice(3).reduce((s, p) => s + p.cantidad, 0)/totalVehiculos)*100).toFixed(1) : 0}%</td>
+              </tr>` : ''}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
