@@ -111,8 +111,26 @@ app.use(errorHandler);
 async function startServer() {
   try {
     // Inicializar base de datos
+    const { query } = require('./database/connection');
     await initDatabase();
-    console.log('✅ Base de datos inicializada');
+    
+    // Verificar si las tablas existen, si no, ejecutar migración y seed
+    try {
+      query('SELECT 1 FROM usuarios LIMIT 1');
+      console.log('✅ Base de datos inicializada');
+    } catch (e) {
+      console.log('⚠️ Tablas no encontradas, ejecutando migración...');
+      
+      // Ejecutar migración
+      const migrate = require('./database/migrate');
+      await migrate();
+      
+      // Ejecutar seed básico (crea admin y secretaría DIF)
+      const seedBasic = require('./database/seed-basic');
+      await seedBasic();
+      
+      console.log('✅ Base de datos creada y poblada');
+    }
 
     app.listen(PORT, () => {
       console.log('╔════════════════════════════════════════════════════════╗');

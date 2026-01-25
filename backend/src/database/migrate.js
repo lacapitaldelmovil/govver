@@ -241,7 +241,14 @@ async function migrate() {
   console.log('✅ Tabla registro_accesos creada');
 
   console.log('\n🎉 Migración completada exitosamente');
-  closeDatabase();
 }
 
-migrate().catch(console.error);
+// Solo ejecutar si se llama directamente
+if (require.main === module) {
+  migrate().then(() => {
+    const { closeDatabase } = require('./connection');
+    closeDatabase();
+  }).catch(console.error);
+}
+
+module.exports = migrate;
