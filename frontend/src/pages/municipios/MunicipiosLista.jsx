@@ -51,59 +51,59 @@ export default function MunicipiosLista() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-veracruz-600 to-veracruz-700 rounded-xl p-6 text-white">
+      <div className="bg-gradient-to-r from-veracruz-600 to-veracruz-700 rounded-xl p-4 sm:p-6 text-white">
         <div className="flex items-center gap-3 mb-2">
-          <MapPinIcon className="h-8 w-8" />
-          <h1 className="text-2xl font-bold">Distribución de Vehículos</h1>
+          <MapPinIcon className="h-6 sm:h-8 w-6 sm:w-8" />
+          <h1 className="text-xl sm:text-2xl font-bold">Distribución de Vehículos</h1>
         </div>
-        <p className="text-veracruz-100">
+        <p className="text-veracruz-100 text-sm sm:text-base">
           Distribución geográfica de la flota vehicular del DIF
         </p>
-        <div className="mt-4 flex gap-6">
+        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
           <div>
-            <p className="text-3xl font-bold">{municipios.length}</p>
-            <p className="text-sm text-veracruz-200">Municipios</p>
+            <p className="text-2xl sm:text-3xl font-bold">{municipios.length}</p>
+            <p className="text-xs sm:text-sm text-veracruz-200">Municipios</p>
           </div>
           <div>
-            <p className="text-3xl font-bold">{totalMunicipios}</p>
-            <p className="text-sm text-veracruz-200">Vehículos en municipios</p>
+            <p className="text-2xl sm:text-3xl font-bold">{totalMunicipios}</p>
+            <p className="text-xs sm:text-sm text-veracruz-200">Vehículos en municipios</p>
           </div>
-          <div className="border-l border-veracruz-400 pl-6">
-            <p className="text-3xl font-bold">{dependencias.length}</p>
-            <p className="text-sm text-veracruz-200">Dependencias</p>
+          <div className="sm:border-l sm:border-veracruz-400 sm:pl-6">
+            <p className="text-2xl sm:text-3xl font-bold">{dependencias.length}</p>
+            <p className="text-xs sm:text-sm text-veracruz-200">Dependencias</p>
           </div>
           <div>
-            <p className="text-3xl font-bold">{totalDependencias}</p>
-            <p className="text-sm text-veracruz-200">Vehículos en dependencias</p>
+            <p className="text-2xl sm:text-3xl font-bold">{totalDependencias}</p>
+            <p className="text-xs sm:text-sm text-veracruz-200">Vehículos en dependencias</p>
           </div>
         </div>
       </div>
 
       {/* Toggle y Buscador */}
       <div className="bg-white rounded-xl shadow p-4">
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="flex flex-col gap-4 items-stretch sm:flex-row sm:items-center sm:justify-between">
           {/* Toggle buttons */}
-          <div className="flex bg-gray-100 rounded-lg p-1">
+          <div className="flex bg-gray-100 rounded-lg p-1 overflow-x-auto">
             <button
               onClick={() => setVistaActiva('municipios')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all text-sm sm:text-base whitespace-nowrap ${
                 vistaActiva === 'municipios'
                   ? 'bg-veracruz-600 text-white shadow'
                   : 'text-gray-600 hover:bg-gray-200'
               }`}
             >
-              <MapPinIcon className="h-5 w-5" />
+              <MapPinIcon className="h-4 w-4 sm:h-5 sm:w-5" />
               Municipios ({municipios.length})
             </button>
             <button
               onClick={() => setVistaActiva('dependencias')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+              className={`flex items-center gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all text-sm sm:text-base whitespace-nowrap ${
                 vistaActiva === 'dependencias'
                   ? 'bg-amber-600 text-white shadow'
                   : 'text-gray-600 hover:bg-gray-200'
               }`}
             >
-              <BuildingOffice2Icon className="h-5 w-5" />
+              <BuildingOffice2Icon className="h-4 w-4 sm:h-5 sm:w-5" />
               Dependencias ({dependencias.length})
             </button>
           </div>
@@ -114,7 +114,7 @@ export default function MunicipiosLista() {
             placeholder={`Buscar ${vistaActiva === 'municipios' ? 'municipio' : 'dependencia'}...`}
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
-            className="w-full md:w-96 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-veracruz-500 focus:border-veracruz-500"
+            className="w-full sm:w-64 md:w-96 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-veracruz-500 focus:border-veracruz-500"
           />
         </div>
       </div>

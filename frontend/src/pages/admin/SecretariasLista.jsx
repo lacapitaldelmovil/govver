@@ -104,14 +104,14 @@ export default function SecretariasLista() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Secretarias</h1>
-          <p className="text-gray-600">Administracion de dependencias gubernamentales</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Secretarias</h1>
+          <p className="text-gray-600 text-sm sm:text-base">Administracion de dependencias gubernamentales</p>
         </div>
         <button
           onClick={abrirModalNuevo}
-          className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
+          className="flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors w-full sm:w-auto"
         >
           <PlusIcon className="h-5 w-5" />
           Nueva Secretaria
@@ -120,6 +120,7 @@ export default function SecretariasLista() {
 
       {/* Tabla */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
@@ -183,6 +184,7 @@ export default function SecretariasLista() {
             ))}
           </tbody>
         </table>
+        </div>
 
         {secretarias.length === 0 && (
           <div className="text-center py-12 text-gray-500">

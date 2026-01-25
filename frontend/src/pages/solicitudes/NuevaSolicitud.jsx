@@ -79,7 +79,7 @@ export default function NuevaSolicitud() {
             Tipo de Vehículo Requerido
           </h2>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[
               { value: 'sedan', label: 'Sedán', icon: '🚗' },
               { value: 'camioneta', label: 'Camioneta', icon: '🚙' },

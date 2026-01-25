@@ -141,22 +141,22 @@ export default function Reportes() {
 
       {/* Stats rápidas */}
       {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="card text-center">
-            <p className="text-3xl font-bold text-veracruz-600">{stats.total_vehiculos || 0}</p>
-            <p className="text-sm text-gray-500">Vehículos Totales</p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+          <div className="card text-center p-3 sm:p-4">
+            <p className="text-2xl sm:text-3xl font-bold text-veracruz-600">{stats.total_vehiculos || 0}</p>
+            <p className="text-xs sm:text-sm text-gray-500">Vehículos Totales</p>
           </div>
-          <div className="card text-center">
-            <p className="text-3xl font-bold text-green-600">{stats.vehiculos_operando || 0}</p>
-            <p className="text-sm text-gray-500">Operando</p>
+          <div className="card text-center p-3 sm:p-4">
+            <p className="text-2xl sm:text-3xl font-bold text-green-600">{stats.vehiculos_operando || 0}</p>
+            <p className="text-xs sm:text-sm text-gray-500">Operando</p>
           </div>
-          <div className="card text-center">
-            <p className="text-3xl font-bold text-cyan-600">{stats.vehiculos_disponibles || 0}</p>
-            <p className="text-sm text-gray-500">Disponibles</p>
+          <div className="card text-center p-3 sm:p-4">
+            <p className="text-2xl sm:text-3xl font-bold text-cyan-600">{stats.vehiculos_disponibles || 0}</p>
+            <p className="text-xs sm:text-sm text-gray-500">Disponibles</p>
           </div>
-          <div className="card text-center">
-            <p className="text-3xl font-bold text-purple-600">{stats.total_secretarias || 0}</p>
-            <p className="text-sm text-gray-500">Secretarías</p>
+          <div className="card text-center p-3 sm:p-4">
+            <p className="text-2xl sm:text-3xl font-bold text-purple-600">{stats.total_secretarias || 0}</p>
+            <p className="text-xs sm:text-sm text-gray-500">Secretarías</p>
           </div>
         </div>
       )}
@@ -227,16 +227,16 @@ export default function Reportes() {
       {/* Grid de reportes */}
       {/* Reporte Ejecutivo Destacado */}
       <div className="card bg-gradient-to-r from-veracruz-50 to-blue-50 border-2 border-veracruz-200 hover:shadow-xl transition-all">
-        <div className="flex items-start gap-4">
+        <div className="flex flex-col sm:flex-row items-start gap-4">
           <div className="p-4 rounded-xl bg-gradient-to-br from-veracruz-600 to-veracruz-800 text-white shadow-lg">
             <DocumentChartBarIcon className="h-8 w-8" />
           </div>
           <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h3 className="font-bold text-xl text-gray-900">Reporte Ejecutivo</h3>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="font-bold text-lg sm:text-xl text-gray-900">Reporte Ejecutivo</h3>
               <span className="px-2 py-1 bg-veracruz-100 text-veracruz-700 text-xs font-semibold rounded-full">DESTACADO</span>
             </div>
-            <p className="text-gray-600 mt-2">
+            <p className="text-sm sm:text-base text-gray-600 mt-2">
               Resumen profesional completo con análisis integral de toda la flota vehicular del Estado de Veracruz. 
               Incluye estado operativo, distribución por secretaría, análisis de costos de arrendamiento, 
               estado de documentación, antigüedad de flota, y recomendaciones estratégicas.
@@ -250,7 +250,7 @@ export default function Reportes() {
             <button
               onClick={() => generarReporte('ejecutivo')}
               disabled={generando}
-              className="mt-4 flex items-center gap-2 bg-veracruz-600 hover:bg-veracruz-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors shadow-md"
+              className="mt-4 w-full sm:w-auto flex items-center justify-center gap-2 bg-veracruz-600 hover:bg-veracruz-700 text-white px-6 py-2.5 rounded-lg font-medium transition-colors shadow-md"
             >
               {generando && tipoReporte === 'ejecutivo' ? (
                 <>
@@ -272,7 +272,7 @@ export default function Reportes() {
       </div>
 
       {/* Otros reportes */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {reportesDisponibles.filter(r => r.id !== 'ejecutivo').map((reporte) => (
           <div key={reporte.id} className="card hover:shadow-lg transition-shadow">
             <div className="flex items-start gap-4">

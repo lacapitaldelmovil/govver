@@ -205,16 +205,16 @@ export default function VehiculosLista() {
         {/* Contenido Principal */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header con búsqueda */}
-          <div className="bg-white border-b px-6 py-4">
+          <div className="bg-white border-b px-4 sm:px-6 py-4">
             {puedeVerFiltrosCompletos ? (
               /* Vista completa para admin/flota */
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900">Catálogo de Vehículos</h1>
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Catálogo de Vehículos</h1>
                   <p className="text-sm text-gray-500">{total} vehículos encontrados</p>
                 </div>
                 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                   <div className="relative">
                     <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                     <input
@@ -222,13 +222,13 @@ export default function VehiculosLista() {
                       placeholder="Buscar por placa, marca, modelo, serie..."
                       value={busqueda}
                       onChange={(e) => { setBusqueda(e.target.value); setPage(1); }}
-                      className="pl-9 pr-4 py-2 w-64 border border-gray-200 rounded-lg text-sm focus:border-veracruz-500 focus:ring-1 focus:ring-veracruz-500"
+                      className="pl-9 pr-4 py-2 w-full sm:w-64 border border-gray-200 rounded-lg text-sm focus:border-veracruz-500 focus:ring-1 focus:ring-veracruz-500"
                     />
                   </div>
                   
                   <Link 
                     to="/vehiculos/nuevo"
-                    className="bg-veracruz-600 text-white px-4 py-2 rounded-lg hover:bg-veracruz-700 transition-colors text-sm font-medium whitespace-nowrap"
+                    className="bg-veracruz-600 text-white px-4 py-2 rounded-lg hover:bg-veracruz-700 transition-colors text-sm font-medium whitespace-nowrap text-center"
                   >
                     + Agregar
                   </Link>

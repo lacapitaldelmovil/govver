@@ -74,19 +74,19 @@ export default function DashboardGobernacion() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
           Tablero Ejecutivo de Flota Vehicular
         </h1>
-        <p className="text-gray-600 mt-1">
+        <p className="text-gray-600 mt-1 text-sm sm:text-base">
           Gobierno del Estado de Veracruz • Bienvenido/a, {user?.nombre}
         </p>
       </div>
 
       {/* Indicadores Principales - Cards clickeables */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-8">
         <CardIndicador
           titulo="Total Vehículos"
           valor={stats?.totalVehiculos || 0}
@@ -193,17 +193,17 @@ export default function DashboardGobernacion() {
       </div>
 
       {/* Semáforo por Dependencia */}
-      <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-        <div className="flex items-center justify-between mb-6">
-          <h3 className="text-xl font-semibold text-gray-800">Semáforo de Eficiencia por Dependencia</h3>
-          <div className="flex gap-4 text-sm">
-            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-green-500"></span> Eficiente (≥80%)</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-yellow-500"></span> Medio (50-79%)</span>
-            <span className="flex items-center gap-1"><span className="w-3 h-3 rounded-full bg-red-500"></span> Atención (&lt;50%)</span>
+      <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-800">Semáforo de Eficiencia por Dependencia</h3>
+          <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
+            <span className="flex items-center gap-1"><span className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500"></span> Eficiente (≥80%)</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-500"></span> Medio (50-79%)</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500"></span> Atención (&lt;50%)</span>
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {semaforo.map((dep) => (
             <button
               key={dep.id}
@@ -312,11 +312,11 @@ function CardIndicador({ titulo, valor, icono, color, onClick }) {
   return (
     <button
       onClick={onClick}
-      className={`${color} text-white rounded-xl p-4 shadow-lg hover:shadow-xl transition-all hover:scale-105 text-left`}
+      className={`${color} text-white rounded-xl p-3 sm:p-4 shadow-lg hover:shadow-xl transition-all hover:scale-105 text-left w-full`}
     >
-      <div className="text-3xl mb-2">{icono}</div>
-      <div className="text-3xl font-bold">{valor}</div>
-      <div className="text-sm opacity-90">{titulo}</div>
+      <div className="text-2xl sm:text-3xl mb-1 sm:mb-2">{icono}</div>
+      <div className="text-2xl sm:text-3xl font-bold">{valor}</div>
+      <div className="text-xs sm:text-sm opacity-90 truncate">{titulo}</div>
     </button>
   );
 }

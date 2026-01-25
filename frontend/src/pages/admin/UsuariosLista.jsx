@@ -128,12 +128,12 @@ export default function UsuariosLista() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
-          <p className="text-gray-500 mt-1">{usuarios.length} usuarios registrados</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Gestión de Usuarios</h1>
+          <p className="text-gray-500 mt-1 text-sm sm:text-base">{usuarios.length} usuarios registrados</p>
         </div>
-        <button onClick={abrirModalNuevo} className="btn-primary">
+        <button onClick={abrirModalNuevo} className="btn-primary w-full sm:w-auto justify-center">
           <PlusIcon className="h-5 w-5" />
           Nuevo Usuario
         </button>

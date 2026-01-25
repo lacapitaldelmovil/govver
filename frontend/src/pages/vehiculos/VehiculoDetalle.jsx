@@ -140,7 +140,7 @@ export default function VehiculoDetalle() {
         /* ========== MODO EDICIÓN ========== */
         <div className="bg-white rounded-xl border p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Editar Vehículo</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4">
             <InputField label="Marca" value={formData.marca} onChange={v => setFormData({...formData, marca: v})} />
             <InputField label="Modelo" value={formData.modelo} onChange={v => setFormData({...formData, modelo: v})} />
             <InputField label="Año" value={formData.anio} onChange={v => setFormData({...formData, anio: v})} type="number" />
@@ -350,9 +350,9 @@ export default function VehiculoDetalle() {
 
 function Row({ label, value, highlight, valueClass = '' }) {
   return (
-    <tr>
-      <td className="py-3 px-4 text-gray-500 w-48">{label}</td>
-      <td className={`py-3 px-4 text-gray-900 ${highlight ? 'font-bold text-lg' : ''} ${valueClass}`}>{value || '-'}</td>
+    <tr className="flex flex-col sm:table-row">
+      <td className="py-2 sm:py-3 px-4 text-gray-500 text-sm font-medium sm:w-48">{label}</td>
+      <td className={`pb-3 sm:py-3 px-4 text-gray-900 ${highlight ? 'font-bold text-lg' : ''} ${valueClass} break-words`}>{value || '-'}</td>
     </tr>
   );
 }
