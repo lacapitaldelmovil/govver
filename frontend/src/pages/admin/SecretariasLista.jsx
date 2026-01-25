@@ -118,8 +118,61 @@ export default function SecretariasLista() {
         </button>
       </div>
 
-      {/* Tabla */}
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+      {/* Vista de tarjetas para móvil */}
+      <div className="block sm:hidden space-y-4">
+        {secretarias.map((secretaria) => (
+          <div key={secretaria.id} className="bg-white rounded-xl shadow-sm border p-4">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
+                  <BuildingOfficeIcon className="h-5 w-5 text-green-600" />
+                </div>
+                <div>
+                  <p className="font-semibold text-gray-900 text-sm">{secretaria.nombre}</p>
+                  <span className="px-2 py-0.5 text-xs font-bold bg-gray-100 rounded">{secretaria.siglas}</span>
+                </div>
+              </div>
+              {getRolBadge(secretaria.activa)}
+            </div>
+            
+            <div className="space-y-2 text-sm border-t pt-3">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Titular:</span>
+                <span className="text-gray-700">{secretaria.titular || '-'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Email:</span>
+                <span className="text-gray-700 truncate max-w-[180px]">{secretaria.email || '-'}</span>
+              </div>
+              {secretaria.telefono && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Teléfono:</span>
+                  <span className="text-gray-700">{secretaria.telefono}</span>
+                </div>
+              )}
+            </div>
+            
+            <div className="mt-4 pt-3 border-t">
+              <button
+                onClick={() => abrirModalEditar(secretaria)}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100"
+              >
+                <PencilIcon className="h-4 w-4" />
+                Editar Secretaría
+              </button>
+            </div>
+          </div>
+        ))}
+        
+        {secretarias.length === 0 && (
+          <div className="bg-white rounded-xl shadow-sm border p-8 text-center text-gray-500">
+            No hay secretarias registradas
+          </div>
+        )}
+      </div>
+
+      {/* Tabla - solo desktop */}
+      <div className="hidden sm:block bg-white rounded-xl shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">

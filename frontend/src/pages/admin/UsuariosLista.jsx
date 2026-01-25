@@ -139,8 +139,71 @@ export default function UsuariosLista() {
         </button>
       </div>
 
-      {/* Tabla de usuarios */}
-      <div className="card overflow-hidden p-0">
+      {/* Vista de tarjetas para móvil */}
+      <div className="block sm:hidden space-y-4">
+        {usuarios.map((usuario) => (
+          <div key={usuario.id} className="bg-white rounded-xl shadow-sm border p-4">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <UserCircleIcon className="h-12 w-12 text-gray-400" />
+                <div>
+                  <p className="font-semibold text-gray-900">
+                    {usuario.nombre} {usuario.apellidos}
+                  </p>
+                  <p className="text-sm text-gray-500">{usuario.email}</p>
+                </div>
+              </div>
+              <span className={`badge ${usuario.activo ? 'badge-green' : 'badge-red'}`}>
+                {usuario.activo ? 'Activo' : 'Inactivo'}
+              </span>
+            </div>
+            
+            <div className="space-y-2 text-sm border-t pt-3">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Rol:</span>
+                <span className={`badge ${getRolBadge(usuario.rol)}`}>
+                  {getRolLabel(usuario.rol)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Secretaría:</span>
+                <span className="text-gray-700">{usuario.secretaria_siglas || '-'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Último acceso:</span>
+                <span className="text-gray-700">
+                  {usuario.ultimo_acceso 
+                    ? new Date(usuario.ultimo_acceso).toLocaleDateString()
+                    : 'Nunca'}
+                </span>
+              </div>
+            </div>
+            
+            <div className="flex gap-2 mt-4 pt-3 border-t">
+              <button
+                onClick={() => abrirModalEditar(usuario)}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
+              >
+                <PencilIcon className="h-4 w-4" />
+                Editar
+              </button>
+              <button
+                onClick={() => toggleActivo(usuario)}
+                className={`flex-1 px-3 py-2 rounded-lg font-medium ${
+                  usuario.activo 
+                    ? 'bg-red-50 text-red-600 hover:bg-red-100' 
+                    : 'bg-green-50 text-green-600 hover:bg-green-100'
+                }`}
+              >
+                {usuario.activo ? 'Desactivar' : 'Activar'}
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabla de usuarios - solo desktop */}
+      <div className="hidden sm:block card overflow-hidden p-0">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50 border-b">
