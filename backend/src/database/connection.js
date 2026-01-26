@@ -12,6 +12,15 @@ const dbPath = path.join(__dirname, '../../flota_veracruz.sqlite');
 
 let db = null;
 
+// Guardar cambios al archivo (definir primero)
+function saveDatabase() {
+  if (db) {
+    const data = db.export();
+    const buffer = Buffer.from(data);
+    fs.writeFileSync(dbPath, buffer);
+  }
+}
+
 // Resetear contraseñas de usuarios principales
 async function resetPasswords() {
   if (!db) return;
@@ -59,15 +68,6 @@ async function initDatabase() {
   } catch (error) {
     console.error('❌ Error conectando a la base de datos:', error);
     throw error;
-  }
-}
-
-// Guardar cambios al archivo
-function saveDatabase() {
-  if (db) {
-    const data = db.export();
-    const buffer = Buffer.from(data);
-    fs.writeFileSync(dbPath, buffer);
   }
 }
 
