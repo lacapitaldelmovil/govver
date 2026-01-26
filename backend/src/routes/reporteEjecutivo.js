@@ -1365,39 +1365,42 @@ function generarReporteEjecutivo(req) {
           <div class="pie-container">
             <div class="pie-chart" style="background: conic-gradient(${(() => {
               const colores = ['#2e7d32', '#1976d2', '#f57c00', '#e0e0e0'];
+              const totalMarcas = topMarcas.reduce((s, m) => s + m.cantidad, 0);
               let parts = [];
               let angle = 0;
               // Mostrar top 3 + otros en el pastel
               const top3 = topMarcas.slice(0, 3);
               const otrosCant = topMarcas.slice(3).reduce((s, m) => s + m.cantidad, 0);
               top3.forEach((m, i) => {
-                const pct = totalVehiculos > 0 ? (m.cantidad / totalVehiculos) * 100 : 0;
+                const pct = totalMarcas > 0 ? (m.cantidad / totalMarcas) * 100 : 0;
                 const next = angle + (pct * 3.6);
                 parts.push(colores[i] + ' ' + angle + 'deg ' + next + 'deg');
                 angle = next;
               });
               if (otrosCant > 0) {
-                const pctOtros = totalVehiculos > 0 ? (otrosCant / totalVehiculos) * 100 : 0;
-                const next = angle + (pctOtros * 3.6);
-                parts.push('#e0e0e0 ' + angle + 'deg ' + next + 'deg');
+                parts.push('#e0e0e0 ' + angle + 'deg 360deg');
               }
               return parts.join(', ');
             })()});"></div>
             <div class="pie-legend">
-              ${topMarcas.slice(0, 3).map((m, i) => {
-                const colores = ['#2e7d32', '#1976d2', '#f57c00'];
-                const pct = totalVehiculos > 0 ? ((m.cantidad/totalVehiculos)*100).toFixed(1) : 0;
-                return `
+              ${(() => {
+                const totalMarcas = topMarcas.reduce((s, m) => s + m.cantidad, 0);
+                const otrosCant = topMarcas.slice(3).reduce((s, m) => s + m.cantidad, 0);
+                const pctOtros = totalMarcas > 0 ? ((otrosCant/totalMarcas)*100).toFixed(1) : 0;
+                return topMarcas.slice(0, 3).map((m, i) => {
+                  const colores = ['#2e7d32', '#1976d2', '#f57c00'];
+                  const pct = totalMarcas > 0 ? ((m.cantidad/totalMarcas)*100).toFixed(1) : 0;
+                  return `
               <div class="legend-item">
                 <span class="legend-color" style="background-color: ${colores[i]};"></span>
                 <span class="legend-label">${m.marca || 'Sin marca'}: <strong>${formatNumber(m.cantidad)}</strong> (${pct}%)</span>
               </div>`;
-              }).join('')}
-              ${topMarcas.length > 3 ? `
+                }).join('') + (topMarcas.length > 3 ? `
               <div class="legend-item">
                 <span class="legend-color" style="background-color: #e0e0e0;"></span>
-                <span class="legend-label">Otros (${topMarcas.length - 3} marcas): <strong>${formatNumber(topMarcas.slice(3).reduce((s, m) => s + m.cantidad, 0))}</strong></span>
-              </div>` : ''}
+                <span class="legend-label">Otros (${topMarcas.length - 3} marcas): <strong>${formatNumber(otrosCant)}</strong> (${pctOtros}%)</span>
+              </div>` : '');
+              })()}
             </div>
           </div>
           <!-- Tabla de marcas -->
@@ -1411,21 +1414,25 @@ function generarReporteEjecutivo(req) {
               </tr>
             </thead>
             <tbody>
-              ${topMarcas.slice(0, 3).map((m, i) => `
+              ${(() => {
+                const totalMarcas = topMarcas.reduce((s, m) => s + m.cantidad, 0);
+                const otrosCant = topMarcas.slice(3).reduce((s, m) => s + m.cantidad, 0);
+                const pctOtros = totalMarcas > 0 ? ((otrosCant/totalMarcas)*100).toFixed(1) : 0;
+                return topMarcas.slice(0, 3).map((m, i) => `
               <tr>
                 <td>${i + 1}</td>
                 <td><strong>${m.marca || 'Sin marca'}</strong></td>
                 <td class="numero">${formatNumber(m.cantidad)}</td>
-                <td class="porcentaje">${totalVehiculos > 0 ? ((m.cantidad/totalVehiculos)*100).toFixed(1) : 0}%</td>
+                <td class="porcentaje">${totalMarcas > 0 ? ((m.cantidad/totalMarcas)*100).toFixed(1) : 0}%</td>
               </tr>
-              `).join('')}
-              ${topMarcas.length > 3 ? `
+              `).join('') + (topMarcas.length > 3 ? `
               <tr style="background-color: #f5f5f5;">
                 <td></td>
                 <td>Otras marcas (${topMarcas.length - 3})</td>
-                <td class="numero">${formatNumber(topMarcas.slice(3).reduce((s, m) => s + m.cantidad, 0))}</td>
-                <td class="porcentaje">${totalVehiculos > 0 ? ((topMarcas.slice(3).reduce((s, m) => s + m.cantidad, 0)/totalVehiculos)*100).toFixed(1) : 0}%</td>
-              </tr>` : ''}
+                <td class="numero">${formatNumber(otrosCant)}</td>
+                <td class="porcentaje">${pctOtros}%</td>
+              </tr>` : '');
+              })()}
             </tbody>
           </table>
         </div>
