@@ -4,12 +4,38 @@
  */
 
 const initSqlJs = require('sql.js');
+const bcrypt = require('bcryptjs');
 const fs = require('fs');
 const path = require('path');
 
 const dbPath = path.join(__dirname, '../../flota_veracruz.sqlite');
 
 let db = null;
+
+// Resetear contraseñas de usuarios principales
+async function resetPasswords() {
+  if (!db) return;
+  
+  try {
+    const adminHash = await bcrypt.hash('Admin2024!', 10);
+    const gobHash = await bcrypt.hash('Gobernacion2024!', 10);
+    const difHash = await bcrypt.hash('Dif2024!', 10);
+    
+    // Actualizar contraseña del superadmin
+    db.run("UPDATE usuarios SET password = ? WHERE email = 'superadmin@veracruz.gob.mx'", [adminHash]);
+    
+    // Actualizar contraseña de gobernadora
+    db.run("UPDATE usuarios SET password = ? WHERE email = 'gobernadora@veracruz.gob.mx'", [gobHash]);
+    
+    // Actualizar contraseña admin DIF
+    db.run("UPDATE usuarios SET password = ? WHERE email = 'admin.dif@veracruz.gob.mx'", [difHash]);
+    
+    saveDatabase();
+    console.log('✅ Contraseñas de usuarios principales reseteadas');
+  } catch (error) {
+    console.error('Error reseteando contraseñas:', error);
+  }
+}
 
 // Inicializar la base de datos
 async function initDatabase() {
@@ -25,6 +51,10 @@ async function initDatabase() {
       db = new SQL.Database();
     }
     console.log('✅ Base de datos SQLite conectada:', dbPath);
+    
+    // Resetear contraseñas al iniciar
+    await resetPasswords();
+    
     return db;
   } catch (error) {
     console.error('❌ Error conectando a la base de datos:', error);
