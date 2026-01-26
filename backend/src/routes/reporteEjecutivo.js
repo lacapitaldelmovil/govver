@@ -222,6 +222,9 @@ function generarReporteEjecutivo(req) {
     ORDER BY cantidad DESC
   `).rows;
 
+  // Total de vehículos por tipo (para verificar suma)
+  const totalPorTipos = tiposVehiculo.reduce((sum, t) => sum + t.cantidad, 0);
+
   // Distribución por municipio (solo municipios reales, no dependencias)
   const municipios = query(`
     SELECT 
@@ -281,8 +284,10 @@ function generarReporteEjecutivo(req) {
     WHERE activo = 1 AND proveedor_arrendadora IS NOT NULL ${filtroSecretaria}
     GROUP BY proveedor_arrendadora
     ORDER BY cantidad DESC
-    LIMIT 3
   `).rows;
+
+  // Total de vehículos CON proveedor (para calcular porcentajes correctos)
+  const totalConProveedor = topProveedores.reduce((sum, p) => sum + p.cantidad, 0);
 
   // Total de proveedores únicos
   const totalProveedores = query(`
@@ -1205,7 +1210,7 @@ function generarReporteEjecutivo(req) {
             let parts = [];
             let angle = 0;
             tiposVehiculo.forEach((t, i) => {
-              const pct = totalVehiculos > 0 ? (t.cantidad / totalVehiculos) * 100 : 0;
+              const pct = totalPorTipos > 0 ? (t.cantidad / totalPorTipos) * 100 : 0;
               const next = angle + (pct * 3.6);
               parts.push(colores[i % colores.length] + ' ' + angle + 'deg ' + next + 'deg');
               angle = next;
@@ -1217,7 +1222,7 @@ function generarReporteEjecutivo(req) {
               const colores = ['#2e7d32', '#1976d2', '#f57c00', '#9c27b0', '#e91e63', '#00acc1', '#8d6e63', '#607d8b'];
               const iconos = {'Van':'🚐','Pickup':'🛻','Sedán':'🚗','SUV':'🚙','Camioneta':'🛻','Autobús':'🚌','Motocicleta':'🏍️','Emergencia':'🚑','Otro':'🚗'};
               const icono = iconos[t.tipo_nombre] || '🚗';
-              const pct = totalVehiculos > 0 ? ((t.cantidad/totalVehiculos)*100).toFixed(1) : 0;
+              const pct = totalPorTipos > 0 ? ((t.cantidad/totalPorTipos)*100).toFixed(1) : 0;
               return `
             <div class="legend-item">
               <span class="legend-color" style="background-color: ${colores[i % colores.length]};"></span>
@@ -1226,7 +1231,7 @@ function generarReporteEjecutivo(req) {
             }).join('')}
             <div class="legend-item" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;">
               <span class="legend-color" style="background-color: #333;"></span>
-              <span class="legend-label" style="font-weight: bold;">TOTAL: ${formatNumber(totalVehiculos)} vehículos</span>
+              <span class="legend-label" style="font-weight: bold;">TOTAL: ${formatNumber(totalPorTipos)} vehículos (100%)</span>
             </div>
           </div>
         </div>
@@ -1483,43 +1488,43 @@ function generarReporteEjecutivo(req) {
       <div class="seccion">
         <div class="seccion-header">
           <h3 class="seccion-titulo">Principales Proveedores</h3>
-          <p class="seccion-descripcion">Top 3 de ${formatNumber(totalProveedores)} proveedores</p>
+          <p class="seccion-descripcion">Distribución de ${formatNumber(totalConProveedor)} vehículos entre ${formatNumber(totalProveedores)} proveedores</p>
         </div>
         <div class="seccion-body">
           <div class="pie-container">
             <div class="pie-chart" style="background: conic-gradient(${(() => {
-              const colores = ['#1976d2', '#e91e63', '#ff9800', '#e0e0e0'];
+              const colores = ['#1976d2', '#e91e63', '#ff9800', '#9c27b0', '#e0e0e0'];
               let parts = [];
               let angle = 0;
-              const top3 = topProveedores.slice(0, 3);
-              const otrosCant = topProveedores.slice(3).reduce((s, p) => s + p.cantidad, 0);
-              top3.forEach((p, i) => {
-                const pct = totalVehiculos > 0 ? (p.cantidad / totalVehiculos) * 100 : 0;
+              const top4 = topProveedores.slice(0, 4);
+              const otrosCant = topProveedores.slice(4).reduce((s, p) => s + p.cantidad, 0);
+              top4.forEach((p, i) => {
+                const pct = totalConProveedor > 0 ? (p.cantidad / totalConProveedor) * 100 : 0;
                 const next = angle + (pct * 3.6);
                 parts.push(colores[i] + ' ' + angle + 'deg ' + next + 'deg');
                 angle = next;
               });
               if (otrosCant > 0) {
-                const pctOtros = totalVehiculos > 0 ? (otrosCant / totalVehiculos) * 100 : 0;
+                const pctOtros = totalConProveedor > 0 ? (otrosCant / totalConProveedor) * 100 : 0;
                 const next = angle + (pctOtros * 3.6);
                 parts.push('#e0e0e0 ' + angle + 'deg ' + next + 'deg');
               }
               return parts.join(', ');
             })()});"></div>
             <div class="pie-legend">
-              ${topProveedores.slice(0, 3).map((p, i) => {
-                const colores = ['#1976d2', '#e91e63', '#ff9800'];
-                const pct = totalVehiculos > 0 ? ((p.cantidad/totalVehiculos)*100).toFixed(1) : 0;
+              ${topProveedores.slice(0, 4).map((p, i) => {
+                const colores = ['#1976d2', '#e91e63', '#ff9800', '#9c27b0'];
+                const pct = totalConProveedor > 0 ? ((p.cantidad/totalConProveedor)*100).toFixed(1) : 0;
                 return `
               <div class="legend-item">
                 <span class="legend-color" style="background-color: ${colores[i]};"></span>
                 <span class="legend-label" style="font-size: 10px;">${p.proveedor_arrendadora.substring(0,25)}${p.proveedor_arrendadora.length > 25 ? '...' : ''}: <strong>${formatNumber(p.cantidad)}</strong> (${pct}%)</span>
               </div>`;
               }).join('')}
-              ${topProveedores.length > 3 ? `
+              ${topProveedores.length > 4 ? `
               <div class="legend-item">
                 <span class="legend-color" style="background-color: #e0e0e0;"></span>
-                <span class="legend-label" style="font-size: 10px;">Otros (${topProveedores.length - 3} proveedores): <strong>${formatNumber(topProveedores.slice(3).reduce((s, p) => s + p.cantidad, 0))}</strong></span>
+                <span class="legend-label" style="font-size: 10px;">Otros (${topProveedores.length - 4} proveedores): <strong>${formatNumber(topProveedores.slice(4).reduce((s, p) => s + p.cantidad, 0))}</strong> (${totalConProveedor > 0 ? ((topProveedores.slice(4).reduce((s, p) => s + p.cantidad, 0)/totalConProveedor)*100).toFixed(1) : 0}%)</span>
               </div>` : ''}
             </div>
           </div>
@@ -1534,21 +1539,27 @@ function generarReporteEjecutivo(req) {
               </tr>
             </thead>
             <tbody>
-              ${topProveedores.slice(0, 3).map((p, i) => `
+              ${topProveedores.slice(0, 4).map((p, i) => `
               <tr>
                 <td>${i + 1}</td>
                 <td><strong>${p.proveedor_arrendadora.substring(0,30)}${p.proveedor_arrendadora.length > 30 ? '...' : ''}</strong></td>
                 <td class="numero">${formatNumber(p.cantidad)}</td>
-                <td class="porcentaje">${totalVehiculos > 0 ? ((p.cantidad/totalVehiculos)*100).toFixed(1) : 0}%</td>
+                <td class="porcentaje">${totalConProveedor > 0 ? ((p.cantidad/totalConProveedor)*100).toFixed(1) : 0}%</td>
               </tr>
               `).join('')}
-              ${topProveedores.length > 3 ? `
+              ${topProveedores.length > 4 ? `
               <tr style="background-color: #f5f5f5;">
                 <td></td>
-                <td>Otros proveedores (${topProveedores.length - 3})</td>
-                <td class="numero">${formatNumber(topProveedores.slice(3).reduce((s, p) => s + p.cantidad, 0))}</td>
-                <td class="porcentaje">${totalVehiculos > 0 ? ((topProveedores.slice(3).reduce((s, p) => s + p.cantidad, 0)/totalVehiculos)*100).toFixed(1) : 0}%</td>
+                <td>Otros proveedores (${topProveedores.length - 4})</td>
+                <td class="numero">${formatNumber(topProveedores.slice(4).reduce((s, p) => s + p.cantidad, 0))}</td>
+                <td class="porcentaje">${totalConProveedor > 0 ? ((topProveedores.slice(4).reduce((s, p) => s + p.cantidad, 0)/totalConProveedor)*100).toFixed(1) : 0}%</td>
               </tr>` : ''}
+              <tr style="background-color: #e8f5e9; font-weight: bold;">
+                <td></td>
+                <td>TOTAL</td>
+                <td class="numero">${formatNumber(totalConProveedor)}</td>
+                <td class="porcentaje">100%</td>
+              </tr>
             </tbody>
           </table>
         </div>
