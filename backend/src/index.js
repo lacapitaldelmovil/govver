@@ -35,6 +35,9 @@ const PORT = process.env.PORT || 3001;
 // MIDDLEWARE DE SEGURIDAD
 // ============================================
 
+// Trust proxy para Replit/Railway/etc
+app.set('trust proxy', 1);
+
 // Helmet para headers de seguridad
 app.use(helmet());
 
