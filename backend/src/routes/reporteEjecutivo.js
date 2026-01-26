@@ -263,14 +263,13 @@ function generarReporteEjecutivo(req) {
   const promedioAnio = query(`SELECT AVG(anio) as promedio FROM vehiculos WHERE activo = 1 AND anio > 0 ${filtroSecretaria}`).rows[0]?.promedio || 0;
   const edadPromedio = promedioAnio > 0 ? Math.round(anioActual - promedioAnio) : 0;
 
-  // Top 3 marcas
+  // Todas las marcas (para calcular Top 3 + Otros)
   const topMarcas = query(`
     SELECT marca, COUNT(*) as cantidad 
     FROM vehiculos 
     WHERE activo = 1 AND marca IS NOT NULL ${filtroSecretaria}
     GROUP BY marca 
-    ORDER BY cantidad DESC 
-    LIMIT 3
+    ORDER BY cantidad DESC
   `).rows;
 
   // Proveedores principales con fechas
@@ -1604,8 +1603,12 @@ function generarReporteEjecutivo(req) {
               <td class="numero">${edadPromedio} años</td>
             </tr>
             <tr>
-              <td>Municipios/Ubicaciones con Vehículos</td>
+              <td>Municipios con Vehículos</td>
               <td class="numero">${formatNumber(municipios.length)}</td>
+            </tr>
+            <tr>
+              <td>Dependencias con Vehículos</td>
+              <td class="numero">${formatNumber(dependencias.length)}</td>
             </tr>
           </tbody>
         </table>
