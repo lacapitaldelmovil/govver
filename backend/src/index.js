@@ -156,6 +156,18 @@ async function startServer() {
       console.log('✅ Base de datos creada y poblada');
     }
 
+    // Asegurar que existan vehículos demo para préstamos (se ejecuta siempre)
+    try {
+      const vehiculosOtrasSec = query("SELECT COUNT(*) as total FROM vehiculos WHERE secretaria_id != (SELECT id FROM secretarias WHERE siglas = 'DIF' LIMIT 1)");
+      if (vehiculosOtrasSec.rows[0]?.total === 0) {
+        console.log('⚠️ No hay vehículos en otras secretarías, agregando demo...');
+        const seedBasic = require('./database/seed-basic');
+        await seedBasic();
+      }
+    } catch (e) {
+      console.log('ℹ️ Verificación de vehículos demo:', e.message);
+    }
+
     app.listen(PORT, () => {
       console.log('╔════════════════════════════════════════════════════════╗');
       console.log('║   SISTEMA DE FLOTA VEHICULAR - GOBIERNO DE VERACRUZ   ║');
