@@ -44,14 +44,13 @@ export default function SolicitudesLista() {
     setLoadingVehiculos(true);
     try {
       // Obtener vehículos de todas las secretarías que estén Disponibles u Operando
-      // y en buen o regular estado
-      const res = await api.get('/vehiculos?todos=true');
-      const todos = res.data.data || res.data || [];
+      const res = await api.get('/vehiculos?todos=true&limit=2000');
+      const todos = res.data.data || res.data.vehiculos || res.data || [];
       
-      // Filtrar solo los que están disponibles y en buena condición
+      // Filtrar solo los que están operando y activos (estatus puede ser null)
       const disponibles = todos.filter(v => 
         ['Disponible', 'Operando'].includes(v.estado_operativo) &&
-        ['Bueno', 'Regular'].includes(v.estatus) &&
+        (!v.estatus || ['Bueno', 'Regular'].includes(v.estatus)) &&
         v.activo
       );
       

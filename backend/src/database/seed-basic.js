@@ -56,13 +56,20 @@ async function seedBasic() {
     const secId = secMap[v.sec];
     if (secId) {
       try {
-        query(`INSERT OR IGNORE INTO vehiculos (secretaria_id, marca, modelo, anio, placas, tipo, color, estado_operativo, estatus, activo, numero_economico)
-               VALUES (?, ?, ?, ?, ?, ?, 'Blanco', 'Operando', 'Bueno', 1, ?)`,
-          [secId, v.marca, v.modelo, v.anio, v.placas, v.tipo, v.placas]);
-      } catch(e) {}
+        // Verificar si ya existe
+        const existe = query("SELECT id FROM vehiculos WHERE placas = ?", [v.placas]);
+        if (existe.rows.length === 0) {
+          query(`INSERT INTO vehiculos (secretaria_id, marca, modelo, anio, placas, tipo, color, estado_operativo, estatus, activo, numero_economico)
+                 VALUES (?, ?, ?, ?, ?, ?, 'Blanco', 'Operando', 'Bueno', 1, ?)`,
+            [secId, v.marca, v.modelo, v.anio, v.placas, v.tipo, v.placas]);
+          console.log('   ➕ Vehículo creado:', v.placas);
+        }
+      } catch(e) {
+        console.log('   ⚠️ Error creando vehículo', v.placas, e.message);
+      }
     }
   });
-  console.log('✅ Vehículos demo para préstamos creados');
+  console.log('✅ Vehículos demo para préstamos verificados');
 
   // Obtener ID de la secretaría DIF
   const difResult = query("SELECT id FROM secretarias WHERE siglas = 'DIF'");
