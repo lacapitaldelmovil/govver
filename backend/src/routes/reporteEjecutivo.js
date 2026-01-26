@@ -1241,130 +1241,76 @@ function generarReporteEjecutivo(req) {
     <!-- ============ DISTRIBUCIÓN GEOGRÁFICA ============ -->
     <div class="seccion" style="page-break-before: always;">
       <div class="seccion-header">
-        <h3 class="seccion-titulo">📍 Distribución por Municipios</h3>
-        <p class="seccion-descripcion">Cobertura de la flota vehicular del DIF en ${municipios.length} municipios del Estado de Veracruz</p>
+        <h3 class="seccion-titulo">📍 Distribución Geográfica</h3>
+        <p class="seccion-descripcion">Top 3 Municipios y Dependencias con mayor cantidad de vehículos</p>
       </div>
       <div class="seccion-body">
-        <!-- Resumen estadístico de municipios -->
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; text-align: center;">
-          <div style="background: #e8f5e9; padding: 12px; border-radius: 8px; border-left: 4px solid #28a745;">
-            <div style="font-size: 28px; font-weight: bold; color: #28a745;">${municipios.filter(m => m.operando > 0 && m.operando === m.total).length}</div>
-            <div style="font-size: 11px; color: #666;">Municipios 100% operativos</div>
-          </div>
-          <div style="background: #fff8e1; padding: 12px; border-radius: 8px; border-left: 4px solid #ffc107;">
-            <div style="font-size: 28px; font-weight: bold; color: #f57c00;">${municipios.filter(m => m.operando > 0 && m.operando < m.total).length}</div>
-            <div style="font-size: 11px; color: #666;">Municipios con flota mixta</div>
-          </div>
-          <div style="background: #ffebee; padding: 12px; border-radius: 8px; border-left: 4px solid #dc3545;">
-            <div style="font-size: 28px; font-weight: bold; color: #dc3545;">${municipios.filter(m => m.operando === 0).length}</div>
-            <div style="font-size: 11px; color: #666;">Sin unidades operativas</div>
-          </div>
-          <div style="background: #e3f2fd; padding: 12px; border-radius: 8px; border-left: 4px solid #1976d2;">
-            <div style="font-size: 28px; font-weight: bold; color: #1976d2;">${formatNumber(municipios.reduce((s, m) => s + m.total, 0))}</div>
-            <div style="font-size: 11px; color: #666;">Vehículos en municipios</div>
-          </div>
-        </div>
-
-        <!-- Gráfica de pastel para Top 10 municipios -->
-        <div style="display: flex; align-items: flex-start; justify-content: center; gap: 30px; margin: 25px 0; padding: 20px; background: #f8f9fa; border-radius: 12px;">
-          <div style="width: 200px; height: 200px; border-radius: 50%; background: conic-gradient(${(() => {
-            const colores = ['#1a472a', '#2e7d32', '#43a047', '#66bb6a', '#81c784', '#1565c0', '#1976d2', '#42a5f5', '#f57c00', '#ff9800'];
-            const totalMunicipios = municipios.reduce((s, m) => s + m.total, 0);
-            let parts = [];
-            let angle = 0;
-            const top10 = municipios.sort((a,b) => b.total - a.total).slice(0, 10);
-            const otrosCant = municipios.slice(10).reduce((s, m) => s + m.total, 0);
-            top10.forEach((m, i) => {
-              const pct = totalMunicipios > 0 ? (m.total / totalMunicipios) * 100 : 0;
-              const next = angle + (pct * 3.6);
-              parts.push(colores[i] + ' ' + angle + 'deg ' + next + 'deg');
-              angle = next;
-            });
-            if (otrosCant > 0) {
-              parts.push('#bdbdbd ' + angle + 'deg 360deg');
-            }
-            return parts.join(', ');
-          })()}); box-shadow: 0 4px 15px rgba(0,0,0,0.15);"></div>
-          <div style="display: flex; flex-direction: column; gap: 5px;">
-            ${municipios.sort((a,b) => b.total - a.total).slice(0, 10).map((m, i) => {
-              const colores = ['#1a472a', '#2e7d32', '#43a047', '#66bb6a', '#81c784', '#1565c0', '#1976d2', '#42a5f5', '#f57c00', '#ff9800'];
+        <!-- Grid de dos columnas: Municipios y Dependencias -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+          
+          <!-- Top 3 Municipios -->
+          <div style="background: #f8f9fa; border-radius: 12px; padding: 20px;">
+            <h4 style="margin: 0 0 5px 0; color: #1a472a; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+              🏘️ Top 3 Municipios
+            </h4>
+            <p style="margin: 0 0 15px 0; font-size: 10px; color: #666;">${municipios.length} municipios • ${formatNumber(municipios.reduce((s, m) => s + m.total, 0))} vehículos</p>
+            
+            ${municipios.sort((a,b) => b.total - a.total).slice(0, 3).map((m, i) => {
+              const colores = ['#1a472a', '#2e7d32', '#43a047'];
+              const maxMun = municipios.sort((a,b) => b.total - a.total)[0]?.total || 1;
+              const pctBar = ((m.total / maxMun) * 100).toFixed(0);
               const totalMunicipios = municipios.reduce((s, m) => s + m.total, 0);
-              const pct = totalMunicipios > 0 ? ((m.total/totalMunicipios)*100).toFixed(1) : 0;
+              const pctTotal = totalMunicipios > 0 ? ((m.total/totalMunicipios)*100).toFixed(1) : 0;
               return `
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="width: 12px; height: 12px; border-radius: 50%; background-color: ${colores[i]}; display: inline-block; flex-shrink: 0;"></span>
-              <span style="font-size: 10px; min-width: 140px;"><strong>${m.municipio.substring(0, 20)}${m.municipio.length > 20 ? '...' : ''}</strong></span>
-              <span style="font-size: 11px; font-weight: bold;">${formatNumber(m.total)}</span>
-              <span style="font-size: 9px; color: #666;">(${pct}%)</span>
+            <div style="margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <span style="font-size: 11px; font-weight: 600; color: #333;">${i+1}. ${m.municipio.substring(0, 25)}${m.municipio.length > 25 ? '...' : ''}</span>
+                <span style="font-size: 12px; font-weight: bold; color: ${colores[i]};">${formatNumber(m.total)} <span style="font-size: 9px; color: #666;">(${pctTotal}%)</span></span>
+              </div>
+              <div style="background: #e0e0e0; border-radius: 6px; height: 12px; overflow: hidden;">
+                <div style="background: ${colores[i]}; height: 100%; width: ${pctBar}%; border-radius: 6px;"></div>
+              </div>
             </div>`;
             }).join('')}
-            <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px; padding-top: 5px; border-top: 1px solid #ddd;">
-              <span style="width: 12px; height: 12px; border-radius: 50%; background-color: #bdbdbd; display: inline-block; flex-shrink: 0;"></span>
-              <span style="font-size: 10px; min-width: 140px;"><strong>Otros (${municipios.length - 10 > 0 ? municipios.length - 10 : 0} mun.)</strong></span>
-              <span style="font-size: 11px; font-weight: bold;">${formatNumber(municipios.slice(10).reduce((s, m) => s + m.total, 0))}</span>
+            
+            <div style="margin-top: 15px; padding-top: 12px; border-top: 1px solid #ddd; display: flex; justify-content: space-between; font-size: 10px; color: #666;">
+              <span>Otros ${municipios.length - 3 > 0 ? municipios.length - 3 : 0} municipios</span>
+              <span style="font-weight: 600;">${formatNumber(municipios.slice(3).reduce((s, m) => s + m.total, 0))} vehículos</span>
             </div>
           </div>
+          
+          <!-- Top 3 Dependencias -->
+          <div style="background: #f8f9fa; border-radius: 12px; padding: 20px;">
+            <h4 style="margin: 0 0 5px 0; color: #1565c0; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+              🏛️ Top 3 Dependencias
+            </h4>
+            <p style="margin: 0 0 15px 0; font-size: 10px; color: #666;">${dependencias.length} dependencias • ${formatNumber(dependencias.reduce((s, d) => s + d.total, 0))} vehículos</p>
+            
+            ${dependencias.sort((a,b) => b.total - a.total).slice(0, 3).map((d, i) => {
+              const colores = ['#1565c0', '#1976d2', '#42a5f5'];
+              const maxDep = dependencias.sort((a,b) => b.total - a.total)[0]?.total || 1;
+              const pctBar = ((d.total / maxDep) * 100).toFixed(0);
+              const totalDeps = dependencias.reduce((s, d) => s + d.total, 0);
+              const pctTotal = totalDeps > 0 ? ((d.total/totalDeps)*100).toFixed(1) : 0;
+              return `
+            <div style="margin-bottom: 12px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <span style="font-size: 11px; font-weight: 600; color: #333;">${i+1}. ${d.nombre.substring(0, 25)}${d.nombre.length > 25 ? '...' : ''}</span>
+                <span style="font-size: 12px; font-weight: bold; color: ${colores[i]};">${formatNumber(d.total)} <span style="font-size: 9px; color: #666;">(${pctTotal}%)</span></span>
+              </div>
+              <div style="background: #e0e0e0; border-radius: 6px; height: 12px; overflow: hidden;">
+                <div style="background: ${colores[i]}; height: 100%; width: ${pctBar}%; border-radius: 6px;"></div>
+              </div>
+            </div>`;
+            }).join('')}
+            
+            <div style="margin-top: 15px; padding-top: 12px; border-top: 1px solid #ddd; display: flex; justify-content: space-between; font-size: 10px; color: #666;">
+              <span>Otras ${dependencias.length - 3 > 0 ? dependencias.length - 3 : 0} dependencias</span>
+              <span style="font-weight: 600;">${formatNumber(dependencias.slice(3).reduce((s, d) => s + d.total, 0))} vehículos</span>
+            </div>
+          </div>
+          
         </div>
-      </div>
-    </div>
-
-    <!-- ============ DISTRIBUCIÓN POR DEPENDENCIAS ============ -->
-    <div class="seccion">
-      <div class="seccion-header">
-        <h3 class="seccion-titulo">🏛️ Distribución por Dependencias</h3>
-        <p class="seccion-descripcion">Vehículos asignados a ${dependencias.length} oficinas centrales, CAS, CRIS y otras dependencias</p>
-      </div>
-      <div class="seccion-body">
-        <!-- Resumen de dependencias -->
-        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; text-align: center;">
-          <div style="background: #e8f5e9; padding: 12px; border-radius: 8px; border-left: 4px solid #28a745;">
-            <div style="font-size: 28px; font-weight: bold; color: #28a745;">${dependencias.reduce((s, d) => s + d.operando, 0)}</div>
-            <div style="font-size: 11px; color: #666;">Operando</div>
-          </div>
-          <div style="background: #fff3e0; padding: 12px; border-radius: 8px; border-left: 4px solid #f57c00;">
-            <div style="font-size: 28px; font-weight: bold; color: #f57c00;">${dependencias.reduce((s, d) => s + d.mal_estado, 0)}</div>
-            <div style="font-size: 11px; color: #666;">Mal Estado</div>
-          </div>
-          <div style="background: #ffebee; padding: 12px; border-radius: 8px; border-left: 4px solid #dc3545;">
-            <div style="font-size: 28px; font-weight: bold; color: #dc3545;">${dependencias.reduce((s, d) => s + d.baja, 0)}</div>
-            <div style="font-size: 11px; color: #666;">En Baja</div>
-          </div>
-          <div style="background: #e3f2fd; padding: 12px; border-radius: 8px; border-left: 4px solid #1976d2;">
-            <div style="font-size: 28px; font-weight: bold; color: #1976d2;">${formatNumber(dependencias.reduce((s, d) => s + d.total, 0))}</div>
-            <div style="font-size: 11px; color: #666;">Total en dependencias</div>
-          </div>
-        </div>
-
-        <!-- Tabla de dependencias -->
-        <table class="tabla-datos" style="font-size: 10px;">
-          <thead>
-            <tr>
-              <th>Dependencia</th>
-              <th class="numero">Total</th>
-              <th class="numero" style="color: #28a745;">Op.</th>
-              <th class="numero" style="color: #f57c00;">Mal Est.</th>
-              <th class="numero" style="color: #dc3545;">Baja</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${dependencias.map(d => `
-            <tr>
-              <td style="font-size: 9px;"><strong>${d.nombre.substring(0, 45)}${d.nombre.length > 45 ? '...' : ''}</strong></td>
-              <td class="numero">${formatNumber(d.total)}</td>
-              <td class="numero" style="color: #28a745;">${formatNumber(d.operando)}</td>
-              <td class="numero" style="color: #f57c00;">${formatNumber(d.mal_estado)}</td>
-              <td class="numero" style="color: #dc3545;">${formatNumber(d.baja)}</td>
-            </tr>
-            `).join('')}
-            <tr style="background-color: #f0f4f0; font-weight: 600;">
-              <td><strong>TOTAL DEPENDENCIAS</strong></td>
-              <td class="numero">${formatNumber(dependencias.reduce((s, d) => s + d.total, 0))}</td>
-              <td class="numero" style="color: #28a745;">${formatNumber(dependencias.reduce((s, d) => s + d.operando, 0))}</td>
-              <td class="numero" style="color: #f57c00;">${formatNumber(dependencias.reduce((s, d) => s + d.mal_estado, 0))}</td>
-              <td class="numero" style="color: #dc3545;">${formatNumber(dependencias.reduce((s, d) => s + d.baja, 0))}</td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
 
@@ -1624,7 +1570,7 @@ function generarReporteEjecutivo(req) {
         </table>
 
         <!-- Categoría: Bajas -->
-        <h4 style="color: #dc3545; margin: 0 0 10px 0; font-size: 12px; border-bottom: 2px solid #dc3545; padding-bottom: 5px;">📋 BAJAS Y DETERMINACIÓN</h4>
+        <h4 style="color: #dc3545; margin: 0 0 10px 0; font-size: 12px; border-bottom: 2px solid #dc3545; padding-bottom: 5px;">📋 DICTAMINADOS Y BAJAS</h4>
         <table class="tabla-datos" style="margin-bottom: 20px;">
           <tbody>
             <tr>
