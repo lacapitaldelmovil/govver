@@ -943,7 +943,7 @@ function generarReporteEjecutivo(req) {
       </div>
       <div class="kpi-card rojo">
         <div class="kpi-valor">${formatNumber(vehiculosBaja)}</div>
-        <div class="kpi-label">Pendientes de Baja</div>
+        <div class="kpi-label">Baja</div>
         <div class="kpi-porcentaje">${pendientesSAT > 0 ? `(${formatNumber(pendientesSAT)} pend. Hacienda)` : `${(vehiculosBaja / totalVehiculos * 100).toFixed(1)}% del total`}</div>
       </div>
       ${propuestosBaja > 0 ? `
@@ -954,35 +954,6 @@ function generarReporteEjecutivo(req) {
       </div>
       ` : ''}
     </div>
-
-    <!-- ============ ALERTAS IMPORTANTES ============ -->
-    ${segurosVencidos > 0 ? `
-    <div class="alerta critica">
-      <div class="alerta-icono" style="font-size: 32px;">⚠️</div>
-      <div class="alerta-contenido">
-        <div class="alerta-titulo">Atención Inmediata: Pólizas de Seguro Vencidas</div>
-        <div class="alerta-texto">
-          Se identificaron <strong>${formatNumber(segurosVencidos)} vehículos</strong> (${porcSegurosVencidos}% de la flota) 
-          con póliza de seguro vencida. Estos vehículos representan un riesgo legal y patrimonial y requieren 
-          gestión prioritaria para la renovación de sus coberturas.
-        </div>
-      </div>
-    </div>
-    ` : ''}
-    
-    ${segurosPorVencer > 0 ? `
-    <div class="alerta advertencia">
-      <div class="alerta-icono" style="font-size: 32px;">⏰</div>
-      <div class="alerta-contenido">
-        <div class="alerta-titulo">Próximas Renovaciones de Seguro</div>
-        <div class="alerta-texto">
-          <strong>${formatNumber(segurosPorVencer)} vehículos</strong> tienen su póliza de seguro 
-          por vencer en los próximos 30 días. Se recomienda iniciar el proceso de renovación 
-          para evitar lapsos de cobertura.
-        </div>
-      </div>
-    </div>
-    ` : ''}
 
     <!-- ============ ESTADO OPERATIVO ============ -->
     <div class="seccion">
@@ -1116,6 +1087,36 @@ function generarReporteEjecutivo(req) {
         <p class="seccion-descripcion">Análisis de vigencia de coberturas de seguro vehicular</p>
       </div>
       <div class="seccion-body">
+        
+        <!-- Alertas de Seguros -->
+        ${segurosVencidos > 0 ? `
+        <div class="alerta critica" style="margin-bottom: 20px;">
+          <div class="alerta-icono" style="font-size: 32px;">⚠️</div>
+          <div class="alerta-contenido">
+            <div class="alerta-titulo">Atención Inmediata: Pólizas de Seguro Vencidas</div>
+            <div class="alerta-texto">
+              Se identificaron <strong>${formatNumber(segurosVencidos)} vehículos</strong> (${porcSegurosVencidos}% de la flota) 
+              con póliza de seguro vencida. Estos vehículos representan un riesgo legal y patrimonial y requieren 
+              gestión prioritaria para la renovación de sus coberturas.
+            </div>
+          </div>
+        </div>
+        ` : ''}
+        
+        ${segurosPorVencer > 0 ? `
+        <div class="alerta advertencia" style="margin-bottom: 20px;">
+          <div class="alerta-icono" style="font-size: 32px;">⏰</div>
+          <div class="alerta-contenido">
+            <div class="alerta-titulo">Próximas Renovaciones de Seguro</div>
+            <div class="alerta-texto">
+              <strong>${formatNumber(segurosPorVencer)} vehículos</strong> tienen su póliza de seguro 
+              por vencer en los próximos 30 días. Se recomienda iniciar el proceso de renovación 
+              para evitar lapsos de cobertura.
+            </div>
+          </div>
+        </div>
+        ` : ''}
+      
         <h4 style="color: #1a472a; margin-bottom: 15px; font-size: 14px;">Estado de Cobertura de Seguros</h4>
         <table class="tabla-datos">
           <thead>
