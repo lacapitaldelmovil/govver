@@ -148,6 +148,33 @@ export default function Login() {
         </button>
       </form>
 
+      {/* Login rápido (solo para demo) */}
+      <div className="mt-6 pt-6 border-t border-gray-200">
+        <p className="text-xs text-gray-500 text-center mb-3">Acceso rápido (Demo)</p>
+        <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => {
+              setEmail('admin.dif@veracruz.gob.mx');
+              setPassword('Dif2024!');
+            }}
+            className="flex-1 px-3 py-2 text-xs bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200"
+          >
+            👤 Admin DIF
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setEmail('superadmin@veracruz.gob.mx');
+              setPassword('Admin2024!');
+            }}
+            className="flex-1 px-3 py-2 text-xs bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors border border-purple-200"
+          >
+            🔑 Super Admin
+          </button>
+        </div>
+      </div>
+
       {/* Footer */}
       <div className="mt-8 text-center">
         <p className="text-xs text-gray-400">
