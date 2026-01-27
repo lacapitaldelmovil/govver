@@ -84,49 +84,81 @@ export default function VehiculoCargaMasiva() {
   };
 
   const descargarPlantilla = () => {
-    // Crear CSV de plantilla
+    // Crear CSV de plantilla con todos los campos importantes
     const headers = [
       'numero_inventario',
+      'numero_economico',
       'placas',
-      'marca',
-      'linea',
-      'modelo',
       'numero_serie',
-      'numero_motor',
+      'marca',
+      'modelo',
+      'anio',
       'color',
       'tipo',
-      'capacidad_pasajeros',
-      'tipo_combustible',
+      'descripcion',
+      'valor_libros',
+      'fecha_adquisicion',
+      'estado_operativo',
+      'estatus',
       'regimen',
       'secretaria_siglas',
       'municipio',
-      'ubicacion',
-      'estado_operativo',
-      'resguardatario_nombre'
+      'ubicacion_fisica',
+      'area_responsable',
+      'resguardante_nombre',
+      'resguardante_cargo',
+      'resguardante_telefono',
+      'seguro',
+      'poliza_seguro',
+      'vigencia_seguro',
+      'proveedor_arrendadora',
+      'renta_mensual',
+      'vigencia_contrato',
+      'kilometraje',
+      'tarjeta_circulacion',
+      'vigencia_tarjeta',
+      'observaciones'
     ];
 
     const ejemplo = [
-      'VER-2024-001',
-      'ABC-123-A',
-      'Toyota',
-      'Hilux',
-      '2024',
-      '1HGCG5655WA123456',
-      'MOT12345',
-      'Blanco',
-      'camioneta',
-      '5',
-      'gasolina',
-      'propio',
-      'SSP',
-      'Xalapa',
-      'Palacio de Gobierno',
-      'activo',
-      'Juan Pérez'
+      'INV-2024-001',        // numero_inventario
+      'VER-001',             // numero_economico
+      'ABC-123-A',           // placas
+      '1HGCG5655WA123456',   // numero_serie
+      'TOYOTA',              // marca
+      'HILUX',               // modelo
+      '2024',                // anio
+      'Blanco',              // color
+      'pickup',              // tipo (sedan, camioneta, pickup, suv, van, autobus, motocicleta, maquinaria, emergencia, otro)
+      'Camioneta doble cabina 4x4', // descripcion
+      '450000',              // valor_libros
+      '2024-01-15',          // fecha_adquisicion (YYYY-MM-DD)
+      'Operando',            // estado_operativo (Operando, En taller, Siniestrado, Baja)
+      'Bueno',               // estatus (Bueno, Regular, Malo)
+      'Propio',              // regimen (Propio, Arrendado, Comodato)
+      'DIF',                 // secretaria_siglas
+      'Xalapa',              // municipio
+      'Oficinas Centrales',  // ubicacion_fisica
+      'Dirección General',   // area_responsable
+      'Juan Pérez García',   // resguardante_nombre
+      'Director',            // resguardante_cargo
+      '228-123-4567',        // resguardante_telefono
+      'Sí',                  // seguro (Sí, No)
+      'POL-2024-001',        // poliza_seguro
+      '2025-01-15',          // vigencia_seguro (YYYY-MM-DD)
+      '',                    // proveedor_arrendadora (si es arrendado)
+      '',                    // renta_mensual
+      '',                    // vigencia_contrato
+      '15000',               // kilometraje
+      'TC-2024-001',         // tarjeta_circulacion
+      '2025-06-30',          // vigencia_tarjeta (YYYY-MM-DD)
+      'Vehículo en excelente estado' // observaciones
     ];
 
-    const csv = [headers.join(','), ejemplo.join(',')].join('\n');
-    const blob = new Blob([csv], { type: 'text/csv' });
+    // Agregar BOM para Excel reconozca UTF-8
+    const BOM = '\uFEFF';
+    const csv = BOM + [headers.join(','), ejemplo.join(',')].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
