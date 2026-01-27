@@ -3,10 +3,144 @@
  */
 
 const express = require('express');
+const multer = require('multer');
+const xlsx = require('xlsx');
 const { query } = require('../database/connection');
 const { authMiddleware, requireAdminSecretaria } = require('../middleware/auth');
 
 const router = express.Router();
+
+// Configurar multer para subida de archivos
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }
+});
+
+/**
+ * POST /api/vehiculos/carga-masiva - Carga masiva desde Excel/CSV
+ */
+router.post('/carga-masiva', authMiddleware, requireAdminSecretaria, upload.single('archivo'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No se envió ningún archivo' });
+    }
+
+    const workbook = xlsx.read(req.file.buffer, { type: 'buffer' });
+    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+    const data = xlsx.utils.sheet_to_json(sheet, { defval: '' });
+
+    if (data.length === 0) {
+      return res.status(400).json({ error: 'El archivo está vacío' });
+    }
+
+    const resultados = { insertados: 0, actualizados: 0, errores: [] };
+
+    // Mapa de secretarías
+    const secretariasResult = query('SELECT id, siglas FROM secretarias');
+    const secretariasMap = {};
+    secretariasResult.rows.forEach(s => {
+      secretariasMap[s.siglas.toUpperCase()] = s.id;
+    });
+
+    for (let i = 0; i < data.length; i++) {
+      const row = data[i];
+      const fila = i + 2;
+
+      try {
+        const numero_inventario = row.numero_inventario?.toString().trim();
+        const placas = row.placas?.toString().trim();
+        const marca = row.marca?.toString().trim();
+        const linea = row.linea?.toString().trim();
+        const anio = row.anio?.toString().trim();
+        const numero_serie = row.numero_serie?.toString().trim();
+        const numero_motor = row.numero_motor?.toString().trim();
+        const color = row.color?.toString().trim();
+        const tipo = row.tipo?.toString().toLowerCase().trim();
+        const capacidad_pasajeros = parseInt(row.capacidad_pasajeros) || null;
+        const tipo_combustible = row.tipo_combustible?.toString().trim();
+        const cilindros = parseInt(row.cilindros) || null;
+        const transmision = row.transmision?.toString().toLowerCase().trim();
+        const regimen = row.regimen?.toString().trim() || 'Propio';
+        const secretaria_siglas = row.secretaria_siglas?.toString().toUpperCase().trim();
+        const municipio = row.municipio?.toString().trim();
+        const ubicacion_fisica = row.ubicacion_fisica?.toString().trim();
+        const estado_operativo = row.estado_operativo?.toString().trim() || 'Operando';
+        const estatus = row.estatus?.toString().trim();
+        const resguardante_nombre = row.resguardante_nombre?.toString().trim();
+        const resguardante_cargo = row.resguardante_cargo?.toString().trim();
+        const resguardante_telefono = row.resguardante_telefono?.toString().trim();
+        const area_responsable = row.area_responsable?.toString().trim();
+        const numero_economico = row.numero_economico?.toString().trim();
+        const valor_libros = parseFloat(row.valor_libros) || null;
+        const fecha_adquisicion = row.fecha_adquisicion?.toString().trim();
+        const kilometraje = parseInt(row.kilometraje) || 0;
+        const seguro = row.seguro?.toString().trim();
+        const poliza_seguro = row.poliza_seguro?.toString().trim();
+        const vigencia_seguro = row.vigencia_seguro?.toString().trim();
+        const tarjeta_circulacion = row.tarjeta_circulacion?.toString().trim();
+        const vigencia_tarjeta = row.vigencia_tarjeta?.toString().trim();
+        const proveedor_arrendadora = row.proveedor_arrendadora?.toString().trim();
+        const renta_mensual = parseFloat(row.renta_mensual) || null;
+        const vigencia_contrato = row.vigencia_contrato?.toString().trim();
+        const observaciones = row.observaciones?.toString().trim();
+
+        // Validaciones
+        if (!numero_inventario) { resultados.errores.push({ fila, mensaje: 'Falta numero_inventario' }); continue; }
+        if (!placas) { resultados.errores.push({ fila, mensaje: 'Falta placas' }); continue; }
+        if (!marca) { resultados.errores.push({ fila, mensaje: 'Falta marca' }); continue; }
+        if (!secretaria_siglas) { resultados.errores.push({ fila, mensaje: 'Falta secretaria_siglas' }); continue; }
+
+        const secretaria_id = secretariasMap[secretaria_siglas];
+        if (!secretaria_id) { resultados.errores.push({ fila, mensaje: `Secretaría "${secretaria_siglas}" no encontrada` }); continue; }
+
+        const tiposValidos = ['sedan', 'camioneta', 'pickup', 'suv', 'van', 'autobus', 'motocicleta', 'maquinaria', 'emergencia', 'otro'];
+        const tipoFinal = tiposValidos.includes(tipo) ? tipo : 'otro';
+
+        // Verificar si existe
+        const existente = query('SELECT id FROM vehiculos WHERE numero_inventario = ?', [numero_inventario]);
+
+        if (existente.rows.length > 0) {
+          query(`UPDATE vehiculos SET placas=?, numero_serie=?, marca=?, modelo=?, anio=?, linea=?, numero_motor=?, 
+            color=?, tipo=?, capacidad_pasajeros=?, tipo_combustible=?, cilindros=?, transmision=?, regimen=?, 
+            secretaria_id=?, municipio=?, ubicacion_fisica=?, estado_operativo=?, estatus=?, resguardante_nombre=?, 
+            resguardante_cargo=?, resguardante_telefono=?, area_responsable=?, numero_economico=?, valor_libros=?, 
+            fecha_adquisicion=?, kilometraje=?, seguro=?, poliza_seguro=?, vigencia_seguro=?, tarjeta_circulacion=?, 
+            vigencia_tarjeta=?, proveedor_arrendadora=?, renta_mensual=?, vigencia_contrato=?, observaciones=?, 
+            updated_at=datetime('now') WHERE numero_inventario=?`,
+            [placas, numero_serie, marca, linea || marca, anio, linea, numero_motor, color, tipoFinal, 
+             capacidad_pasajeros, tipo_combustible, cilindros, transmision, regimen, secretaria_id, municipio, 
+             ubicacion_fisica, estado_operativo, estatus, resguardante_nombre, resguardante_cargo, resguardante_telefono,
+             area_responsable, numero_economico, valor_libros, fecha_adquisicion, kilometraje, seguro, poliza_seguro,
+             vigencia_seguro, tarjeta_circulacion, vigencia_tarjeta, proveedor_arrendadora, renta_mensual, 
+             vigencia_contrato, observaciones, numero_inventario]);
+          resultados.actualizados++;
+        } else {
+          query(`INSERT INTO vehiculos (numero_inventario, placas, numero_serie, marca, modelo, anio, linea, numero_motor,
+            color, tipo, capacidad_pasajeros, tipo_combustible, cilindros, transmision, regimen, secretaria_id, municipio,
+            ubicacion_fisica, estado_operativo, estatus, resguardante_nombre, resguardante_cargo, resguardante_telefono,
+            area_responsable, numero_economico, valor_libros, fecha_adquisicion, kilometraje, seguro, poliza_seguro,
+            vigencia_seguro, tarjeta_circulacion, vigencia_tarjeta, proveedor_arrendadora, renta_mensual, vigencia_contrato,
+            observaciones, activo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)`,
+            [numero_inventario, placas, numero_serie, marca, linea || marca, anio, linea, numero_motor, color, tipoFinal,
+             capacidad_pasajeros, tipo_combustible, cilindros, transmision, regimen, secretaria_id, municipio,
+             ubicacion_fisica, estado_operativo, estatus, resguardante_nombre, resguardante_cargo, resguardante_telefono,
+             area_responsable, numero_economico, valor_libros, fecha_adquisicion, kilometraje, seguro, poliza_seguro,
+             vigencia_seguro, tarjeta_circulacion, vigencia_tarjeta, proveedor_arrendadora, renta_mensual, vigencia_contrato,
+             observaciones]);
+          resultados.insertados++;
+        }
+      } catch (err) {
+        resultados.errores.push({ fila, mensaje: err.message });
+      }
+    }
+
+    res.json({ exito: true, ...resultados });
+  } catch (error) {
+    console.error('Error en carga masiva:', error);
+    res.status(500).json({ error: error.message || 'Error al procesar archivo' });
+  }
+});
 
 /**
  * GET /api/vehiculos/municipios - Obtener lista de municipios únicos

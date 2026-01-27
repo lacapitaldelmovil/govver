@@ -84,245 +84,72 @@ export default function VehiculoCargaMasiva() {
   };
 
   const descargarPlantilla = () => {
-    // CSV con INSTRUCCIONES CLARAS y ejemplos múltiples
-    const lineas = [
-      // ============ FILA 1: INSTRUCCIONES GENERALES ============
-      '# INSTRUCCIONES: Borra las filas que empiezan con # antes de importar. Llena una fila por vehículo. Los campos marcados con * son OBLIGATORIOS.',
-      
-      // ============ FILA 2: ENCABEZADOS ============
-      [
-        'numero_inventario*',
-        'placas*',
-        'marca*',
-        'modelo*',
-        'anio*',
-        'tipo*',
-        'secretaria_siglas*',
-        'municipio',
-        'numero_economico',
-        'numero_serie',
-        'color',
-        'descripcion',
-        'valor_libros',
-        'fecha_adquisicion',
-        'estado_operativo',
-        'estatus',
-        'regimen',
-        'ubicacion_fisica',
-        'area_responsable',
-        'resguardante_nombre',
-        'resguardante_cargo',
-        'resguardante_telefono',
-        'seguro',
-        'poliza_seguro',
-        'vigencia_seguro',
-        'proveedor_arrendadora',
-        'renta_mensual',
-        'vigencia_contrato',
-        'kilometraje',
-        'tarjeta_circulacion',
-        'vigencia_tarjeta',
-        'observaciones'
-      ].join(','),
-      
-      // ============ FILA 3: OPCIONES DISPONIBLES ============
-      '# OPCIONES >> tipo: sedan | camioneta | pickup | suv | van | autobus | motocicleta | maquinaria | emergencia | otro',
-      '# OPCIONES >> estado_operativo: Operando | Mal estado | En taller | Siniestrado',
-      '# OPCIONES >> estatus: Bueno | Regular | Malo',
-      '# OPCIONES >> regimen: Propio | Arrendado | Comodato',
-      '# OPCIONES >> seguro: Si | No',
-      '# OPCIONES >> secretaria_siglas: DIF | GOB | SEFIPLAN | SSP | SALUD | SEV | SECTUR | SEDARPA | u otra sigla existente',
-      '# FECHAS >> Usar formato: YYYY-MM-DD (ejemplo: 2024-06-15 para 15 de junio 2024)',
-      
-      // ============ FILA 4: EJEMPLO 1 - Vehículo propio básico ============
-      [
-        'INV-2024-001',           // numero_inventario* (OBLIGATORIO - Único)
-        'ABC-123-A',              // placas* (OBLIGATORIO)
-        'TOYOTA',                 // marca* (OBLIGATORIO)
-        'HILUX',                  // modelo* (OBLIGATORIO)
-        '2024',                   // anio* (OBLIGATORIO - 4 dígitos)
-        'pickup',                 // tipo* (OBLIGATORIO - ver opciones arriba)
-        'DIF',                    // secretaria_siglas* (OBLIGATORIO)
-        'Xalapa',                 // municipio
-        'VER-001',                // numero_economico
-        '1HGCG5655WA123456',      // numero_serie
-        'Blanco',                 // color
-        'Camioneta doble cabina 4x4', // descripcion
-        '450000',                 // valor_libros (solo número)
-        '2024-01-15',             // fecha_adquisicion
-        'Operando',               // estado_operativo
-        'Bueno',                  // estatus
-        'Propio',                 // regimen
-        'Oficinas Centrales Av. Xalapa 123', // ubicacion_fisica
-        'Dirección General',      // area_responsable
-        'Juan Pérez García',      // resguardante_nombre
-        'Director General',       // resguardante_cargo
-        '228-123-4567',           // resguardante_telefono
-        'Si',                     // seguro
-        'POL-2024-001',           // poliza_seguro
-        '2025-01-15',             // vigencia_seguro
-        '',                       // proveedor_arrendadora (vacío si es propio)
-        '',                       // renta_mensual (vacío si es propio)
-        '',                       // vigencia_contrato (vacío si es propio)
-        '15000',                  // kilometraje
-        'TC-2024-001',            // tarjeta_circulacion
-        '2025-06-30',             // vigencia_tarjeta
-        'Vehículo en excelente estado' // observaciones
-      ].join(','),
-      
-      // ============ FILA 5: EJEMPLO 2 - Vehículo arrendado ============
-      [
-        'INV-2024-002',           // numero_inventario*
-        'XYZ-456-B',              // placas*
-        'NISSAN',                 // marca*
-        'VERSA',                  // modelo*
-        '2023',                   // anio*
-        'sedan',                  // tipo*
-        'GOB',                    // secretaria_siglas*
-        'Veracruz',               // municipio
-        'VER-002',                // numero_economico
-        '3N1BC1AS0ZK123456',      // numero_serie
-        'Gris',                   // color
-        'Sedan compacto',         // descripcion
-        '',                       // valor_libros (vacío si es arrendado)
-        '',                       // fecha_adquisicion (vacío si es arrendado)
-        'Operando',               // estado_operativo
-        'Bueno',                  // estatus
-        'Arrendado',              // regimen
-        'Palacio de Gobierno',    // ubicacion_fisica
-        'Secretaría Particular',  // area_responsable
-        'María López Hernández',  // resguardante_nombre
-        'Secretaria',             // resguardante_cargo
-        '229-987-6543',           // resguardante_telefono
-        'Si',                     // seguro
-        'POL-ARR-002',            // poliza_seguro
-        '2025-12-31',             // vigencia_seguro
-        'Arrendadora del Golfo SA', // proveedor_arrendadora
-        '8500',                   // renta_mensual
-        '2025-06-30',             // vigencia_contrato
-        '5000',                   // kilometraje
-        'TC-2024-002',            // tarjeta_circulacion
-        '2025-12-31',             // vigencia_tarjeta
-        'Vehículo arrendado para uso administrativo' // observaciones
-      ].join(','),
-      
-      // ============ FILA 6: EJEMPLO 3 - Vehículo mínimo (solo obligatorios) ============
-      [
-        'INV-2024-003',           // numero_inventario*
-        'DEF-789-C',              // placas*
-        'CHEVROLET',              // marca*
-        'AVEO',                   // modelo*
-        '2020',                   // anio*
-        'sedan',                  // tipo*
-        'SEFIPLAN',               // secretaria_siglas*
-        '',                       // municipio (opcional)
-        '',                       // numero_economico (opcional)
-        '',                       // numero_serie (opcional)
-        '',                       // color (opcional)
-        '',                       // descripcion (opcional)
-        '',                       // valor_libros (opcional)
-        '',                       // fecha_adquisicion (opcional)
-        'Operando',               // estado_operativo (recomendado)
-        'Regular',                // estatus (recomendado)
-        'Propio',                 // regimen (recomendado)
-        '',                       // ubicacion_fisica (opcional)
-        '',                       // area_responsable (opcional)
-        '',                       // resguardante_nombre (opcional)
-        '',                       // resguardante_cargo (opcional)
-        '',                       // resguardante_telefono (opcional)
-        'No',                     // seguro (opcional)
-        '',                       // poliza_seguro (opcional)
-        '',                       // vigencia_seguro (opcional)
-        '',                       // proveedor_arrendadora (opcional)
-        '',                       // renta_mensual (opcional)
-        '',                       // vigencia_contrato (opcional)
-        '',                       // kilometraje (opcional)
-        '',                       // tarjeta_circulacion (opcional)
-        '',                       // vigencia_tarjeta (opcional)
-        ''                        // observaciones (opcional)
-      ].join(','),
-      
-      // ============ FILA 7: EJEMPLO 4 - Camión/Van ============
-      [
-        'INV-2024-004',           // numero_inventario*
-        'GHI-012-D',              // placas*
-        'MERCEDES BENZ',          // marca*
-        'SPRINTER',               // modelo*
-        '2022',                   // anio*
-        'van',                    // tipo*
-        'SALUD',                  // secretaria_siglas*
-        'Coatzacoalcos',          // municipio
-        'VER-004',                // numero_economico
-        'WD3PE8CC6NP123456',      // numero_serie
-        'Blanco',                 // color
-        'Van para transporte de personal médico', // descripcion
-        '850000',                 // valor_libros
-        '2022-03-20',             // fecha_adquisicion
-        'Operando',               // estado_operativo
-        'Bueno',                  // estatus
-        'Propio',                 // regimen
-        'Hospital Regional Sur', // ubicacion_fisica
-        'Subdirección Médica',   // area_responsable
-        'Dr. Carlos Ramírez',    // resguardante_nombre
-        'Subdirector Médico',    // resguardante_cargo
-        '921-456-7890',          // resguardante_telefono
-        'Si',                    // seguro
-        'POL-2022-004',          // poliza_seguro
-        '2025-03-20',            // vigencia_seguro
-        '',                      // proveedor_arrendadora
-        '',                      // renta_mensual
-        '',                      // vigencia_contrato
-        '45000',                 // kilometraje
-        'TC-2022-004',           // tarjeta_circulacion
-        '2025-09-15',            // vigencia_tarjeta
-        'Uso exclusivo para brigadas de salud' // observaciones
-      ].join(','),
-      
-      // ============ FILA 8: EJEMPLO 5 - Motocicleta ============
-      [
-        'INV-2024-005',           // numero_inventario*
-        'VER-M-001',              // placas*
-        'HONDA',                  // marca*
-        'CGL 125',                // modelo*
-        '2023',                   // anio*
-        'motocicleta',            // tipo*
-        'SSP',                    // secretaria_siglas*
-        'Poza Rica',              // municipio
-        'MOTO-001',               // numero_economico
-        'LWBPCJ101P1123456',      // numero_serie
-        'Negro',                  // color
-        'Motocicleta para patrullaje', // descripcion
-        '35000',                  // valor_libros
-        '2023-08-10',             // fecha_adquisicion
-        'Operando',               // estado_operativo
-        'Bueno',                  // estatus
-        'Propio',                 // regimen
-        'Cuartel de Policía Norte', // ubicacion_fisica
-        'Dirección de Tránsito', // area_responsable
-        'Oficial Pedro Sánchez', // resguardante_nombre
-        'Agente de Tránsito',    // resguardante_cargo
-        '782-111-2233',          // resguardante_telefono
-        'Si',                    // seguro
-        'POL-MOTO-005',          // poliza_seguro
-        '2025-08-10',            // vigencia_seguro
-        '',                      // proveedor_arrendadora
-        '',                      // renta_mensual
-        '',                      // vigencia_contrato
-        '8500',                  // kilometraje
-        'TC-MOTO-005',           // tarjeta_circulacion
-        '2025-08-10',            // vigencia_tarjeta
-        'Asignada a patrullaje vial' // observaciones
-      ].join(',')
+    // Plantilla CSV limpia y profesional
+    const headers = [
+      'numero_inventario',
+      'placas',
+      'marca',
+      'linea',
+      'anio',
+      'numero_serie',
+      'numero_motor',
+      'color',
+      'tipo',
+      'capacidad_pasajeros',
+      'tipo_combustible',
+      'cilindros',
+      'transmision',
+      'regimen',
+      'secretaria_siglas',
+      'municipio',
+      'ubicacion_fisica',
+      'estado_operativo',
+      'estatus',
+      'resguardante_nombre',
+      'resguardante_cargo',
+      'resguardante_telefono',
+      'area_responsable',
+      'numero_economico',
+      'valor_libros',
+      'fecha_adquisicion',
+      'kilometraje',
+      'seguro',
+      'poliza_seguro',
+      'vigencia_seguro',
+      'tarjeta_circulacion',
+      'vigencia_tarjeta',
+      'proveedor_arrendadora',
+      'renta_mensual',
+      'vigencia_contrato',
+      'observaciones'
     ];
 
-    // Agregar BOM para que Excel reconozca UTF-8 correctamente
+    // Ejemplos de datos
+    const ejemplos = [
+      // Ejemplo 1: Camioneta propia
+      ['VER-2024-001', 'ABC-123-A', 'TOYOTA', 'HILUX', '2024', '1HGCG5655WA123456', 'MOT-12345', 'Blanco', 'pickup', '5', 'Gasolina', '4', 'Automatica', 'Propio', 'DIF', 'Xalapa', 'Oficinas Centrales', 'Operando', 'Bueno', 'Juan Pérez García', 'Director General', '228-123-4567', 'Dirección General', 'ECO-001', '450000', '2024-01-15', '15000', 'Si', 'POL-2024-001', '2025-01-15', 'Vigente', '2025-06-30', '', '', '', 'Vehículo en excelente estado'],
+      // Ejemplo 2: Sedán arrendado
+      ['VER-2024-002', 'XYZ-456-B', 'NISSAN', 'VERSA', '2023', '3N1BC1AS0ZK654321', 'MOT-67890', 'Gris', 'sedan', '5', 'Gasolina', '4', 'Manual', 'Arrendado', 'GOB', 'Veracruz', 'Palacio de Gobierno', 'Operando', 'Bueno', 'María López', 'Secretaria', '229-987-6543', 'Secretaría Particular', 'ECO-002', '', '', '8000', 'Si', 'POL-ARR-002', '2025-12-31', 'Vigente', '2025-12-31', 'Arrendadora del Golfo SA', '8500', '2025-06-30', 'Vehículo arrendado'],
+      // Ejemplo 3: Van de Salud
+      ['VER-2024-003', 'GHI-012-D', 'MERCEDES BENZ', 'SPRINTER', '2022', 'WD3PE8CC6NP123456', 'MOT-11111', 'Blanco', 'van', '12', 'Diesel', '4', 'Automatica', 'Propio', 'SALUD', 'Coatzacoalcos', 'Hospital Regional', 'Operando', 'Bueno', 'Dr. Carlos Ramírez', 'Subdirector', '921-456-7890', 'Subdirección Médica', 'ECO-003', '850000', '2022-03-20', '45000', 'Si', 'POL-2022-003', '2025-03-20', 'Vigente', '2025-09-15', '', '', '', 'Uso exclusivo brigadas de salud'],
+      // Ejemplo 4: Motocicleta SSP
+      ['VER-2024-004', 'VER-M-001', 'HONDA', 'CGL 125', '2023', 'LWBPCJ101P1123456', 'MOT-22222', 'Negro', 'motocicleta', '2', 'Gasolina', '1', 'Manual', 'Propio', 'SSP', 'Poza Rica', 'Cuartel de Policía', 'Operando', 'Bueno', 'Pedro Sánchez', 'Agente', '782-111-2233', 'Dirección de Tránsito', 'MOTO-001', '35000', '2023-08-10', '8500', 'Si', 'POL-MOTO-004', '2025-08-10', 'Vigente', '2025-08-10', '', '', '', 'Patrullaje vial'],
+      // Ejemplo 5: Camioneta SEFIPLAN
+      ['VER-2024-005', 'DEF-789-C', 'CHEVROLET', 'AVEO', '2020', '', '', 'Plata', 'sedan', '5', 'Gasolina', '4', 'Manual', 'Propio', 'SEFIPLAN', 'Xalapa', 'Torre SEFIPLAN', 'Operando', 'Regular', '', '', '', '', '', '', '', '', 'No', '', '', 'En trámite', '', '', '', '', 'Sin resguardante asignado']
+    ];
+
+    // Construir CSV limpio SIN instrucciones feas
     const BOM = '\uFEFF';
-    const csv = BOM + lineas.join('\n');
+    const csv = BOM + [
+      headers.join(','),
+      ...ejemplos.map(row => row.join(','))
+    ].join('\n');
+    
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'plantilla_vehiculos_gobierno_veracruz.csv');
+    link.setAttribute('download', 'plantilla_vehiculos_veracruz.csv');
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -486,9 +313,9 @@ export default function VehiculoCargaMasiva() {
         </div>
       )}
 
-      {/* Instrucciones */}
+      {/* Instrucciones y Catálogo de Opciones */}
       <div className="card">
-        <h3 className="font-semibold text-gray-900 mb-4">Instrucciones</h3>
+        <h3 className="font-semibold text-gray-900 mb-4">📋 Instrucciones</h3>
         <ul className="space-y-2 text-sm text-gray-600">
           <li className="flex items-start gap-2">
             <span className="text-veracruz-500 font-bold">1.</span>
@@ -496,22 +323,53 @@ export default function VehiculoCargaMasiva() {
           </li>
           <li className="flex items-start gap-2">
             <span className="text-veracruz-500 font-bold">2.</span>
-            Llena los datos de cada vehículo en una fila (no borres los encabezados)
+            Borra las filas de ejemplo y llena tus datos
           </li>
           <li className="flex items-start gap-2">
             <span className="text-veracruz-500 font-bold">3.</span>
-            Guarda el archivo como Excel (.xlsx) o CSV
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-veracruz-500 font-bold">4.</span>
-            Sube el archivo y revisa el resultado
+            Guarda el archivo y súbelo aquí
           </li>
         </ul>
         
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+          <p className="text-sm text-blue-800 font-medium mb-2">Campos Obligatorios:</p>
+          <p className="text-xs text-blue-700">numero_inventario, placas, marca, secretaria_siglas</p>
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <p className="text-xs font-semibold text-gray-700 mb-1">TIPO DE VEHÍCULO:</p>
+            <p className="text-xs text-gray-600">sedan, camioneta, pickup, suv, van, autobus, motocicleta, maquinaria, emergencia, otro</p>
+          </div>
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <p className="text-xs font-semibold text-gray-700 mb-1">RÉGIMEN:</p>
+            <p className="text-xs text-gray-600">Propio, Arrendado, Comodato</p>
+          </div>
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <p className="text-xs font-semibold text-gray-700 mb-1">ESTADO OPERATIVO:</p>
+            <p className="text-xs text-gray-600">Operando, Mal estado, En taller, Siniestrado</p>
+          </div>
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <p className="text-xs font-semibold text-gray-700 mb-1">ESTATUS:</p>
+            <p className="text-xs text-gray-600">Bueno, Regular, Malo</p>
+          </div>
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <p className="text-xs font-semibold text-gray-700 mb-1">COMBUSTIBLE:</p>
+            <p className="text-xs text-gray-600">Gasolina, Diesel, Electrico, Hibrido, Gas</p>
+          </div>
+          <div className="p-3 bg-gray-50 rounded-lg">
+            <p className="text-xs font-semibold text-gray-700 mb-1">TRANSMISIÓN:</p>
+            <p className="text-xs text-gray-600">Automatica, Manual</p>
+          </div>
+          <div className="p-3 bg-gray-50 rounded-lg md:col-span-2">
+            <p className="text-xs font-semibold text-gray-700 mb-1">SECRETARÍAS:</p>
+            <p className="text-xs text-gray-600">DIF, GOB, SSP, SALUD, SEV, SEFIPLAN, SECTUR, SEDARPA, SEDEMA, SEDESOL, SIOP...</p>
+          </div>
+        </div>
+
         <div className="mt-4 p-3 bg-yellow-50 rounded-lg">
-          <p className="text-sm text-yellow-800">
-            <strong>Nota:</strong> Los campos obligatorios son: numero_inventario, placas, marca, 
-            linea, modelo, tipo, regimen y secretaria_siglas. La secretaría debe existir en el sistema.
+          <p className="text-xs text-yellow-800">
+            <strong>Formato de fechas:</strong> AAAA-MM-DD (ej: 2024-06-15)
           </p>
         </div>
       </div>

@@ -61,6 +61,9 @@ async function initDatabase() {
     }
     console.log('✅ Base de datos SQLite conectada:', dbPath);
     
+    // Agregar columnas nuevas si no existen
+    addMissingColumns();
+    
     // Resetear contraseñas al iniciar
     await resetPasswords();
     
@@ -68,6 +71,28 @@ async function initDatabase() {
   } catch (error) {
     console.error('❌ Error conectando a la base de datos:', error);
     throw error;
+  }
+}
+
+// Agregar columnas que faltan a la tabla vehiculos
+function addMissingColumns() {
+  const newColumns = [
+    { name: 'linea', type: 'TEXT' },
+    { name: 'numero_motor', type: 'TEXT' },
+    { name: 'capacidad_pasajeros', type: 'INTEGER' },
+    { name: 'tipo_combustible', type: 'TEXT' },
+    { name: 'cilindros', type: 'INTEGER' },
+    { name: 'transmision', type: 'TEXT' }
+  ];
+  
+  for (const col of newColumns) {
+    try {
+      db.run(`ALTER TABLE vehiculos ADD COLUMN ${col.name} ${col.type}`);
+      console.log(`  ✅ Columna ${col.name} agregada`);
+      saveDatabase();
+    } catch (e) {
+      // La columna ya existe, ignorar
+    }
   }
 }
 
