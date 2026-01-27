@@ -556,7 +556,7 @@ export default function VehiculosLista() {
                   
                   <div className="flex justify-between items-start mb-3">
                     <div>
-                      <h3 className="font-bold text-lg">{v.marca} {v.modelo}</h3>
+                      <h3 className="font-bold text-lg">{v.marca} {v.linea || v.modelo}</h3>
                       <p className="text-gray-500 text-sm">{v.anio} • {v.color}</p>
                       {v.tipo && (
                         <span className="inline-block mt-1 px-2 py-0.5 bg-veracruz-100 text-veracruz-700 rounded text-xs font-medium">

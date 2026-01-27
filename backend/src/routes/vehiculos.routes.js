@@ -211,34 +211,44 @@ router.post('/carga-masiva', authMiddleware, requireAdminSecretaria, upload.sing
         // Verificar si existe
         const existente = query('SELECT id FROM vehiculos WHERE numero_inventario = ?', [numero_inventario]);
 
+        // Construir descripción combinada
+        const descripcion = linea ? `${marca} ${linea}` : marca;
+
         if (existente.rows.length > 0) {
-          query(`UPDATE vehiculos SET placas=?, numero_serie=?, marca=?, modelo=?, anio=?, linea=?, numero_motor=?, 
+          query(`UPDATE vehiculos SET 
+            placas=?, numero_serie=?, marca=?, modelo=?, anio=?, linea=?, numero_motor=?, 
             color=?, tipo=?, capacidad_pasajeros=?, tipo_combustible=?, cilindros=?, transmision=?, regimen=?, 
             secretaria_id=?, municipio=?, ubicacion_fisica=?, estado_operativo=?, estatus=?, resguardante_nombre=?, 
             resguardante_cargo=?, resguardante_telefono=?, area_responsable=?, numero_economico=?, valor_libros=?, 
             fecha_adquisicion=?, kilometraje=?, seguro=?, poliza_seguro=?, vigencia_seguro=?, tarjeta_circulacion=?, 
-            vigencia_tarjeta=?, proveedor_arrendadora=?, renta_mensual=?, vigencia_contrato=?, observaciones=?, 
-            updated_at=datetime('now') WHERE numero_inventario=?`,
-            [placas, numero_serie, marca, linea || marca, anio, linea, numero_motor, color, tipoFinal, 
-             capacidad_pasajeros, tipo_combustible, cilindros, transmision, regimen, secretaria_id, municipio, 
-             ubicacion_fisica, estado_operativo, estatus, resguardante_nombre, resguardante_cargo, resguardante_telefono,
-             area_responsable, numero_economico, valor_libros, fecha_adquisicion, kilometraje, seguro, poliza_seguro,
-             vigencia_seguro, tarjeta_circulacion, vigencia_tarjeta, proveedor_arrendadora, renta_mensual, 
-             vigencia_contrato, observaciones, numero_inventario]);
+            vigencia_tarjeta=?, proveedor_arrendadora=?, renta_mensual=?, vigencia_contrato=?, observaciones=?,
+            descripcion=?, activo=1, updated_at=datetime('now') 
+            WHERE numero_inventario=?`,
+            [placas, numero_serie, marca, linea || '', anio, linea, numero_motor, 
+             color, tipoFinal, capacidad_pasajeros, tipo_combustible, cilindros, transmision, regimen, 
+             secretaria_id, municipio, ubicacion_fisica, estado_operativo, estatus, resguardante_nombre, 
+             resguardante_cargo, resguardante_telefono, area_responsable, numero_economico, valor_libros, 
+             fecha_adquisicion, kilometraje, seguro, poliza_seguro, vigencia_seguro, tarjeta_circulacion, 
+             vigencia_tarjeta, proveedor_arrendadora, renta_mensual, vigencia_contrato, observaciones,
+             descripcion, numero_inventario]);
           resultados.actualizados++;
         } else {
-          query(`INSERT INTO vehiculos (numero_inventario, placas, numero_serie, marca, modelo, anio, linea, numero_motor,
-            color, tipo, capacidad_pasajeros, tipo_combustible, cilindros, transmision, regimen, secretaria_id, municipio,
-            ubicacion_fisica, estado_operativo, estatus, resguardante_nombre, resguardante_cargo, resguardante_telefono,
-            area_responsable, numero_economico, valor_libros, fecha_adquisicion, kilometraje, seguro, poliza_seguro,
-            vigencia_seguro, tarjeta_circulacion, vigencia_tarjeta, proveedor_arrendadora, renta_mensual, vigencia_contrato,
-            observaciones, activo) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1)`,
-            [numero_inventario, placas, numero_serie, marca, linea || marca, anio, linea, numero_motor, color, tipoFinal,
-             capacidad_pasajeros, tipo_combustible, cilindros, transmision, regimen, secretaria_id, municipio,
-             ubicacion_fisica, estado_operativo, estatus, resguardante_nombre, resguardante_cargo, resguardante_telefono,
-             area_responsable, numero_economico, valor_libros, fecha_adquisicion, kilometraje, seguro, poliza_seguro,
-             vigencia_seguro, tarjeta_circulacion, vigencia_tarjeta, proveedor_arrendadora, renta_mensual, vigencia_contrato,
-             observaciones]);
+          query(`INSERT INTO vehiculos (
+            numero_inventario, placas, numero_serie, marca, modelo, anio, linea, numero_motor,
+            color, tipo, capacidad_pasajeros, tipo_combustible, cilindros, transmision, regimen, 
+            secretaria_id, municipio, ubicacion_fisica, estado_operativo, estatus, resguardante_nombre,
+            resguardante_cargo, resguardante_telefono, area_responsable, numero_economico, valor_libros, 
+            fecha_adquisicion, kilometraje, seguro, poliza_seguro, vigencia_seguro, tarjeta_circulacion, 
+            vigencia_tarjeta, proveedor_arrendadora, renta_mensual, vigencia_contrato, observaciones, 
+            descripcion, activo, en_uso
+          ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,1,1)`,
+            [numero_inventario, placas, numero_serie, marca, linea || '', anio, linea, numero_motor, 
+             color, tipoFinal, capacidad_pasajeros, tipo_combustible, cilindros, transmision, regimen, 
+             secretaria_id, municipio, ubicacion_fisica, estado_operativo, estatus, resguardante_nombre,
+             resguardante_cargo, resguardante_telefono, area_responsable, numero_economico, valor_libros, 
+             fecha_adquisicion, kilometraje, seguro, poliza_seguro, vigencia_seguro, tarjeta_circulacion, 
+             vigencia_tarjeta, proveedor_arrendadora, renta_mensual, vigencia_contrato, observaciones,
+             descripcion]);
           resultados.insertados++;
         }
       } catch (err) {
@@ -506,7 +516,8 @@ router.put('/:id', authMiddleware, requireAdminSecretaria, (req, res) => {
     
     const allowedFields = [
       'numero_inventario', 'numero_economico', 'placas', 'numero_serie',
-      'descripcion', 'descripcion_detallada', 'marca', 'modelo', 'anio', 'color', 'tipo',
+      'descripcion', 'descripcion_detallada', 'marca', 'modelo', 'linea', 'anio', 'color', 'tipo',
+      'numero_motor', 'capacidad_pasajeros', 'tipo_combustible', 'cilindros', 'transmision',
       'valor_libros', 'fecha_adquisicion',
       'ubicacion_fisica', 'municipio', 'secretaria_id', 'area_responsable',
       'tarjeta_circulacion', 'vigencia_tarjeta',

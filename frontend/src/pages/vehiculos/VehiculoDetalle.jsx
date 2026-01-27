@@ -142,11 +142,16 @@ export default function VehiculoDetalle() {
           <h2 className="text-xl font-bold text-gray-900 mb-6">Editar Vehículo</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4">
             <InputField label="Marca" value={formData.marca} onChange={v => setFormData({...formData, marca: v})} />
-            <InputField label="Modelo" value={formData.modelo} onChange={v => setFormData({...formData, modelo: v})} />
+            <InputField label="Línea" value={formData.linea || formData.modelo} onChange={v => setFormData({...formData, linea: v, modelo: v})} />
             <InputField label="Año" value={formData.anio} onChange={v => setFormData({...formData, anio: v})} type="number" />
             <InputField label="Color" value={formData.color} onChange={v => setFormData({...formData, color: v})} />
             <InputField label="Placas" value={formData.placas} onChange={v => setFormData({...formData, placas: v})} />
             <InputField label="No. Serie" value={formData.numero_serie} onChange={v => setFormData({...formData, numero_serie: v})} />
+            <InputField label="No. Motor" value={formData.numero_motor} onChange={v => setFormData({...formData, numero_motor: v})} />
+            <InputField label="Capacidad Pasajeros" value={formData.capacidad_pasajeros} onChange={v => setFormData({...formData, capacidad_pasajeros: v})} type="number" />
+            <SelectField label="Combustible" value={formData.tipo_combustible} onChange={v => setFormData({...formData, tipo_combustible: v})} options={['Gasolina', 'Diesel', 'Electrico', 'Hibrido', 'Gas']} />
+            <InputField label="Cilindros" value={formData.cilindros} onChange={v => setFormData({...formData, cilindros: v})} type="number" />
+            <SelectField label="Transmisión" value={formData.transmision} onChange={v => setFormData({...formData, transmision: v})} options={['Automatica', 'Manual']} />
             <SelectField label="Estado Operativo" value={formData.estado_operativo} onChange={v => setFormData({...formData, estado_operativo: v})} options={['Operando', 'Disponible', 'En taller', 'Mal estado', 'Baja']} />
             <SelectField label="Condición" value={formData.estatus} onChange={v => setFormData({...formData, estatus: v})} options={['Bueno', 'Regular', 'Malo']} />
             <InputField label="Kilometraje" value={formData.kilometraje} onChange={v => setFormData({...formData, kilometraje: v})} type="number" />
@@ -186,13 +191,18 @@ export default function VehiculoDetalle() {
           <div className="bg-white rounded-xl border overflow-hidden">
             <table className="w-full text-sm">
               <tbody className="divide-y divide-gray-100">
-                <Row label="Marca / Modelo" value={`${vehiculo.marca} ${vehiculo.modelo} ${vehiculo.anio || ''}`} />
+                <Row label="Marca / Línea" value={`${vehiculo.marca} ${vehiculo.linea || vehiculo.modelo} ${vehiculo.anio || ''}`} />
                 <Row label="Placas" value={vehiculo.placas} highlight />
                 <Row label="No. Económico" value={vehiculo.numero_economico} />
                 <Row label="No. Inventario" value={vehiculo.numero_inventario} />
                 <Row label="No. Serie" value={vehiculo.numero_serie} />
+                <Row label="No. Motor" value={vehiculo.numero_motor} />
                 <Row label="Color" value={vehiculo.color} />
                 <Row label="Tipo" value={vehiculo.tipo} />
+                <Row label="Capacidad Pasajeros" value={vehiculo.capacidad_pasajeros} />
+                <Row label="Combustible" value={vehiculo.tipo_combustible} />
+                <Row label="Cilindros" value={vehiculo.cilindros} />
+                <Row label="Transmisión" value={vehiculo.transmision} />
                 <Row label="Régimen" value={vehiculo.regimen} />
                 <Row label="Kilometraje" value={vehiculo.kilometraje ? `${Number(vehiculo.kilometraje).toLocaleString()} km` : '-'} />
                 <Row label="Estado Operativo" value={vehiculo.estado_operativo} valueClass={
