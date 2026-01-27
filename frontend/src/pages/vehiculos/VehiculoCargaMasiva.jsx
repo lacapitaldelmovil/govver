@@ -83,76 +83,26 @@ export default function VehiculoCargaMasiva() {
     }
   };
 
-  const descargarPlantilla = () => {
-    // Plantilla CSV limpia y profesional
-    const headers = [
-      'numero_inventario',
-      'placas',
-      'marca',
-      'linea',
-      'anio',
-      'numero_serie',
-      'numero_motor',
-      'color',
-      'tipo',
-      'capacidad_pasajeros',
-      'tipo_combustible',
-      'cilindros',
-      'transmision',
-      'regimen',
-      'secretaria_siglas',
-      'municipio',
-      'ubicacion_fisica',
-      'estado_operativo',
-      'estatus',
-      'resguardante_nombre',
-      'resguardante_cargo',
-      'resguardante_telefono',
-      'area_responsable',
-      'numero_economico',
-      'valor_libros',
-      'fecha_adquisicion',
-      'kilometraje',
-      'seguro',
-      'poliza_seguro',
-      'vigencia_seguro',
-      'tarjeta_circulacion',
-      'vigencia_tarjeta',
-      'proveedor_arrendadora',
-      'renta_mensual',
-      'vigencia_contrato',
-      'observaciones'
-    ];
-
-    // Ejemplos de datos
-    const ejemplos = [
-      // Ejemplo 1: Camioneta propia
-      ['VER-2024-001', 'ABC-123-A', 'TOYOTA', 'HILUX', '2024', '1HGCG5655WA123456', 'MOT-12345', 'Blanco', 'pickup', '5', 'Gasolina', '4', 'Automatica', 'Propio', 'DIF', 'Xalapa', 'Oficinas Centrales', 'Operando', 'Bueno', 'Juan Pérez García', 'Director General', '228-123-4567', 'Dirección General', 'ECO-001', '450000', '2024-01-15', '15000', 'Si', 'POL-2024-001', '2025-01-15', 'Vigente', '2025-06-30', '', '', '', 'Vehículo en excelente estado'],
-      // Ejemplo 2: Sedán arrendado
-      ['VER-2024-002', 'XYZ-456-B', 'NISSAN', 'VERSA', '2023', '3N1BC1AS0ZK654321', 'MOT-67890', 'Gris', 'sedan', '5', 'Gasolina', '4', 'Manual', 'Arrendado', 'GOB', 'Veracruz', 'Palacio de Gobierno', 'Operando', 'Bueno', 'María López', 'Secretaria', '229-987-6543', 'Secretaría Particular', 'ECO-002', '', '', '8000', 'Si', 'POL-ARR-002', '2025-12-31', 'Vigente', '2025-12-31', 'Arrendadora del Golfo SA', '8500', '2025-06-30', 'Vehículo arrendado'],
-      // Ejemplo 3: Van de Salud
-      ['VER-2024-003', 'GHI-012-D', 'MERCEDES BENZ', 'SPRINTER', '2022', 'WD3PE8CC6NP123456', 'MOT-11111', 'Blanco', 'van', '12', 'Diesel', '4', 'Automatica', 'Propio', 'SALUD', 'Coatzacoalcos', 'Hospital Regional', 'Operando', 'Bueno', 'Dr. Carlos Ramírez', 'Subdirector', '921-456-7890', 'Subdirección Médica', 'ECO-003', '850000', '2022-03-20', '45000', 'Si', 'POL-2022-003', '2025-03-20', 'Vigente', '2025-09-15', '', '', '', 'Uso exclusivo brigadas de salud'],
-      // Ejemplo 4: Motocicleta SSP
-      ['VER-2024-004', 'VER-M-001', 'HONDA', 'CGL 125', '2023', 'LWBPCJ101P1123456', 'MOT-22222', 'Negro', 'motocicleta', '2', 'Gasolina', '1', 'Manual', 'Propio', 'SSP', 'Poza Rica', 'Cuartel de Policía', 'Operando', 'Bueno', 'Pedro Sánchez', 'Agente', '782-111-2233', 'Dirección de Tránsito', 'MOTO-001', '35000', '2023-08-10', '8500', 'Si', 'POL-MOTO-004', '2025-08-10', 'Vigente', '2025-08-10', '', '', '', 'Patrullaje vial'],
-      // Ejemplo 5: Camioneta SEFIPLAN
-      ['VER-2024-005', 'DEF-789-C', 'CHEVROLET', 'AVEO', '2020', '', '', 'Plata', 'sedan', '5', 'Gasolina', '4', 'Manual', 'Propio', 'SEFIPLAN', 'Xalapa', 'Torre SEFIPLAN', 'Operando', 'Regular', '', '', '', '', '', '', '', '', 'No', '', '', 'En trámite', '', '', '', '', 'Sin resguardante asignado']
-    ];
-
-    // Construir CSV limpio SIN instrucciones feas
-    const BOM = '\uFEFF';
-    const csv = BOM + [
-      headers.join(','),
-      ...ejemplos.map(row => row.join(','))
-    ].join('\n');
-    
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'plantilla_vehiculos_veracruz.csv');
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+  const descargarPlantilla = async () => {
+    try {
+      // Descargar plantilla Excel desde el backend
+      const response = await api.get('/vehiculos/plantilla', {
+        responseType: 'blob'
+      });
+      
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'plantilla_vehiculos_veracruz.xlsx');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      toast.success('Plantilla descargada');
+    } catch (error) {
+      console.error('Error descargando plantilla:', error);
+      toast.error('Error al descargar plantilla');
+    }
   };
 
   return (
@@ -164,15 +114,15 @@ export default function VehiculoCargaMasiva() {
       </div>
 
       {/* Descargar plantilla */}
-      <div className="card bg-blue-50 border-blue-200">
-        <div className="flex items-center justify-between">
+      <div className="card bg-green-50 border-green-200">
+        <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h3 className="font-medium text-blue-900">Descarga la plantilla</h3>
-            <p className="text-sm text-blue-700">Usa esta plantilla para asegurar el formato correcto</p>
+            <h3 className="font-medium text-green-900">📥 Descarga la plantilla Excel</h3>
+            <p className="text-sm text-green-700">Incluye hoja de catálogos con todas las opciones válidas</p>
           </div>
-          <button onClick={descargarPlantilla} className="btn-primary flex items-center gap-2">
+          <button onClick={descargarPlantilla} className="btn-primary flex items-center gap-2 bg-green-600 hover:bg-green-700">
             <ArrowDownTrayIcon className="h-5 w-5" />
-            Plantilla CSV
+            Descargar Excel
           </button>
         </div>
       </div>

@@ -18,6 +18,117 @@ const upload = multer({
 });
 
 /**
+ * GET /api/vehiculos/plantilla - Descargar plantilla Excel con listas desplegables
+ */
+router.get('/plantilla', authMiddleware, (req, res) => {
+  try {
+    // Obtener secretarías disponibles
+    const secretariasResult = query('SELECT siglas FROM secretarias WHERE activa = 1 ORDER BY siglas');
+    const secretariasList = secretariasResult.rows.map(s => s.siglas);
+
+    // Crear workbook
+    const wb = xlsx.utils.book_new();
+
+    // Datos de ejemplo
+    const data = [
+      // Encabezados
+      ['numero_inventario', 'placas', 'marca', 'linea', 'anio', 'numero_serie', 'numero_motor', 'color', 
+       'tipo', 'capacidad_pasajeros', 'tipo_combustible', 'cilindros', 'transmision', 'regimen', 
+       'secretaria_siglas', 'municipio', 'ubicacion_fisica', 'estado_operativo', 'estatus', 
+       'resguardante_nombre', 'resguardante_cargo', 'resguardante_telefono', 'area_responsable', 
+       'numero_economico', 'valor_libros', 'fecha_adquisicion', 'kilometraje', 'seguro', 
+       'poliza_seguro', 'vigencia_seguro', 'tarjeta_circulacion', 'vigencia_tarjeta', 
+       'proveedor_arrendadora', 'renta_mensual', 'vigencia_contrato', 'observaciones'],
+      // Ejemplo 1
+      ['VER-2024-001', 'ABC-123-A', 'TOYOTA', 'HILUX', 2024, '1HGCG5655WA123456', 'MOT-12345', 'Blanco',
+       'pickup', 5, 'Gasolina', 4, 'Automatica', 'Propio', 'DIF', 'Xalapa', 'Oficinas Centrales',
+       'Operando', 'Bueno', 'Juan Pérez', 'Director', '228-123-4567', 'Dirección General',
+       'ECO-001', 450000, '2024-01-15', 15000, 'Si', 'POL-001', '2025-01-15', 'Vigente', '2025-06-30',
+       '', '', '', 'Vehículo en excelente estado'],
+      // Ejemplo 2
+      ['VER-2024-002', 'XYZ-456-B', 'NISSAN', 'VERSA', 2023, '3N1BC1AS0ZK654321', 'MOT-67890', 'Gris',
+       'sedan', 5, 'Gasolina', 4, 'Manual', 'Arrendado', 'GOB', 'Veracruz', 'Palacio de Gobierno',
+       'Operando', 'Bueno', 'María López', 'Secretaria', '229-987-6543', 'Secretaría Particular',
+       'ECO-002', '', '', 8000, 'Si', 'POL-ARR-002', '2025-12-31', 'Vigente', '2025-12-31',
+       'Arrendadora SA', 8500, '2025-06-30', 'Vehículo arrendado']
+    ];
+
+    const ws = xlsx.utils.aoa_to_sheet(data);
+
+    // Ajustar ancho de columnas
+    ws['!cols'] = [
+      { wch: 18 }, // numero_inventario
+      { wch: 12 }, // placas
+      { wch: 15 }, // marca
+      { wch: 12 }, // linea
+      { wch: 6 },  // anio
+      { wch: 20 }, // numero_serie
+      { wch: 12 }, // numero_motor
+      { wch: 10 }, // color
+      { wch: 12 }, // tipo
+      { wch: 8 },  // capacidad
+      { wch: 12 }, // combustible
+      { wch: 8 },  // cilindros
+      { wch: 12 }, // transmision
+      { wch: 10 }, // regimen
+      { wch: 10 }, // secretaria
+      { wch: 15 }, // municipio
+      { wch: 20 }, // ubicacion
+      { wch: 12 }, // estado_op
+      { wch: 10 }, // estatus
+      { wch: 20 }, // resguardante
+      { wch: 15 }, // cargo
+      { wch: 15 }, // telefono
+      { wch: 18 }, // area
+      { wch: 12 }, // num_econ
+      { wch: 12 }, // valor
+      { wch: 12 }, // fecha_adq
+      { wch: 10 }, // km
+      { wch: 8 },  // seguro
+      { wch: 12 }, // poliza
+      { wch: 12 }, // vig_seguro
+      { wch: 12 }, // tarjeta
+      { wch: 12 }, // vig_tarjeta
+      { wch: 20 }, // arrendadora
+      { wch: 12 }, // renta
+      { wch: 12 }, // vig_contrato
+      { wch: 30 }  // observaciones
+    ];
+
+    // Crear hoja de catálogos para las listas desplegables
+    const catalogos = [
+      ['TIPO', 'COMBUSTIBLE', 'TRANSMISION', 'REGIMEN', 'ESTADO_OPERATIVO', 'ESTATUS', 'SEGURO', 'TARJETA', 'SECRETARIAS'],
+      ['sedan', 'Gasolina', 'Automatica', 'Propio', 'Operando', 'Bueno', 'Si', 'Vigente', secretariasList[0] || 'DIF'],
+      ['camioneta', 'Diesel', 'Manual', 'Arrendado', 'Mal estado', 'Regular', 'No', 'No vigente', secretariasList[1] || 'GOB'],
+      ['pickup', 'Electrico', '', 'Comodato', 'En taller', 'Malo', '', 'En trámite', secretariasList[2] || 'SSP'],
+      ['suv', 'Hibrido', '', '', 'Siniestrado', '', '', 'No aplica', secretariasList[3] || 'SALUD'],
+      ['van', 'Gas', '', '', 'Baja', '', '', '', secretariasList[4] || 'SEV'],
+      ['autobus', '', '', '', '', '', '', '', secretariasList[5] || 'SEFIPLAN'],
+      ['motocicleta', '', '', '', '', '', '', '', secretariasList[6] || ''],
+      ['maquinaria', '', '', '', '', '', '', '', secretariasList[7] || ''],
+      ['emergencia', '', '', '', '', '', '', '', secretariasList[8] || ''],
+      ['otro', '', '', '', '', '', '', '', secretariasList[9] || '']
+    ];
+
+    const wsCatalogos = xlsx.utils.aoa_to_sheet(catalogos);
+    
+    xlsx.utils.book_append_sheet(wb, ws, 'Vehiculos');
+    xlsx.utils.book_append_sheet(wb, wsCatalogos, 'Catalogos');
+
+    // Generar buffer
+    const buffer = xlsx.write(wb, { type: 'buffer', bookType: 'xlsx' });
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename=plantilla_vehiculos_veracruz.xlsx');
+    res.send(buffer);
+
+  } catch (error) {
+    console.error('Error generando plantilla:', error);
+    res.status(500).json({ error: 'Error al generar plantilla' });
+  }
+});
+
+/**
  * POST /api/vehiculos/carga-masiva - Carga masiva desde Excel/CSV
  */
 router.post('/carga-masiva', authMiddleware, requireAdminSecretaria, upload.single('archivo'), (req, res) => {
