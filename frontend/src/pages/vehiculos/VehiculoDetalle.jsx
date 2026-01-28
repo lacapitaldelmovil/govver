@@ -140,35 +140,66 @@ export default function VehiculoDetalle() {
         /* ========== MODO EDICIÓN ========== */
         <div className="bg-white rounded-xl border p-6">
           <h2 className="text-xl font-bold text-gray-900 mb-6">Editar Vehículo</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4">
+          
+          {/* Identificación */}
+          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Identificación</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
+            <InputField label="No. Inventario" value={formData.numero_inventario} onChange={v => setFormData({...formData, numero_inventario: v})} />
+            <InputField label="Placas" value={formData.placas} onChange={v => setFormData({...formData, placas: v})} />
+            <InputField label="No. Serie" value={formData.numero_serie} onChange={v => setFormData({...formData, numero_serie: v})} />
+            <InputField label="No. Económico" value={formData.numero_economico} onChange={v => setFormData({...formData, numero_economico: v})} />
+          </div>
+          
+          {/* Características */}
+          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Características</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
             <InputField label="Marca" value={formData.marca} onChange={v => setFormData({...formData, marca: v})} />
             <InputField label="Línea" value={formData.linea || formData.modelo} onChange={v => setFormData({...formData, linea: v, modelo: v})} />
             <InputField label="Año" value={formData.anio} onChange={v => setFormData({...formData, anio: v})} type="number" />
             <InputField label="Color" value={formData.color} onChange={v => setFormData({...formData, color: v})} />
-            <InputField label="Placas" value={formData.placas} onChange={v => setFormData({...formData, placas: v})} />
-            <InputField label="No. Serie" value={formData.numero_serie} onChange={v => setFormData({...formData, numero_serie: v})} />
+            <SelectField label="Tipo" value={formData.tipo} onChange={v => setFormData({...formData, tipo: v})} options={['sedan', 'camioneta', 'pickup', 'suv', 'van', 'autobus', 'motocicleta', 'maquinaria', 'emergencia', 'otro']} />
             <InputField label="No. Motor" value={formData.numero_motor} onChange={v => setFormData({...formData, numero_motor: v})} />
             <InputField label="Capacidad Pasajeros" value={formData.capacidad_pasajeros} onChange={v => setFormData({...formData, capacidad_pasajeros: v})} type="number" />
             <SelectField label="Combustible" value={formData.tipo_combustible} onChange={v => setFormData({...formData, tipo_combustible: v})} options={['Gasolina', 'Diesel', 'Electrico', 'Hibrido', 'Gas']} />
             <InputField label="Cilindros" value={formData.cilindros} onChange={v => setFormData({...formData, cilindros: v})} type="number" />
             <SelectField label="Transmisión" value={formData.transmision} onChange={v => setFormData({...formData, transmision: v})} options={['Automatica', 'Manual']} />
+          </div>
+          
+          {/* Estado y Ubicación */}
+          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Estado y Ubicación</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
             <SelectField label="Estado Operativo" value={formData.estado_operativo} onChange={v => setFormData({...formData, estado_operativo: v})} options={['Operando', 'Disponible', 'En taller', 'Mal estado', 'Baja']} />
             <SelectField label="Condición" value={formData.estatus} onChange={v => setFormData({...formData, estatus: v})} options={['Bueno', 'Regular', 'Malo']} />
             <InputField label="Kilometraje" value={formData.kilometraje} onChange={v => setFormData({...formData, kilometraje: v})} type="number" />
+            <SelectField label="Régimen" value={formData.regimen} onChange={v => setFormData({...formData, regimen: v})} options={['Propio', 'Arrendado', 'Comodato']} />
             <InputField label="Municipio" value={formData.municipio} onChange={v => setFormData({...formData, municipio: v})} />
             <InputField label="Ubicación Física" value={formData.ubicacion_fisica} onChange={v => setFormData({...formData, ubicacion_fisica: v})} />
             <InputField label="Área Responsable" value={formData.area_responsable} onChange={v => setFormData({...formData, area_responsable: v})} />
+          </div>
+          
+          {/* Seguro */}
+          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Seguro</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
+            <InputField label="Aseguradora" value={formData.seguro} onChange={v => setFormData({...formData, seguro: v})} />
             <InputField label="Póliza Seguro" value={formData.poliza_seguro} onChange={v => setFormData({...formData, poliza_seguro: v})} />
             <InputField label="Vigencia Seguro" value={formData.vigencia_seguro} onChange={v => setFormData({...formData, vigencia_seguro: v})} placeholder="DD/MM/YYYY" />
-            <InputField label="Resguardante" value={formData.resguardante_nombre} onChange={v => setFormData({...formData, resguardante_nombre: v})} />
           </div>
+          
+          {/* Resguardante */}
+          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Resguardante</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
+            <InputField label="Nombre" value={formData.resguardante_nombre} onChange={v => setFormData({...formData, resguardante_nombre: v})} />
+            <InputField label="Cargo" value={formData.resguardante_cargo} onChange={v => setFormData({...formData, resguardante_cargo: v})} />
+            <InputField label="Teléfono" value={formData.resguardante_telefono} onChange={v => setFormData({...formData, resguardante_telefono: v})} />
+          </div>
+          
           <div className="mt-4">
             <label className="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
             <textarea className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" rows={3} value={formData.observaciones || ''} onChange={e => setFormData({...formData, observaciones: e.target.value})} />
           </div>
           <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
             <button onClick={() => { setEditando(false); setFormData(vehiculo); }} className="px-5 py-2 text-sm border rounded-lg hover:bg-gray-50">Cancelar</button>
-            <button onClick={guardarCambios} className="px-5 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium">Guardar</button>
+            <button onClick={guardarCambios} className="px-5 py-2 text-sm bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700 font-medium">Guardar</button>
           </div>
         </div>
       ) : (
