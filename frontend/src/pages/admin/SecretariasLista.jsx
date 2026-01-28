@@ -4,7 +4,11 @@ import toast from 'react-hot-toast';
 import {
   PlusIcon,
   PencilIcon,
-  BuildingOfficeIcon
+  BuildingOfficeIcon,
+  UsersIcon,
+  UserPlusIcon,
+  TrashIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
 
 export default function SecretariasLista() {
@@ -19,6 +23,19 @@ export default function SecretariasLista() {
     direccion: '',
     telefono: '',
     email: ''
+  });
+  
+  // Estados para modal de usuarios
+  const [showUsuariosModal, setShowUsuariosModal] = useState(false);
+  const [secretariaSeleccionada, setSecretariaSeleccionada] = useState(null);
+  const [usuariosSecretaria, setUsuariosSecretaria] = useState([]);
+  const [loadingUsuarios, setLoadingUsuarios] = useState(false);
+  const [showNuevoUsuario, setShowNuevoUsuario] = useState(false);
+  const [nuevoUsuario, setNuevoUsuario] = useState({
+    nombre: '',
+    email: '',
+    password: '',
+    rol: 'admin_secretaria'
   });
 
   useEffect(() => {
@@ -93,6 +110,64 @@ export default function SecretariasLista() {
     );
   };
 
+  // Función para abrir modal de usuarios
+  const abrirModalUsuarios = async (secretaria) => {
+    setSecretariaSeleccionada(secretaria);
+    setShowUsuariosModal(true);
+    setLoadingUsuarios(true);
+    try {
+      const res = await api.get(`/usuarios?secretaria_id=${secretaria.id}`);
+      setUsuariosSecretaria(res.data.data || res.data || []);
+    } catch (error) {
+      console.error('Error cargando usuarios:', error);
+      toast.error('Error al cargar usuarios');
+    }
+    setLoadingUsuarios(false);
+  };
+
+  // Crear nuevo usuario para la secretaría
+  const crearUsuarioSecretaria = async (e) => {
+    e.preventDefault();
+    try {
+      await api.post('/usuarios', {
+        ...nuevoUsuario,
+        secretaria_id: secretariaSeleccionada.id
+      });
+      toast.success('Usuario creado exitosamente');
+      setShowNuevoUsuario(false);
+      setNuevoUsuario({ nombre: '', email: '', password: '', rol: 'admin_secretaria' });
+      // Recargar usuarios
+      abrirModalUsuarios(secretariaSeleccionada);
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Error al crear usuario');
+    }
+  };
+
+  // Eliminar usuario
+  const eliminarUsuario = async (usuarioId) => {
+    if (!confirm('¿Estás seguro de eliminar este usuario?')) return;
+    try {
+      await api.delete(`/usuarios/${usuarioId}`);
+      toast.success('Usuario eliminado');
+      abrirModalUsuarios(secretariaSeleccionada);
+    } catch (error) {
+      toast.error('Error al eliminar usuario');
+    }
+  };
+
+  // Obtener badge de rol de usuario
+  const getRolUsuarioBadge = (rol) => {
+    const roles = {
+      'admin': { bg: 'bg-purple-100', text: 'text-purple-800', label: 'Super Admin' },
+      'admin_secretaria': { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Admin' },
+      'gobernacion': { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Gobernación' },
+      'conductor': { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Conductor' },
+      'flota': { bg: 'bg-green-100', text: 'text-green-800', label: 'Flota' }
+    };
+    const r = roles[rol] || { bg: 'bg-gray-100', text: 'text-gray-800', label: rol };
+    return <span className={`px-2 py-1 text-xs font-medium rounded-full ${r.bg} ${r.text}`}>{r.label}</span>;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -152,13 +227,20 @@ export default function SecretariasLista() {
               )}
             </div>
             
-            <div className="mt-4 pt-3 border-t">
+            <div className="mt-4 pt-3 border-t flex gap-2">
+              <button
+                onClick={() => abrirModalUsuarios(secretaria)}
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100"
+              >
+                <UsersIcon className="h-4 w-4" />
+                Usuarios
+              </button>
               <button
                 onClick={() => abrirModalEditar(secretaria)}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100"
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100"
               >
                 <PencilIcon className="h-4 w-4" />
-                Editar Secretaría
+                Editar
               </button>
             </div>
           </div>
@@ -226,12 +308,22 @@ export default function SecretariasLista() {
                   {getRolBadge(secretaria.activa)}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button
-                    onClick={() => abrirModalEditar(secretaria)}
-                    className="text-green-600 hover:text-green-900"
-                  >
-                    <PencilIcon className="h-5 w-5" />
-                  </button>
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => abrirModalUsuarios(secretaria)}
+                      className="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded"
+                      title="Ver usuarios"
+                    >
+                      <UsersIcon className="h-5 w-5" />
+                    </button>
+                    <button
+                      onClick={() => abrirModalEditar(secretaria)}
+                      className="text-green-600 hover:text-green-900 p-1 hover:bg-green-50 rounded"
+                      title="Editar secretaría"
+                    >
+                      <PencilIcon className="h-5 w-5" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -333,6 +425,165 @@ export default function SecretariasLista() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Usuarios de la Secretaría */}
+      {showUsuariosModal && secretariaSeleccionada && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+            {/* Header del modal */}
+            <div className="p-4 border-b flex items-center justify-between bg-gray-50">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">
+                  Usuarios de {secretariaSeleccionada.siglas}
+                </h2>
+                <p className="text-sm text-gray-500">{secretariaSeleccionada.nombre}</p>
+              </div>
+              <button
+                onClick={() => setShowUsuariosModal(false)}
+                className="p-2 hover:bg-gray-200 rounded-full"
+              >
+                <XMarkIcon className="h-5 w-5 text-gray-500" />
+              </button>
+            </div>
+
+            {/* Contenido */}
+            <div className="flex-1 overflow-y-auto p-4">
+              {loadingUsuarios ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                </div>
+              ) : (
+                <>
+                  {/* Lista de usuarios */}
+                  {usuariosSecretaria.length > 0 ? (
+                    <div className="space-y-3 mb-4">
+                      {usuariosSecretaria.map((usuario) => (
+                        <div key={usuario.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
+                              <span className="text-green-700 font-bold">
+                                {usuario.nombre?.charAt(0) || 'U'}
+                              </span>
+                            </div>
+                            <div>
+                              <p className="font-medium text-gray-900">{usuario.nombre}</p>
+                              <p className="text-sm text-gray-500">{usuario.email}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {getRolUsuarioBadge(usuario.rol)}
+                            <button
+                              onClick={() => eliminarUsuario(usuario.id)}
+                              className="p-1 text-red-500 hover:bg-red-50 rounded"
+                              title="Eliminar usuario"
+                            >
+                              <TrashIcon className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <UsersIcon className="h-12 w-12 mx-auto mb-2 text-gray-300" />
+                      <p>No hay usuarios en esta secretaría</p>
+                    </div>
+                  )}
+
+                  {/* Formulario nuevo usuario */}
+                  {showNuevoUsuario ? (
+                    <div className="border-t pt-4 mt-4">
+                      <h3 className="font-medium text-gray-900 mb-3">Nuevo Usuario</h3>
+                      <form onSubmit={crearUsuarioSecretaria} className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                            <input
+                              type="text"
+                              value={nuevoUsuario.nombre}
+                              onChange={(e) => setNuevoUsuario({...nuevoUsuario, nombre: e.target.value})}
+                              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                              required
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                            <input
+                              type="email"
+                              value={nuevoUsuario.email}
+                              onChange={(e) => setNuevoUsuario({...nuevoUsuario, email: e.target.value})}
+                              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                            <input
+                              type="password"
+                              value={nuevoUsuario.password}
+                              onChange={(e) => setNuevoUsuario({...nuevoUsuario, password: e.target.value})}
+                              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                              required
+                              minLength={6}
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Rol</label>
+                            <select
+                              value={nuevoUsuario.rol}
+                              onChange={(e) => setNuevoUsuario({...nuevoUsuario, rol: e.target.value})}
+                              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                            >
+                              <option value="admin_secretaria">Administrador</option>
+                              <option value="conductor">Conductor</option>
+                              <option value="flota">Encargado de Flota</option>
+                            </select>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 pt-2">
+                          <button
+                            type="button"
+                            onClick={() => setShowNuevoUsuario(false)}
+                            className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+                          >
+                            Cancelar
+                          </button>
+                          <button
+                            type="submit"
+                            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                          >
+                            Crear Usuario
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowNuevoUsuario(true)}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-green-500 hover:text-green-600 transition-colors"
+                    >
+                      <UserPlusIcon className="h-5 w-5" />
+                      Agregar Usuario
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t bg-gray-50">
+              <button
+                onClick={() => setShowUsuariosModal(false)}
+                className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -14,14 +14,25 @@ const router = express.Router();
  */
 router.get('/', authMiddleware, requireAdmin, (req, res) => {
   try {
-    const result = query(`
+    const { secretaria_id } = req.query;
+    
+    let sql = `
       SELECT u.id, u.email, u.nombre, u.cargo, u.telefono, u.rol, 
              u.secretaria_id, u.activo, u.ultimo_acceso, u.created_at,
              s.nombre as secretaria_nombre, s.siglas as secretaria_siglas
       FROM usuarios u
       LEFT JOIN secretarias s ON u.secretaria_id = s.id
-      ORDER BY u.nombre
-    `);
+    `;
+    
+    const params = [];
+    if (secretaria_id) {
+      sql += ' WHERE u.secretaria_id = ?';
+      params.push(secretaria_id);
+    }
+    
+    sql += ' ORDER BY u.nombre';
+    
+    const result = query(sql, params);
     res.json(result.rows);
   } catch (error) {
     console.error('Error listando usuarios:', error);
