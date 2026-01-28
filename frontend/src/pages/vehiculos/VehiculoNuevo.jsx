@@ -141,7 +141,11 @@ export default function VehiculoNuevo() {
       
       navigate('/vehiculos');
     } catch (error) {
-      toast.error(error.response?.data?.error || 'Error al crear vehículo');
+      console.error('Error completo:', error);
+      console.error('Response:', error.response);
+      console.error('Data:', error.response?.data);
+      const errorMsg = error.response?.data?.error || error.response?.data?.message || error.message || 'Error al crear vehículo';
+      toast.error(errorMsg);
     }
     setLoading(false);
   };

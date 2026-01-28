@@ -494,7 +494,7 @@ router.post('/', authMiddleware, requireAdminSecretaria, (req, res) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       numero_inventario || null, numero_economico || null, placas || null, numero_serie || null,
-      descripcion || null, descripcion_detallada || null, marca, modelo, anio || null, color || null, tipo || null,
+      descripcion || null, descripcion_detallada || null, marca || null, modelo || null, anio || null, color || null, tipo || null,
       valor_libros || null, fecha_adquisicion || null,
       ubicacion_fisica || null, municipio || null, secretaria_id || null, area_responsable || null,
       tarjeta_circulacion || null, vigencia_tarjeta || null,
