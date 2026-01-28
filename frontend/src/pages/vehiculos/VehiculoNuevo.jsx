@@ -59,25 +59,23 @@ export default function VehiculoNuevo() {
     prestamo_motivo: ''
   });
 
-  // Preseleccionar secretaría del usuario al cargar
+  // Cargar secretarías y preseleccionar la del usuario
   useEffect(() => {
-    if (user?.secretaria_id) {
-      setFormData(prev => ({ ...prev, secretaria_id: user.secretaria_id.toString() }));
-    }
+    const cargar = async () => {
+      try {
+        const response = await api.get('/secretarias');
+        setSecretarias(response.data);
+        
+        // Preseleccionar secretaría del usuario
+        if (user?.secretaria_id) {
+          setFormData(prev => ({ ...prev, secretaria_id: user.secretaria_id.toString() }));
+        }
+      } catch (error) {
+        toast.error('Error al cargar secretarías');
+      }
+    };
+    cargar();
   }, [user]);
-
-  useEffect(() => {
-    cargarSecretarias();
-  }, []);
-
-  const cargarSecretarias = async () => {
-    try {
-      const response = await api.get('/secretarias');
-      setSecretarias(response.data);
-    } catch (error) {
-      toast.error('Error al cargar secretarías');
-    }
-  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -421,9 +419,15 @@ export default function VehiculoNuevo() {
                   }))}
                 />
               ) : (
-                <div className="input bg-gray-100 cursor-not-allowed flex items-center gap-2">
-                  <BuildingOfficeIcon className="h-5 w-5 text-gray-500" />
-                  <span>{secretarias.find(s => s.id.toString() === formData.secretaria_id)?.siglas || 'Tu secretaría'} - {secretarias.find(s => s.id.toString() === formData.secretaria_id)?.nombre || ''}</span>
+                <div className="input bg-gray-100 cursor-not-allowed flex items-center gap-2 text-gray-700">
+                  <BuildingOfficeIcon className="h-5 w-5 text-veracruz-600" />
+                  {secretarias.length > 0 && formData.secretaria_id ? (
+                    <span className="font-medium">
+                      {secretarias.find(s => s.id.toString() === formData.secretaria_id)?.siglas} - {secretarias.find(s => s.id.toString() === formData.secretaria_id)?.nombre}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400">Cargando secretaría...</span>
+                  )}
                 </div>
               )}
             </div>
