@@ -4,7 +4,9 @@ import toast from 'react-hot-toast';
 import {
   PlusIcon,
   PencilIcon,
-  UserCircleIcon
+  UserCircleIcon,
+  KeyIcon,
+  ClipboardDocumentIcon
 } from '@heroicons/react/24/outline';
 
 export default function UsuariosLista() {
@@ -97,6 +99,32 @@ export default function UsuariosLista() {
     }
   };
 
+  const resetearPassword = async (usuario) => {
+    const nuevaPassword = `Veracruz${new Date().getFullYear()}!`;
+    
+    if (!confirm(`¿Resetear contraseña de ${usuario.nombre}?\n\nLa nueva contraseña será:\n${nuevaPassword}`)) {
+      return;
+    }
+    
+    try {
+      await api.put(`/usuarios/${usuario.id}/password`, { password: nuevaPassword });
+      toast.success(
+        <div>
+          <p className="font-bold">Contraseña reseteada</p>
+          <p className="text-sm mt-1">Nueva: <span className="font-mono bg-gray-100 px-1 rounded">{nuevaPassword}</span></p>
+        </div>,
+        { duration: 10000 }
+      );
+      
+      // Copiar al portapapeles
+      navigator.clipboard.writeText(nuevaPassword).then(() => {
+        toast.success('Contraseña copiada al portapapeles', { duration: 2000 });
+      });
+    } catch (error) {
+      toast.error('Error al resetear contraseña');
+    }
+  };
+
   const getRolLabel = (rol) => {
     const labels = {
       'admin': 'Super Administrador',
@@ -181,6 +209,12 @@ export default function UsuariosLista() {
             
             <div className="flex gap-2 mt-4 pt-3 border-t">
               <button
+                onClick={() => resetearPassword(usuario)}
+                className="flex items-center justify-center gap-2 px-3 py-2 bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100"
+              >
+                <KeyIcon className="h-4 w-4" />
+              </button>
+              <button
                 onClick={() => abrirModalEditar(usuario)}
                 className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200"
               >
@@ -252,8 +286,16 @@ export default function UsuariosLista() {
                   <td className="py-3 px-4 text-right">
                     <div className="flex justify-end gap-2">
                       <button
+                        onClick={() => resetearPassword(usuario)}
+                        className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg"
+                        title="Resetear contraseña"
+                      >
+                        <KeyIcon className="h-5 w-5" />
+                      </button>
+                      <button
                         onClick={() => abrirModalEditar(usuario)}
                         className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+                        title="Editar"
                       >
                         <PencilIcon className="h-5 w-5" />
                       </button>
