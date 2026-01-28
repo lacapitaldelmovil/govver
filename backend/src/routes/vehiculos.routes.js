@@ -533,8 +533,10 @@ router.post('/', authMiddleware, requireAdminSecretaria, (req, res) => {
       id: result.lastInsertRowid
     });
   } catch (error) {
-    console.error('Error creando vehículo:', error);
-    res.status(500).json({ error: 'Error al crear vehículo' });
+    console.error('Error creando vehículo:', error.message);
+    console.error('Stack:', error.stack);
+    console.error('Body recibido:', JSON.stringify(req.body, null, 2));
+    res.status(500).json({ error: 'Error al crear vehículo', detalle: error.message });
   }
 });
 
