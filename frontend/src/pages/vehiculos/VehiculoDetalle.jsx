@@ -371,7 +371,7 @@ function InputField({ label, value, onChange, type = 'text', placeholder }) {
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-      <input type={type} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
+      <input type={type} className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-veracruz-100 focus:border-veracruz-500 transition-all hover:border-veracruz-400 hover:shadow-md" value={value || ''} onChange={e => onChange(e.target.value)} placeholder={placeholder} />
     </div>
   );
 }
@@ -380,7 +380,18 @@ function SelectField({ label, value, onChange, options }) {
   return (
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
-      <select className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" value={value || ''} onChange={e => onChange(e.target.value)}>
+      <select 
+        className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-sm font-medium bg-white cursor-pointer focus:ring-2 focus:ring-veracruz-100 focus:border-veracruz-500 transition-all hover:border-veracruz-400 hover:shadow-md appearance-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'right 12px center',
+          backgroundSize: '20px',
+          paddingRight: '44px'
+        }}
+        value={value || ''} 
+        onChange={e => onChange(e.target.value)}
+      >
         <option value="">Seleccionar</option>
         {options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
       </select>
