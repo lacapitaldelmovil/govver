@@ -14,7 +14,8 @@ import {
   DocumentTextIcon,
   CurrencyDollarIcon,
   FireIcon,
-  BoltIcon
+  BoltIcon,
+  DocumentPlusIcon
 } from '@heroicons/react/24/outline';
 import SelectModerno from '../../components/ui/SelectModerno';
 
@@ -459,6 +460,7 @@ export default function VehiculoNuevo() {
                 required
                 options={[
                   { value: 'activo', label: 'Activo', icon: CheckCircleIcon },
+                  { value: 'propuesto', label: 'Propuesto', icon: DocumentPlusIcon },
                   { value: 'en_reparacion', label: 'En Reparación', icon: WrenchScrewdriverIcon },
                   { value: 'siniestrado', label: 'Siniestrado', icon: ExclamationTriangleIcon },
                   { value: 'baja', label: 'Baja', icon: XCircleIcon },
