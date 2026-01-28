@@ -291,7 +291,7 @@ export default function VehiculoDetalle() {
               )}
               {seguro.label === 'Vencido' && (
                 <div className="mt-3 p-3 bg-red-50 rounded-lg text-xs text-red-700">
-                  <span className="font-semibold">⚠️ Atención:</span> La póliza de seguro está vencida. Se requiere renovación.
+                  <span className="font-semibold">Atención:</span> La póliza de seguro está vencida. Se requiere renovación.
                 </div>
               )}
             </div>

@@ -231,7 +231,7 @@ export default function VehiculoNuevo() {
                   className="select-modern"
                   required
                 >
-                <optgroup label="🚗 Vehículos Terrestres">
+                <optgroup label="Vehículos Terrestres">
                   <option value="sedan">Sedán</option>
                   <option value="suv">SUV</option>
                   <option value="camioneta">Camioneta</option>
@@ -241,14 +241,14 @@ export default function VehiculoNuevo() {
                   <option value="motocicleta">Motocicleta</option>
                   <option value="cuatrimoto">Cuatrimoto</option>
                 </optgroup>
-                <optgroup label="🚑 Vehículos de Emergencia">
+                <optgroup label="Vehículos de Emergencia">
                   <option value="ambulancia">Ambulancia</option>
                   <option value="patrulla">Patrulla</option>
                   <option value="bomberos">Camión de Bomberos</option>
                   <option value="rescate">Vehículo de Rescate</option>
                   <option value="grua">Grúa</option>
                 </optgroup>
-                <optgroup label="🚜 Maquinaria y Carga">
+                <optgroup label="Maquinaria y Carga">
                   <option value="camion_carga">Camión de Carga</option>
                   <option value="tractocamion">Tractocamión</option>
                   <option value="volteo">Volteo</option>
@@ -262,20 +262,20 @@ export default function VehiculoNuevo() {
                   <option value="montacargas">Montacargas</option>
                   <option value="maquinaria">Otra Maquinaria</option>
                 </optgroup>
-                <optgroup label="🚤 Embarcaciones">
+                <optgroup label="Embarcaciones">
                   <option value="lancha">Lancha</option>
                   <option value="yate">Yate</option>
                   <option value="remolcador">Remolcador</option>
                   <option value="barcaza">Barcaza</option>
                   <option value="embarcacion">Otra Embarcación</option>
                 </optgroup>
-                <optgroup label="✈️ Aeronaves">
+                <optgroup label="Aeronaves">
                   <option value="avion">Avión</option>
                   <option value="helicoptero">Helicóptero</option>
                   <option value="avioneta">Avioneta</option>
                   <option value="dron">Dron</option>
                 </optgroup>
-                <optgroup label="📋 Otros">
+                <optgroup label="Otros">
                   <option value="remolque">Remolque</option>
                   <option value="carreta">Carreta</option>
                   <option value="otro">Otro</option>
@@ -304,11 +304,11 @@ export default function VehiculoNuevo() {
                   onChange={handleChange}
                   className="select-modern"
                 >
-                  <option value="gasolina">⛽ Gasolina</option>
-                  <option value="diesel">🛢️ Diésel</option>
-                  <option value="electrico">🔋 Eléctrico</option>
-                  <option value="hibrido">🔌 Híbrido</option>
-                  <option value="gas">💨 Gas LP</option>
+                  <option value="gasolina">Gasolina</option>
+                  <option value="diesel">Diésel</option>
+                  <option value="electrico">Eléctrico</option>
+                  <option value="hibrido">Híbrido</option>
+                  <option value="gas">Gas LP</option>
                 </select>
               </div>
             </div>
@@ -339,9 +339,9 @@ export default function VehiculoNuevo() {
                   className="select-modern"
                   required
                 >
-                  <option value="">🏛️ Seleccionar secretaría...</option>
+                  <option value="">Seleccionar secretaría...</option>
                   {secretarias.map(s => (
-                    <option key={s.id} value={s.id}>🏢 {s.siglas} - {s.nombre}</option>
+                    <option key={s.id} value={s.id}>{s.siglas} - {s.nombre}</option>
                   ))}
                 </select>
               </div>
@@ -356,10 +356,10 @@ export default function VehiculoNuevo() {
                   className="select-modern"
                   required
                 >
-                  <option value="propio">📋 Propio</option>
-                  <option value="rentado">💳 Rentado</option>
-                  <option value="comodato">🤝 Comodato</option>
-                  <option value="asignado_federal">🏛️ Asignado Federal</option>
+                  <option value="propio">Propio</option>
+                  <option value="rentado">Rentado</option>
+                  <option value="comodato">Comodato</option>
+                  <option value="asignado_federal">Asignado Federal</option>
                 </select>
               </div>
             </div>
@@ -398,11 +398,11 @@ export default function VehiculoNuevo() {
                   className="select-modern"
                   required
                 >
-                  <option value="activo">✅ Activo</option>
-                  <option value="en_reparacion">🔧 En Reparación</option>
-                  <option value="siniestrado">💥 Siniestrado</option>
-                  <option value="baja">❌ Baja</option>
-                  <option value="ocioso">💤 Ocioso</option>
+                  <option value="activo">Activo</option>
+                  <option value="en_reparacion">En Reparación</option>
+                  <option value="siniestrado">Siniestrado</option>
+                  <option value="baja">Baja</option>
+                  <option value="ocioso">Ocioso</option>
                 </select>
               </div>
             </div>
@@ -449,7 +449,7 @@ export default function VehiculoNuevo() {
               className="h-5 w-5 text-amber-600 rounded focus:ring-amber-500"
             />
             <label htmlFor="esta_prestado" className="font-semibold text-gray-900 cursor-pointer">
-              🔄 Este vehículo está prestado a otra Secretaría
+              Este vehículo está prestado a otra Secretaría
             </label>
           </div>
           
@@ -467,11 +467,11 @@ export default function VehiculoNuevo() {
                     className="select-modern border-amber-300 focus:ring-amber-500 focus:border-amber-500"
                     required={formData.esta_prestado}
                   >
-                    <option value="">🏛️ Seleccionar secretaría...</option>
+                    <option value="">Seleccionar secretaría...</option>
                     {secretarias
                       .filter(s => s.id != formData.secretaria_id)
                       .map(s => (
-                        <option key={s.id} value={s.id}>🏢 {s.siglas} - {s.nombre}</option>
+                        <option key={s.id} value={s.id}>{s.siglas} - {s.nombre}</option>
                       ))}
                   </select>
                 </div>

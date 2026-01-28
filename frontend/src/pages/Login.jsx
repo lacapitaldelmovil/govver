@@ -160,7 +160,7 @@ export default function Login() {
             }}
             className="flex-1 px-3 py-2 text-xs bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors border border-blue-200"
           >
-            👤 Admin DIF
+            Admin DIF
           </button>
           <button
             type="button"
@@ -170,7 +170,7 @@ export default function Login() {
             }}
             className="flex-1 px-3 py-2 text-xs bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors border border-purple-200"
           >
-            🔑 Super Admin
+            Super Admin
           </button>
         </div>
       </div>

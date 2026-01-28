@@ -356,7 +356,7 @@ export default function SolicitudesLista() {
                       <p className="text-gray-900">{sol.motivo}</p>
                       {sol.justificacion && (
                         <p className="text-sm text-veracruz-700 mt-2 font-medium">
-                          📋 {sol.justificacion}
+                          {sol.justificacion}
                         </p>
                       )}
                     </div>
@@ -522,11 +522,11 @@ export default function SolicitudesLista() {
                 className="px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
               >
                 <option value="todos">Todos los tipos</option>
-                <option value="sedan">🚗 Sedán</option>
-                <option value="van">🚐 Van</option>
-                <option value="pickup">🛻 Pickup</option>
-                <option value="suv">🚙 SUV</option>
-                <option value="camioneta">🚛 Camioneta</option>
+                <option value="sedan">Sedán</option>
+                <option value="van">Van</option>
+                <option value="pickup">Pickup</option>
+                <option value="suv">SUV</option>
+                <option value="camioneta">Camioneta</option>
               </select>
             </div>
 
@@ -547,7 +547,6 @@ export default function SolicitudesLista() {
                     })
                     .map((v) => {
                       const isSelected = vehiculoSeleccionado?.id === v.id;
-                      const emoji = v.tipo === 'van' ? '🚐' : v.tipo === 'pickup' ? '🛻' : v.tipo === 'suv' ? '🚙' : v.tipo === 'emergencia' ? '🚑' : '🚗';
                       
                       return (
                         <div
@@ -560,7 +559,7 @@ export default function SolicitudesLista() {
                           }`}
                         >
                           <div className="flex items-center gap-4">
-                            <span className="text-3xl">{emoji}</span>
+                            <TruckIcon className="h-8 w-8 text-gray-400" />
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
                                 <span className="font-bold text-gray-900">{v.marca} {v.modelo}</span>

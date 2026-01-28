@@ -81,12 +81,12 @@ export default function NuevaSolicitud() {
           
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
             {[
-              { value: 'sedan', label: 'Sedán', icon: '🚗' },
-              { value: 'camioneta', label: 'Camioneta', icon: '🚙' },
-              { value: 'pickup', label: 'Pick-up', icon: '🛻' },
-              { value: 'van', label: 'Van/Minivan', icon: '🚐' },
-              { value: 'autobus', label: 'Autobús', icon: '🚌' },
-              { value: 'cualquiera', label: 'Cualquiera', icon: '🚘' },
+              { value: 'sedan', label: 'Sedán' },
+              { value: 'camioneta', label: 'Camioneta' },
+              { value: 'pickup', label: 'Pick-up' },
+              { value: 'van', label: 'Van/Minivan' },
+              { value: 'autobus', label: 'Autobús' },
+              { value: 'cualquiera', label: 'Cualquiera' },
             ].map((tipo) => (
               <button
                 key={tipo.value}
@@ -98,7 +98,6 @@ export default function NuevaSolicitud() {
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <span className="text-2xl block mb-1">{tipo.icon}</span>
                 <span className="text-sm font-medium">{tipo.label}</span>
               </button>
             ))}

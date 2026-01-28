@@ -2,19 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
-
-// Función para obtener emoji según tipo de vehículo
-const getVehicleEmoji = (vehiculo) => {
-  const texto = `${vehiculo.marca || ''} ${vehiculo.modelo || ''} ${vehiculo.tipo || ''} ${vehiculo.descripcion || ''}`.toLowerCase();
-  if (texto.includes('ambulan') || texto.includes('emergencia')) return '🚑';
-  if (texto.includes('urvan') || texto.includes('promaster') || texto.includes('express') || texto.includes('van')) return '🚐';
-  if (texto.includes('pickup') || texto.includes('pick up') || texto.includes('pick-up') || texto.includes('np300') || texto.includes('frontier') || texto.includes('hilux')) return '🛻';
-  if (texto.includes('suburban') || texto.includes('tahoe') || texto.includes('explorer') || texto.includes('suv')) return '🚙';
-  if (texto.includes('moto')) return '🏍️';
-  if (texto.includes('autobus') || texto.includes('bus') || texto.includes('camion')) return '🚌';
-  if (texto.includes('sentra') || texto.includes('tsuru') || texto.includes('versa') || texto.includes('sedan')) return '🚗';
-  return '🚗';
-};
+import { TruckIcon } from '@heroicons/react/24/outline';
 
 export default function DashboardSecretaria() {
   const { user } = useAuthStore();
@@ -419,7 +407,7 @@ export default function DashboardSecretaria() {
               >
                 <td className="px-6 py-4">
                   <div className="flex items-center gap-3">
-                    <span className="text-2xl">{getVehicleEmoji(vehiculo)}</span>
+                    <TruckIcon className="h-6 w-6 text-gray-400" />
                     <div>
                       <div className="font-medium text-gray-900">
                         {vehiculo.marca} {vehiculo.modelo}
