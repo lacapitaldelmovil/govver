@@ -3,7 +3,23 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { ArrowLeftIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { 
+  ArrowLeftIcon, 
+  PencilIcon,
+  TruckIcon,
+  BuildingOfficeIcon,
+  WrenchScrewdriverIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  XCircleIcon,
+  ClockIcon,
+  DocumentTextIcon,
+  CurrencyDollarIcon,
+  FireIcon,
+  BoltIcon,
+  DocumentPlusIcon
+} from '@heroicons/react/24/outline';
+import SelectModerno from '../../components/ui/SelectModerno';
 
 export default function VehiculoDetalle() {
   const { id } = useParams();
@@ -14,8 +30,21 @@ export default function VehiculoDetalle() {
   const [movimientos, setMovimientos] = useState([]);
   const [editando, setEditando] = useState(false);
   const [formData, setFormData] = useState({});
+  const [secretarias, setSecretarias] = useState([]);
 
-  useEffect(() => { cargarVehiculo(); }, [id]);
+  useEffect(() => { 
+    cargarVehiculo(); 
+    cargarSecretarias();
+  }, [id]);
+
+  const cargarSecretarias = async () => {
+    try {
+      const response = await api.get('/secretarias');
+      setSecretarias(response.data);
+    } catch (error) {
+      console.error('Error cargando secretarías:', error);
+    }
+  };
 
   const cargarVehiculo = async () => {
     setLoading(true);
@@ -29,6 +58,11 @@ export default function VehiculoDetalle() {
       navigate('/vehiculos');
     }
     setLoading(false);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const guardarCambios = async () => {
@@ -137,69 +171,249 @@ export default function VehiculoDetalle() {
       </div>
 
       {editando ? (
-        /* ========== MODO EDICIÓN ========== */
-        <div className="bg-white rounded-xl border p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Editar Vehículo</h2>
-          
+        /* ========== MODO EDICIÓN - Igual que VehiculoNuevo ========== */
+        <div className="space-y-6">
           {/* Identificación */}
-          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Identificación</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
-            <InputField label="No. Inventario" value={formData.numero_inventario} onChange={v => setFormData({...formData, numero_inventario: v})} />
-            <InputField label="Placas" value={formData.placas} onChange={v => setFormData({...formData, placas: v})} />
-            <InputField label="No. Serie" value={formData.numero_serie} onChange={v => setFormData({...formData, numero_serie: v})} />
-            <InputField label="No. Económico" value={formData.numero_economico} onChange={v => setFormData({...formData, numero_economico: v})} />
+          <div className="card">
+            <h2 className="font-semibold text-gray-900 mb-4">Identificación</h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Número de Inventario *</label>
+                <input type="text" name="numero_inventario" value={formData.numero_inventario || ''} onChange={handleChange} className="input-field" placeholder="VER-2024-001" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Placas *</label>
+                <input type="text" name="placas" value={formData.placas || ''} onChange={handleChange} className="input-field" placeholder="ABC-123-A" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Número de Serie</label>
+                <input type="text" name="numero_serie" value={formData.numero_serie || ''} onChange={handleChange} className="input-field" placeholder="VIN" />
+              </div>
+            </div>
           </div>
-          
+
           {/* Características */}
-          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Características</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
-            <InputField label="Marca" value={formData.marca} onChange={v => setFormData({...formData, marca: v})} />
-            <InputField label="Línea" value={formData.linea || formData.modelo} onChange={v => setFormData({...formData, linea: v, modelo: v})} />
-            <InputField label="Año" value={formData.anio} onChange={v => setFormData({...formData, anio: v})} type="number" />
-            <InputField label="Color" value={formData.color} onChange={v => setFormData({...formData, color: v})} />
-            <SelectField label="Tipo" value={formData.tipo} onChange={v => setFormData({...formData, tipo: v})} options={['sedan', 'camioneta', 'pickup', 'suv', 'van', 'autobus', 'motocicleta', 'maquinaria', 'emergencia', 'otro']} />
-            <InputField label="No. Motor" value={formData.numero_motor} onChange={v => setFormData({...formData, numero_motor: v})} />
-            <InputField label="Capacidad Pasajeros" value={formData.capacidad_pasajeros} onChange={v => setFormData({...formData, capacidad_pasajeros: v})} type="number" />
-            <SelectField label="Combustible" value={formData.tipo_combustible} onChange={v => setFormData({...formData, tipo_combustible: v})} options={['Gasolina', 'Diesel', 'Electrico', 'Hibrido', 'Gas']} />
-            <InputField label="Cilindros" value={formData.cilindros} onChange={v => setFormData({...formData, cilindros: v})} type="number" />
-            <SelectField label="Transmisión" value={formData.transmision} onChange={v => setFormData({...formData, transmision: v})} options={['Automatica', 'Manual']} />
+          <div className="card">
+            <h2 className="font-semibold text-gray-900 mb-4">Características del Vehículo</h2>
+            <div className="grid md:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Marca *</label>
+                <input type="text" name="marca" value={formData.marca || ''} onChange={handleChange} className="input-field" placeholder="Toyota" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Línea *</label>
+                <input type="text" name="linea" value={formData.linea || formData.modelo || ''} onChange={handleChange} className="input-field" placeholder="Hilux" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Modelo (Año) *</label>
+                <input type="number" name="anio" value={formData.anio || ''} onChange={handleChange} className="input-field" placeholder="2024" min="1990" max="2030" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+                <input type="text" name="color" value={formData.color || ''} onChange={handleChange} className="input-field" placeholder="Blanco" />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-4 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
+                <SelectModerno
+                  name="tipo"
+                  value={formData.tipo || ''}
+                  onChange={handleChange}
+                  icon={TruckIcon}
+                  groupedOptions={[
+                    {
+                      label: 'Vehículos Terrestres',
+                      options: [
+                        { value: 'sedan', label: 'Sedán', icon: TruckIcon },
+                        { value: 'suv', label: 'SUV', icon: TruckIcon },
+                        { value: 'camioneta', label: 'Camioneta', icon: TruckIcon },
+                        { value: 'pick_up', label: 'Pick-up', icon: TruckIcon },
+                        { value: 'van', label: 'Van / Minivan', icon: TruckIcon },
+                        { value: 'autobus', label: 'Autobús', icon: TruckIcon },
+                        { value: 'motocicleta', label: 'Motocicleta', icon: TruckIcon },
+                      ]
+                    },
+                    {
+                      label: 'Vehículos de Emergencia',
+                      options: [
+                        { value: 'ambulancia', label: 'Ambulancia', icon: ExclamationTriangleIcon },
+                        { value: 'patrulla', label: 'Patrulla', icon: ExclamationTriangleIcon },
+                        { value: 'bomberos', label: 'Camión de Bomberos', icon: FireIcon },
+                        { value: 'grua', label: 'Grúa', icon: WrenchScrewdriverIcon },
+                      ]
+                    },
+                    {
+                      label: 'Maquinaria y Carga',
+                      options: [
+                        { value: 'camion_carga', label: 'Camión de Carga', icon: TruckIcon },
+                        { value: 'volteo', label: 'Volteo', icon: TruckIcon },
+                        { value: 'pipa', label: 'Pipa', icon: TruckIcon },
+                        { value: 'maquinaria', label: 'Maquinaria', icon: WrenchScrewdriverIcon },
+                      ]
+                    },
+                    {
+                      label: 'Otros',
+                      options: [
+                        { value: 'otro', label: 'Otro', icon: DocumentTextIcon },
+                      ]
+                    }
+                  ]}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Capacidad</label>
+                <input type="number" name="capacidad_pasajeros" value={formData.capacidad_pasajeros || ''} onChange={handleChange} className="input-field" min="1" max="60" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Combustible</label>
+                <SelectModerno
+                  name="tipo_combustible"
+                  value={formData.tipo_combustible || ''}
+                  onChange={handleChange}
+                  icon={FireIcon}
+                  options={[
+                    { value: 'gasolina', label: 'Gasolina', icon: FireIcon },
+                    { value: 'diesel', label: 'Diésel', icon: FireIcon },
+                    { value: 'electrico', label: 'Eléctrico', icon: BoltIcon },
+                    { value: 'hibrido', label: 'Híbrido', icon: BoltIcon },
+                    { value: 'gas', label: 'Gas LP', icon: FireIcon },
+                  ]}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Número de Motor</label>
+                <input type="text" name="numero_motor" value={formData.numero_motor || ''} onChange={handleChange} className="input-field" />
+              </div>
+            </div>
           </div>
-          
-          {/* Estado y Ubicación */}
-          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Estado y Ubicación</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
-            <SelectField label="Estado Operativo" value={formData.estado_operativo} onChange={v => setFormData({...formData, estado_operativo: v})} options={['Operando', 'Disponible', 'En taller', 'Mal estado', 'Baja']} />
-            <SelectField label="Condición" value={formData.estatus} onChange={v => setFormData({...formData, estatus: v})} options={['Bueno', 'Regular', 'Malo']} />
-            <InputField label="Kilometraje" value={formData.kilometraje} onChange={v => setFormData({...formData, kilometraje: v})} type="number" />
-            <SelectField label="Régimen" value={formData.regimen} onChange={v => setFormData({...formData, regimen: v})} options={['Propio', 'Arrendado', 'Comodato']} />
-            <InputField label="Municipio" value={formData.municipio} onChange={v => setFormData({...formData, municipio: v})} />
-            <InputField label="Ubicación Física" value={formData.ubicacion_fisica} onChange={v => setFormData({...formData, ubicacion_fisica: v})} />
-            <InputField label="Área Responsable" value={formData.area_responsable} onChange={v => setFormData({...formData, area_responsable: v})} />
+
+          {/* Asignación */}
+          <div className="card">
+            <h2 className="font-semibold text-gray-900 mb-4">Asignación y Ubicación</h2>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Secretaría *</label>
+                <SelectModerno
+                  name="secretaria_id"
+                  value={formData.secretaria_id?.toString() || ''}
+                  onChange={handleChange}
+                  icon={BuildingOfficeIcon}
+                  placeholder="Seleccionar secretaría..."
+                  options={secretarias.map(s => ({
+                    value: s.id.toString(),
+                    label: `${s.siglas} - ${s.nombre}`,
+                    icon: BuildingOfficeIcon
+                  }))}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Régimen *</label>
+                <SelectModerno
+                  name="regimen"
+                  value={formData.regimen || ''}
+                  onChange={handleChange}
+                  icon={DocumentTextIcon}
+                  options={[
+                    { value: 'Propio', label: 'Propio', icon: CheckCircleIcon },
+                    { value: 'Arrendado', label: 'Arrendado', icon: CurrencyDollarIcon },
+                    { value: 'Comodato', label: 'Comodato', icon: DocumentTextIcon },
+                  ]}
+                />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Municipio</label>
+                <input type="text" name="municipio" value={formData.municipio || ''} onChange={handleChange} className="input-field" placeholder="Xalapa" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Ubicación Física</label>
+                <input type="text" name="ubicacion_fisica" value={formData.ubicacion_fisica || ''} onChange={handleChange} className="input-field" placeholder="Palacio de Gobierno" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Estado Operativo *</label>
+                <SelectModerno
+                  name="estado_operativo"
+                  value={formData.estado_operativo || ''}
+                  onChange={handleChange}
+                  icon={CheckCircleIcon}
+                  options={[
+                    { value: 'Operando', label: 'Operando', icon: CheckCircleIcon },
+                    { value: 'Disponible', label: 'Disponible', icon: DocumentPlusIcon },
+                    { value: 'En taller', label: 'En Taller', icon: WrenchScrewdriverIcon },
+                    { value: 'Mal estado', label: 'Mal Estado', icon: ExclamationTriangleIcon },
+                    { value: 'Baja', label: 'Baja', icon: XCircleIcon },
+                  ]}
+                />
+              </div>
+            </div>
           </div>
-          
-          {/* Seguro */}
-          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Seguro</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
-            <InputField label="Aseguradora" value={formData.seguro} onChange={v => setFormData({...formData, seguro: v})} />
-            <InputField label="Póliza Seguro" value={formData.poliza_seguro} onChange={v => setFormData({...formData, poliza_seguro: v})} />
-            <InputField label="Vigencia Seguro" value={formData.vigencia_seguro} onChange={v => setFormData({...formData, vigencia_seguro: v})} placeholder="DD/MM/YYYY" />
+
+          {/* Resguardatario */}
+          <div className="card">
+            <h2 className="font-semibold text-gray-900 mb-4">Resguardatario</h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+                <input type="text" name="resguardante_nombre" value={formData.resguardante_nombre || ''} onChange={handleChange} className="input-field" placeholder="Nombre completo" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+                <input type="text" name="resguardante_cargo" value={formData.resguardante_cargo || ''} onChange={handleChange} className="input-field" placeholder="Director de..." />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                <input type="text" name="resguardante_telefono" value={formData.resguardante_telefono || ''} onChange={handleChange} className="input-field" placeholder="228-123-4567" />
+              </div>
+            </div>
           </div>
-          
-          {/* Resguardante */}
-          <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Resguardante</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-4 mb-6">
-            <InputField label="Nombre" value={formData.resguardante_nombre} onChange={v => setFormData({...formData, resguardante_nombre: v})} />
-            <InputField label="Cargo" value={formData.resguardante_cargo} onChange={v => setFormData({...formData, resguardante_cargo: v})} />
-            <InputField label="Teléfono" value={formData.resguardante_telefono} onChange={v => setFormData({...formData, resguardante_telefono: v})} />
+
+          {/* Información adicional */}
+          <div className="card">
+            <h2 className="font-semibold text-gray-900 mb-4">Información Adicional</h2>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de Adquisición</label>
+                <input type="date" name="fecha_adquisicion" value={formData.fecha_adquisicion || ''} onChange={handleChange} className="input-field" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Valor en Libros</label>
+                <input type="number" name="valor_libros" value={formData.valor_libros || ''} onChange={handleChange} className="input-field" placeholder="0.00" step="0.01" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Kilometraje</label>
+                <input type="number" name="kilometraje" value={formData.kilometraje || ''} onChange={handleChange} className="input-field" placeholder="0" />
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-4 mt-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Aseguradora</label>
+                <input type="text" name="seguro" value={formData.seguro || ''} onChange={handleChange} className="input-field" placeholder="Nombre de aseguradora" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Número de Póliza</label>
+                <input type="text" name="poliza_seguro" value={formData.poliza_seguro || ''} onChange={handleChange} className="input-field" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Vigencia Póliza</label>
+                <input type="text" name="vigencia_seguro" value={formData.vigencia_seguro || ''} onChange={handleChange} className="input-field" placeholder="DD/MM/YYYY" />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+              <textarea name="observaciones" value={formData.observaciones || ''} onChange={handleChange} className="input-field" rows={3} placeholder="Observaciones adicionales..." />
+            </div>
           </div>
-          
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
-            <textarea className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" rows={3} value={formData.observaciones || ''} onChange={e => setFormData({...formData, observaciones: e.target.value})} />
-          </div>
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-            <button onClick={() => { setEditando(false); setFormData(vehiculo); }} className="px-5 py-2 text-sm border rounded-lg hover:bg-gray-50">Cancelar</button>
-            <button onClick={guardarCambios} className="px-5 py-2 text-sm bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700 font-medium">Guardar</button>
+
+          {/* Acciones */}
+          <div className="flex justify-end gap-4">
+            <button type="button" onClick={() => { setEditando(false); setFormData(vehiculo); }} className="btn-secondary">Cancelar</button>
+            <button type="button" onClick={guardarCambios} className="btn-primary">Guardar Cambios</button>
           </div>
         </div>
       ) : (
