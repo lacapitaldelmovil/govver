@@ -205,7 +205,21 @@ router.post('/carga-masiva', authMiddleware, requireAdminSecretaria, upload.sing
         const secretaria_id = secretariasMap[secretaria_siglas];
         if (!secretaria_id) { resultados.errores.push({ fila, mensaje: `Secretaría "${secretaria_siglas}" no encontrada` }); continue; }
 
-        const tiposValidos = ['sedan', 'camioneta', 'pickup', 'suv', 'van', 'autobus', 'motocicleta', 'maquinaria', 'emergencia', 'otro'];
+        const tiposValidos = [
+          // Vehículos terrestres
+          'sedan', 'suv', 'camioneta', 'pick_up', 'pickup', 'van', 'autobus', 'motocicleta', 'cuatrimoto',
+          // Vehículos de emergencia
+          'ambulancia', 'patrulla', 'bomberos', 'rescate', 'grua',
+          // Maquinaria y carga
+          'camion_carga', 'tractocamion', 'volteo', 'pipa', 'tractor', 'excavadora', 'retroexcavadora',
+          'cargador_frontal', 'compactadora', 'motoconformadora', 'montacargas', 'maquinaria',
+          // Embarcaciones
+          'lancha', 'yate', 'remolcador', 'barcaza', 'embarcacion',
+          // Aeronaves
+          'avion', 'helicoptero', 'avioneta', 'dron',
+          // Otros
+          'remolque', 'carreta', 'emergencia', 'otro'
+        ];
         const tipoFinal = tiposValidos.includes(tipo) ? tipo : 'otro';
 
         // Verificar si existe

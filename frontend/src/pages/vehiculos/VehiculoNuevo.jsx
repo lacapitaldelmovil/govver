@@ -200,15 +200,55 @@ export default function VehiculoNuevo() {
                 className="input-field"
                 required
               >
-                <option value="sedan">Sedán</option>
-                <option value="suv">SUV</option>
-                <option value="camioneta">Camioneta</option>
-                <option value="pick_up">Pick-up</option>
-                <option value="van">Van</option>
-                <option value="autobus">Autobús</option>
-                <option value="motocicleta">Motocicleta</option>
-                <option value="maquinaria">Maquinaria</option>
-                <option value="otro">Otro</option>
+                <optgroup label="🚗 Vehículos Terrestres">
+                  <option value="sedan">Sedán</option>
+                  <option value="suv">SUV</option>
+                  <option value="camioneta">Camioneta</option>
+                  <option value="pick_up">Pick-up</option>
+                  <option value="van">Van / Minivan</option>
+                  <option value="autobus">Autobús</option>
+                  <option value="motocicleta">Motocicleta</option>
+                  <option value="cuatrimoto">Cuatrimoto</option>
+                </optgroup>
+                <optgroup label="🚑 Vehículos de Emergencia">
+                  <option value="ambulancia">Ambulancia</option>
+                  <option value="patrulla">Patrulla</option>
+                  <option value="bomberos">Camión de Bomberos</option>
+                  <option value="rescate">Vehículo de Rescate</option>
+                  <option value="grua">Grúa</option>
+                </optgroup>
+                <optgroup label="🚜 Maquinaria y Carga">
+                  <option value="camion_carga">Camión de Carga</option>
+                  <option value="tractocamion">Tractocamión</option>
+                  <option value="volteo">Volteo</option>
+                  <option value="pipa">Pipa</option>
+                  <option value="tractor">Tractor</option>
+                  <option value="excavadora">Excavadora</option>
+                  <option value="retroexcavadora">Retroexcavadora</option>
+                  <option value="cargador_frontal">Cargador Frontal</option>
+                  <option value="compactadora">Compactadora</option>
+                  <option value="motoconformadora">Motoconformadora</option>
+                  <option value="montacargas">Montacargas</option>
+                  <option value="maquinaria">Otra Maquinaria</option>
+                </optgroup>
+                <optgroup label="🚤 Embarcaciones">
+                  <option value="lancha">Lancha</option>
+                  <option value="yate">Yate</option>
+                  <option value="remolcador">Remolcador</option>
+                  <option value="barcaza">Barcaza</option>
+                  <option value="embarcacion">Otra Embarcación</option>
+                </optgroup>
+                <optgroup label="✈️ Aeronaves">
+                  <option value="avion">Avión</option>
+                  <option value="helicoptero">Helicóptero</option>
+                  <option value="avioneta">Avioneta</option>
+                  <option value="dron">Dron</option>
+                </optgroup>
+                <optgroup label="📋 Otros">
+                  <option value="remolque">Remolque</option>
+                  <option value="carreta">Carreta</option>
+                  <option value="otro">Otro</option>
+                </optgroup>
               </select>
             </div>
             <div>
