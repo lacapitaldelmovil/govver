@@ -18,9 +18,11 @@ import {
   DocumentPlusIcon
 } from '@heroicons/react/24/outline';
 import SelectModerno from '../../components/ui/SelectModerno';
+import useAuthStore from '../../store/authStore';
 
 export default function VehiculoNuevo() {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [secretarias, setSecretarias] = useState([]);
   const [formData, setFormData] = useState({
@@ -56,6 +58,13 @@ export default function VehiculoNuevo() {
     prestamo_fecha_fin_estimada: '',
     prestamo_motivo: ''
   });
+
+  // Preseleccionar secretaría del usuario al cargar
+  useEffect(() => {
+    if (user?.secretaria_id) {
+      setFormData(prev => ({ ...prev, secretaria_id: user.secretaria_id.toString() }));
+    }
+  }, [user]);
 
   useEffect(() => {
     cargarSecretarias();
@@ -396,19 +405,27 @@ export default function VehiculoNuevo() {
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Secretaría *</label>
-              <SelectModerno
-                name="secretaria_id"
-                value={formData.secretaria_id}
-                onChange={handleChange}
-                icon={BuildingOfficeIcon}
-                placeholder="Seleccionar secretaría..."
-                required
-                options={secretarias.map(s => ({
-                  value: s.id.toString(),
-                  label: `${s.siglas} - ${s.nombre}`,
-                  icon: BuildingOfficeIcon
-                }))}
-              />
+              {/* Solo admin/gobernacion pueden cambiar secretaría, otros usuarios la tienen fija */}
+              {(user?.rol === 'admin' || user?.rol === 'gobernacion') ? (
+                <SelectModerno
+                  name="secretaria_id"
+                  value={formData.secretaria_id}
+                  onChange={handleChange}
+                  icon={BuildingOfficeIcon}
+                  placeholder="Seleccionar secretaría..."
+                  required
+                  options={secretarias.map(s => ({
+                    value: s.id.toString(),
+                    label: `${s.siglas} - ${s.nombre}`,
+                    icon: BuildingOfficeIcon
+                  }))}
+                />
+              ) : (
+                <div className="input bg-gray-100 cursor-not-allowed flex items-center gap-2">
+                  <BuildingOfficeIcon className="h-5 w-5 text-gray-500" />
+                  <span>{secretarias.find(s => s.id.toString() === formData.secretaria_id)?.siglas || 'Tu secretaría'} - {secretarias.find(s => s.id.toString() === formData.secretaria_id)?.nombre || ''}</span>
+                </div>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Régimen *</label>
