@@ -103,6 +103,7 @@ export default function VehiculoNuevo() {
         estado_operativo: vehiculoData.estado_operativo,
         fecha_adquisicion: vehiculoData.fecha_adquisicion || null,
         valor_libros: vehiculoData.valor_adquisicion || null,
+        seguro: vehiculoData.aseguradora,
         poliza_seguro: vehiculoData.poliza_numero,
         vigencia_seguro: vehiculoData.poliza_vigencia || null,
         resguardante_nombre: vehiculoData.resguardatario_nombre,

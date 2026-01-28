@@ -467,6 +467,7 @@ router.post('/', authMiddleware, requireAdminSecretaria, (req, res) => {
     const {
       numero_inventario, numero_economico, placas, numero_serie,
       descripcion, descripcion_detallada, marca, modelo, anio, color, tipo,
+      numero_motor, capacidad_pasajeros, tipo_combustible,
       valor_libros, fecha_adquisicion,
       ubicacion_fisica, municipio, secretaria_id, area_responsable,
       tarjeta_circulacion, vigencia_tarjeta,
@@ -482,6 +483,7 @@ router.post('/', authMiddleware, requireAdminSecretaria, (req, res) => {
       INSERT INTO vehiculos (
         numero_inventario, numero_economico, placas, numero_serie,
         descripcion, descripcion_detallada, marca, modelo, anio, color, tipo,
+        numero_motor, capacidad_pasajeros, tipo_combustible,
         valor_libros, fecha_adquisicion,
         ubicacion_fisica, municipio, secretaria_id, area_responsable,
         tarjeta_circulacion, vigencia_tarjeta,
@@ -491,10 +493,11 @@ router.post('/', authMiddleware, requireAdminSecretaria, (req, res) => {
         telefono_area, quien_reporta,
         resguardante_nombre, resguardante_cargo, resguardante_telefono,
         observaciones
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       numero_inventario || null, numero_economico || null, placas || null, numero_serie || null,
       descripcion || null, descripcion_detallada || null, marca || null, modelo || null, anio || null, color || null, tipo || null,
+      numero_motor || null, capacidad_pasajeros || null, tipo_combustible || null,
       valor_libros || null, fecha_adquisicion || null,
       ubicacion_fisica || null, municipio || null, secretaria_id || null, area_responsable || null,
       tarjeta_circulacion || null, vigencia_tarjeta || null,
