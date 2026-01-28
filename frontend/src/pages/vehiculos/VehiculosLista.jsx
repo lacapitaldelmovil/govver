@@ -198,6 +198,9 @@ export default function VehiculosLista() {
 
   // Determinar si el usuario puede ver todos los filtros (admin, flota, usuario_principal)
   const puedeVerFiltrosCompletos = user?.rol === 'admin' || user?.rol === 'flota' || user?.rol === 'usuario_principal';
+  
+  // Determinar si el usuario puede agregar vehículos
+  const puedeAgregarVehiculos = user?.rol === 'admin' || user?.rol === 'flota' || user?.rol === 'usuario_principal' || user?.rol === 'admin_secretaria';
 
   return (
     <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
@@ -235,21 +238,32 @@ export default function VehiculosLista() {
                 </div>
               </div>
             ) : (
-              /* Vista simplificada para secretarías - buscador + contador */
-              <div className="flex flex-col items-center gap-2">
-                <div className="relative w-full max-w-xl">
-                  <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Buscar vehículo por placa, marca, modelo, serie..."
-                    value={busqueda}
-                    onChange={(e) => { setBusqueda(e.target.value); setPage(1); }}
-                    className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-base focus:border-veracruz-500 focus:ring-2 focus:ring-veracruz-200 shadow-sm"
-                  />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-gray-400">
-                    {total} vehículos
-                  </span>
+              /* Vista simplificada para secretarías - buscador + contador + botón agregar */
+              <div className="flex flex-col items-center gap-3">
+                <div className="flex items-center gap-3 w-full max-w-2xl">
+                  <div className="relative flex-1">
+                    <MagnifyingGlassIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                      type="text"
+                      placeholder="Buscar vehículo por placa, marca, modelo, serie..."
+                      value={busqueda}
+                      onChange={(e) => { setBusqueda(e.target.value); setPage(1); }}
+                      className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-base focus:border-veracruz-500 focus:ring-2 focus:ring-veracruz-200 shadow-sm"
+                    />
+                  </div>
+                  {puedeAgregarVehiculos && (
+                    <Link 
+                      to="/vehiculos/nuevo"
+                      className="bg-veracruz-600 text-white px-5 py-3 rounded-xl hover:bg-veracruz-700 transition-colors text-base font-medium whitespace-nowrap flex items-center gap-2 shadow-sm"
+                    >
+                      <TruckIcon className="h-5 w-5" />
+                      Agregar Vehículo
+                    </Link>
+                  )}
                 </div>
+                <span className="text-sm text-gray-500">
+                  {total} vehículos encontrados
+                </span>
               </div>
             )}
           </div>
