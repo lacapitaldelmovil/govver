@@ -82,10 +82,39 @@ export default function VehiculoNuevo() {
       // Separar datos del préstamo
       const { esta_prestado, prestado_a_secretaria_id, prestamo_fecha_inicio, prestamo_fecha_fin_estimada, prestamo_motivo, ...vehiculoData } = formData;
       
+      // Mapear campos del frontend a los nombres del backend
+      const datosBackend = {
+        numero_inventario: vehiculoData.numero_inventario,
+        placas: vehiculoData.placas,
+        marca: vehiculoData.marca,
+        modelo: vehiculoData.linea, // línea/modelo del vehículo
+        anio: vehiculoData.modelo, // año
+        numero_serie: vehiculoData.numero_serie,
+        numero_motor: vehiculoData.numero_motor,
+        color: vehiculoData.color,
+        tipo: vehiculoData.tipo,
+        capacidad_pasajeros: vehiculoData.capacidad_pasajeros,
+        tipo_combustible: vehiculoData.tipo_combustible,
+        regimen: vehiculoData.regimen,
+        secretaria_id: vehiculoData.secretaria_id ? parseInt(vehiculoData.secretaria_id) : null,
+        municipio: vehiculoData.municipio,
+        ubicacion_fisica: vehiculoData.ubicacion,
+        estado_operativo: vehiculoData.estado_operativo,
+        fecha_adquisicion: vehiculoData.fecha_adquisicion || null,
+        valor_libros: vehiculoData.valor_adquisicion || null,
+        poliza_seguro: vehiculoData.poliza_numero,
+        vigencia_seguro: vehiculoData.poliza_vigencia || null,
+        resguardante_nombre: vehiculoData.resguardatario_nombre,
+        resguardante_cargo: vehiculoData.resguardatario_cargo,
+        observaciones: vehiculoData.notas
+      };
+      
       // Limpiar campos vacíos
       const datos = Object.fromEntries(
-        Object.entries(vehiculoData).filter(([_, v]) => v !== '')
+        Object.entries(datosBackend).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
       );
+
+      console.log('Enviando datos:', datos);
 
       // Crear el vehículo
       const response = await api.post('/vehiculos', datos);
