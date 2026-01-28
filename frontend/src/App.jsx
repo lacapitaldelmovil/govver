@@ -17,6 +17,7 @@ import DashboardConductor from './pages/dashboard/DashboardConductor';
 // Vehículos
 import VehiculosLista from './pages/vehiculos/VehiculosLista';
 import VehiculoDetalle from './pages/vehiculos/VehiculoDetalle';
+import VehiculoNuevo from './pages/vehiculos/VehiculoNuevo';
 import VehiculoCargaMasiva from './pages/vehiculos/VehiculoCargaMasiva';
 import ComodatosLista from './pages/vehiculos/ComodatosLista';
 import DeterminacionLista from './pages/vehiculos/DeterminacionLista';
@@ -131,6 +132,14 @@ function App() {
           {/* Vehículos */}
           <Route path="/vehiculos" element={<VehiculosLista />} />
           <Route path="/vehiculos/:id" element={<VehiculoDetalle />} />
+          <Route 
+            path="/vehiculos/nuevo" 
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'gobernacion', 'admin_secretaria']}>
+                <VehiculoNuevo />
+              </ProtectedRoute>
+            } 
+          />
           <Route 
             path="/vehiculos/carga-masiva" 
             element={
