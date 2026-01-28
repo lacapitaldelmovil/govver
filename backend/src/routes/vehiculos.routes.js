@@ -479,6 +479,25 @@ router.post('/', authMiddleware, requireAdminSecretaria, (req, res) => {
       observaciones
     } = req.body;
     
+    // Mapear valores del frontend a los valores que acepta la BD
+    const estadoMap = {
+      'activo': 'Operando',
+      'propuesto': 'Disponible',
+      'en_reparacion': 'En taller',
+      'siniestrado': 'Mal estado',
+      'baja': 'Baja',
+      'ocioso': 'Disponible'
+    };
+    
+    const regimenMap = {
+      'propio': 'Propio',
+      'arrendado': 'Arrendado',
+      'comodato': 'Comodato'
+    };
+    
+    const estadoFinal = estadoMap[estado_operativo] || estado_operativo || 'Operando';
+    const regimenFinal = regimenMap[regimen] || regimen || 'Propio';
+    
     const result = query(`
       INSERT INTO vehiculos (
         numero_inventario, numero_economico, placas, numero_serie,
@@ -501,9 +520,9 @@ router.post('/', authMiddleware, requireAdminSecretaria, (req, res) => {
       valor_libros || null, fecha_adquisicion || null,
       ubicacion_fisica || null, municipio || null, secretaria_id || null, area_responsable || null,
       tarjeta_circulacion || null, vigencia_tarjeta || null,
-      estado_operativo || 'Operando', estatus || null, kilometraje || 0,
+      estadoFinal, estatus || null, kilometraje || 0,
       seguro || null, poliza_seguro || null, vigencia_seguro || null,
-      regimen || 'Propio', proveedor_arrendadora || null, renta_mensual || null, vigencia_contrato || null,
+      regimenFinal, proveedor_arrendadora || null, renta_mensual || null, vigencia_contrato || null,
       telefono_area || null, quien_reporta || null,
       resguardante_nombre || null, resguardante_cargo || null, resguardante_telefono || null,
       observaciones || null
