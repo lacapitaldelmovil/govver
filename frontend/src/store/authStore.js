@@ -104,3 +104,5 @@ export const useAuthStore = create(
 if (typeof window !== 'undefined') {
   useAuthStore.getState().initAuth();
 }
+
+export default useAuthStore;
