@@ -75,4 +75,63 @@ router.post('/', authMiddleware, (req, res) => {
   }
 });
 
+/**
+ * POST /api/movimientos/prestamos
+ * Crear un préstamo de vehículo a otra secretaría
+ */
+router.post('/prestamos', authMiddleware, (req, res) => {
+  try {
+    const { vehiculo_id, secretaria_destino_id, fecha_inicio, fecha_fin_estimada, motivo } = req.body;
+    
+    if (!vehiculo_id || !secretaria_destino_id) {
+      return res.status(400).json({ error: 'Se requiere vehiculo_id y secretaria_destino_id' });
+    }
+    
+    // Obtener info del vehículo
+    const vehiculoResult = query('SELECT * FROM vehiculos WHERE id = ?', [vehiculo_id]);
+    if (!vehiculoResult.rows.length) {
+      return res.status(404).json({ error: 'Vehículo no encontrado' });
+    }
+    const vehiculo = vehiculoResult.rows[0];
+    
+    // Obtener info de la secretaría destino
+    const secretariaResult = query('SELECT * FROM secretarias WHERE id = ?', [secretaria_destino_id]);
+    if (!secretariaResult.rows.length) {
+      return res.status(404).json({ error: 'Secretaría destino no encontrada' });
+    }
+    const secretariaDestino = secretariaResult.rows[0];
+    
+    // Actualizar el vehículo a régimen Comodato (prestado)
+    query(`
+      UPDATE vehiculos 
+      SET regimen = 'Comodato',
+          ubicacion_fisica = ?
+      WHERE id = ?
+    `, [`Prestado a ${secretariaDestino.siglas}`, vehiculo_id]);
+    
+    // Registrar el movimiento
+    const movResult = query(
+      `INSERT INTO movimientos (vehiculo_id, tipo_movimiento, secretaria_origen_id, secretaria_destino_id, usuario_id, descripcion, observaciones)
+       VALUES (?, 'prestamo', ?, ?, ?, ?, ?)`,
+      [
+        vehiculo_id, 
+        vehiculo.secretaria_id, 
+        secretaria_destino_id, 
+        req.user.id, 
+        `Préstamo de vehículo a ${secretariaDestino.nombre}`,
+        motivo || `Préstamo desde ${fecha_inicio || new Date().toISOString().split('T')[0]}${fecha_fin_estimada ? ' hasta ' + fecha_fin_estimada : ''}`
+      ]
+    );
+    
+    res.status(201).json({ 
+      message: 'Préstamo registrado correctamente', 
+      id: movResult.lastInsertRowid,
+      vehiculo_actualizado: true
+    });
+  } catch (error) {
+    console.error('Error creando préstamo:', error);
+    res.status(500).json({ error: 'Error al registrar préstamo' });
+  }
+});
+
 module.exports = router;

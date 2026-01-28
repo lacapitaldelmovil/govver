@@ -33,7 +33,13 @@ export default function VehiculoNuevo() {
     verificacion_vigencia: '',
     resguardatario_nombre: '',
     resguardatario_cargo: '',
-    notas: ''
+    notas: '',
+    // Campos de préstamo
+    esta_prestado: false,
+    prestado_a_secretaria_id: '',
+    prestamo_fecha_inicio: '',
+    prestamo_fecha_fin_estimada: '',
+    prestamo_motivo: ''
   });
 
   useEffect(() => {
@@ -59,13 +65,37 @@ export default function VehiculoNuevo() {
     setLoading(true);
 
     try {
+      // Separar datos del préstamo
+      const { esta_prestado, prestado_a_secretaria_id, prestamo_fecha_inicio, prestamo_fecha_fin_estimada, prestamo_motivo, ...vehiculoData } = formData;
+      
       // Limpiar campos vacíos
       const datos = Object.fromEntries(
-        Object.entries(formData).filter(([_, v]) => v !== '')
+        Object.entries(vehiculoData).filter(([_, v]) => v !== '')
       );
 
-      await api.post('/vehiculos', datos);
-      toast.success('Vehículo creado correctamente');
+      // Crear el vehículo
+      const response = await api.post('/vehiculos', datos);
+      const vehiculoId = response.data.vehiculo?.id || response.data.id;
+      
+      // Si está prestado, crear el registro de préstamo
+      if (esta_prestado && prestado_a_secretaria_id && vehiculoId) {
+        try {
+          await api.post('/movimientos/prestamos', {
+            vehiculo_id: vehiculoId,
+            secretaria_destino_id: parseInt(prestado_a_secretaria_id),
+            fecha_inicio: prestamo_fecha_inicio || new Date().toISOString().split('T')[0],
+            fecha_fin_estimada: prestamo_fecha_fin_estimada || null,
+            motivo: prestamo_motivo || 'Préstamo inicial al registrar vehículo'
+          });
+          toast.success('Vehículo creado y préstamo registrado correctamente');
+        } catch (prestamoError) {
+          console.error('Error al crear préstamo:', prestamoError);
+          toast.success('Vehículo creado, pero hubo un error al registrar el préstamo');
+        }
+      } else {
+        toast.success('Vehículo creado correctamente');
+      }
+      
       navigate('/vehiculos');
     } catch (error) {
       toast.error(error.response?.data?.error || 'Error al crear vehículo');
@@ -396,6 +426,81 @@ export default function VehiculoNuevo() {
               />
             </div>
           </div>
+        </div>
+
+        {/* Préstamo a otra Secretaría */}
+        <div className="card border-2 border-amber-200 bg-amber-50/30">
+          <div className="flex items-center gap-3 mb-4">
+            <input
+              type="checkbox"
+              id="esta_prestado"
+              checked={formData.esta_prestado}
+              onChange={(e) => setFormData(prev => ({ ...prev, esta_prestado: e.target.checked }))}
+              className="h-5 w-5 text-amber-600 rounded focus:ring-amber-500"
+            />
+            <label htmlFor="esta_prestado" className="font-semibold text-gray-900 cursor-pointer">
+              🔄 Este vehículo está prestado a otra Secretaría
+            </label>
+          </div>
+          
+          {formData.esta_prestado && (
+            <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-amber-200">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Secretaría que lo tiene *
+                </label>
+                <select
+                  name="prestado_a_secretaria_id"
+                  value={formData.prestado_a_secretaria_id}
+                  onChange={handleChange}
+                  className="input-field"
+                  required={formData.esta_prestado}
+                >
+                  <option value="">Seleccionar secretaría...</option>
+                  {secretarias
+                    .filter(s => s.id != formData.secretaria_id)
+                    .map(s => (
+                      <option key={s.id} value={s.id}>{s.siglas} - {s.nombre}</option>
+                    ))}
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  La secretaría que actualmente tiene el vehículo
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Fecha de Préstamo
+                </label>
+                <input
+                  type="date"
+                  name="prestamo_fecha_inicio"
+                  value={formData.prestamo_fecha_inicio}
+                  onChange={handleChange}
+                  className="input-field"
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Motivo del Préstamo
+                </label>
+                <input
+                  type="text"
+                  name="prestamo_motivo"
+                  value={formData.prestamo_motivo}
+                  onChange={handleChange}
+                  className="input-field"
+                  placeholder="Ej: Apoyo en operativo, evento especial, etc."
+                />
+              </div>
+            </div>
+          )}
+          
+          {!formData.esta_prestado && (
+            <p className="text-sm text-gray-500">
+              Marca esta opción si el vehículo pertenece a una secretaría pero actualmente está prestado a otra.
+              El préstamo se registrará automáticamente en el sistema.
+            </p>
+          )}
         </div>
 
         {/* Información adicional */}
