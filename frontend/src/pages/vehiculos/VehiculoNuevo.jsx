@@ -223,13 +223,14 @@ export default function VehiculoNuevo() {
           <div className="grid md:grid-cols-4 gap-4 mt-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
-              <select
-                name="tipo"
-                value={formData.tipo}
-                onChange={handleChange}
-                className="input-field"
-                required
-              >
+              <div className="relative">
+                <select
+                  name="tipo"
+                  value={formData.tipo}
+                  onChange={handleChange}
+                  className="select-modern"
+                  required
+                >
                 <optgroup label="🚗 Vehículos Terrestres">
                   <option value="sedan">Sedán</option>
                   <option value="suv">SUV</option>
@@ -280,6 +281,7 @@ export default function VehiculoNuevo() {
                   <option value="otro">Otro</option>
                 </optgroup>
               </select>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Capacidad</label>
@@ -295,18 +297,20 @@ export default function VehiculoNuevo() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Combustible</label>
-              <select
-                name="tipo_combustible"
-                value={formData.tipo_combustible}
-                onChange={handleChange}
-                className="input-field"
-              >
-                <option value="gasolina">Gasolina</option>
-                <option value="diesel">Diésel</option>
-                <option value="electrico">Eléctrico</option>
-                <option value="hibrido">Híbrido</option>
-                <option value="gas">Gas LP</option>
-              </select>
+              <div className="relative">
+                <select
+                  name="tipo_combustible"
+                  value={formData.tipo_combustible}
+                  onChange={handleChange}
+                  className="select-modern"
+                >
+                  <option value="gasolina">⛽ Gasolina</option>
+                  <option value="diesel">🛢️ Diésel</option>
+                  <option value="electrico">🔋 Eléctrico</option>
+                  <option value="hibrido">🔌 Híbrido</option>
+                  <option value="gas">💨 Gas LP</option>
+                </select>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Número de Motor</label>
@@ -327,33 +331,37 @@ export default function VehiculoNuevo() {
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Secretaría *</label>
-              <select
-                name="secretaria_id"
-                value={formData.secretaria_id}
-                onChange={handleChange}
-                className="input-field"
-                required
-              >
-                <option value="">Seleccionar...</option>
-                {secretarias.map(s => (
-                  <option key={s.id} value={s.id}>{s.siglas} - {s.nombre}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  name="secretaria_id"
+                  value={formData.secretaria_id}
+                  onChange={handleChange}
+                  className="select-modern"
+                  required
+                >
+                  <option value="">🏛️ Seleccionar secretaría...</option>
+                  {secretarias.map(s => (
+                    <option key={s.id} value={s.id}>🏢 {s.siglas} - {s.nombre}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Régimen *</label>
-              <select
-                name="regimen"
-                value={formData.regimen}
-                onChange={handleChange}
-                className="input-field"
-                required
-              >
-                <option value="propio">Propio</option>
-                <option value="rentado">Rentado</option>
-                <option value="comodato">Comodato</option>
-                <option value="asignado_federal">Asignado Federal</option>
-              </select>
+              <div className="relative">
+                <select
+                  name="regimen"
+                  value={formData.regimen}
+                  onChange={handleChange}
+                  className="select-modern"
+                  required
+                >
+                  <option value="propio">📋 Propio</option>
+                  <option value="rentado">💳 Rentado</option>
+                  <option value="comodato">🤝 Comodato</option>
+                  <option value="asignado_federal">🏛️ Asignado Federal</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -382,19 +390,21 @@ export default function VehiculoNuevo() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Estado Operativo *</label>
-              <select
-                name="estado_operativo"
-                value={formData.estado_operativo}
-                onChange={handleChange}
-                className="input-field"
-                required
-              >
-                <option value="activo">Activo</option>
-                <option value="en_reparacion">En Reparación</option>
-                <option value="siniestrado">Siniestrado</option>
-                <option value="baja">Baja</option>
-                <option value="ocioso">Ocioso</option>
-              </select>
+              <div className="relative">
+                <select
+                  name="estado_operativo"
+                  value={formData.estado_operativo}
+                  onChange={handleChange}
+                  className="select-modern"
+                  required
+                >
+                  <option value="activo">✅ Activo</option>
+                  <option value="en_reparacion">🔧 En Reparación</option>
+                  <option value="siniestrado">💥 Siniestrado</option>
+                  <option value="baja">❌ Baja</option>
+                  <option value="ocioso">💤 Ocioso</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
@@ -449,20 +459,22 @@ export default function VehiculoNuevo() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Secretaría que lo tiene *
                 </label>
-                <select
-                  name="prestado_a_secretaria_id"
-                  value={formData.prestado_a_secretaria_id}
-                  onChange={handleChange}
-                  className="input-field"
-                  required={formData.esta_prestado}
-                >
-                  <option value="">Seleccionar secretaría...</option>
-                  {secretarias
-                    .filter(s => s.id != formData.secretaria_id)
-                    .map(s => (
-                      <option key={s.id} value={s.id}>{s.siglas} - {s.nombre}</option>
-                    ))}
-                </select>
+                <div className="relative">
+                  <select
+                    name="prestado_a_secretaria_id"
+                    value={formData.prestado_a_secretaria_id}
+                    onChange={handleChange}
+                    className="select-modern border-amber-300 focus:ring-amber-500 focus:border-amber-500"
+                    required={formData.esta_prestado}
+                  >
+                    <option value="">🏛️ Seleccionar secretaría...</option>
+                    {secretarias
+                      .filter(s => s.id != formData.secretaria_id)
+                      .map(s => (
+                        <option key={s.id} value={s.id}>🏢 {s.siglas} - {s.nombre}</option>
+                      ))}
+                  </select>
+                </div>
                 <p className="text-xs text-gray-500 mt-1">
                   La secretaría que actualmente tiene el vehículo
                 </p>
