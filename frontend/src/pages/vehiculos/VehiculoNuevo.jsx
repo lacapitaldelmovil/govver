@@ -2,7 +2,21 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { 
+  ArrowLeftIcon, 
+  TruckIcon, 
+  BuildingOfficeIcon,
+  WrenchScrewdriverIcon,
+  CheckCircleIcon,
+  ExclamationTriangleIcon,
+  XCircleIcon,
+  ClockIcon,
+  DocumentTextIcon,
+  CurrencyDollarIcon,
+  FireIcon,
+  BoltIcon
+} from '@heroicons/react/24/outline';
+import SelectModerno from '../../components/ui/SelectModerno';
 
 export default function VehiculoNuevo() {
   const navigate = useNavigate();
@@ -223,65 +237,82 @@ export default function VehiculoNuevo() {
           <div className="grid md:grid-cols-4 gap-4 mt-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
-              <div className="relative">
-                <select
-                  name="tipo"
-                  value={formData.tipo}
-                  onChange={handleChange}
-                  className="select-modern"
-                  required
-                >
-                <optgroup label="Vehículos Terrestres">
-                  <option value="sedan">Sedán</option>
-                  <option value="suv">SUV</option>
-                  <option value="camioneta">Camioneta</option>
-                  <option value="pick_up">Pick-up</option>
-                  <option value="van">Van / Minivan</option>
-                  <option value="autobus">Autobús</option>
-                  <option value="motocicleta">Motocicleta</option>
-                  <option value="cuatrimoto">Cuatrimoto</option>
-                </optgroup>
-                <optgroup label="Vehículos de Emergencia">
-                  <option value="ambulancia">Ambulancia</option>
-                  <option value="patrulla">Patrulla</option>
-                  <option value="bomberos">Camión de Bomberos</option>
-                  <option value="rescate">Vehículo de Rescate</option>
-                  <option value="grua">Grúa</option>
-                </optgroup>
-                <optgroup label="Maquinaria y Carga">
-                  <option value="camion_carga">Camión de Carga</option>
-                  <option value="tractocamion">Tractocamión</option>
-                  <option value="volteo">Volteo</option>
-                  <option value="pipa">Pipa</option>
-                  <option value="tractor">Tractor</option>
-                  <option value="excavadora">Excavadora</option>
-                  <option value="retroexcavadora">Retroexcavadora</option>
-                  <option value="cargador_frontal">Cargador Frontal</option>
-                  <option value="compactadora">Compactadora</option>
-                  <option value="motoconformadora">Motoconformadora</option>
-                  <option value="montacargas">Montacargas</option>
-                  <option value="maquinaria">Otra Maquinaria</option>
-                </optgroup>
-                <optgroup label="Embarcaciones">
-                  <option value="lancha">Lancha</option>
-                  <option value="yate">Yate</option>
-                  <option value="remolcador">Remolcador</option>
-                  <option value="barcaza">Barcaza</option>
-                  <option value="embarcacion">Otra Embarcación</option>
-                </optgroup>
-                <optgroup label="Aeronaves">
-                  <option value="avion">Avión</option>
-                  <option value="helicoptero">Helicóptero</option>
-                  <option value="avioneta">Avioneta</option>
-                  <option value="dron">Dron</option>
-                </optgroup>
-                <optgroup label="Otros">
-                  <option value="remolque">Remolque</option>
-                  <option value="carreta">Carreta</option>
-                  <option value="otro">Otro</option>
-                </optgroup>
-              </select>
-              </div>
+              <SelectModerno
+                name="tipo"
+                value={formData.tipo}
+                onChange={handleChange}
+                icon={TruckIcon}
+                required
+                groupedOptions={[
+                  {
+                    label: 'Vehículos Terrestres',
+                    options: [
+                      { value: 'sedan', label: 'Sedán', icon: TruckIcon },
+                      { value: 'suv', label: 'SUV', icon: TruckIcon },
+                      { value: 'camioneta', label: 'Camioneta', icon: TruckIcon },
+                      { value: 'pick_up', label: 'Pick-up', icon: TruckIcon },
+                      { value: 'van', label: 'Van / Minivan', icon: TruckIcon },
+                      { value: 'autobus', label: 'Autobús', icon: TruckIcon },
+                      { value: 'motocicleta', label: 'Motocicleta', icon: TruckIcon },
+                      { value: 'cuatrimoto', label: 'Cuatrimoto', icon: TruckIcon },
+                    ]
+                  },
+                  {
+                    label: 'Vehículos de Emergencia',
+                    options: [
+                      { value: 'ambulancia', label: 'Ambulancia', icon: ExclamationTriangleIcon },
+                      { value: 'patrulla', label: 'Patrulla', icon: ExclamationTriangleIcon },
+                      { value: 'bomberos', label: 'Camión de Bomberos', icon: FireIcon },
+                      { value: 'rescate', label: 'Vehículo de Rescate', icon: ExclamationTriangleIcon },
+                      { value: 'grua', label: 'Grúa', icon: WrenchScrewdriverIcon },
+                    ]
+                  },
+                  {
+                    label: 'Maquinaria y Carga',
+                    options: [
+                      { value: 'camion_carga', label: 'Camión de Carga', icon: TruckIcon },
+                      { value: 'tractocamion', label: 'Tractocamión', icon: TruckIcon },
+                      { value: 'volteo', label: 'Volteo', icon: TruckIcon },
+                      { value: 'pipa', label: 'Pipa', icon: TruckIcon },
+                      { value: 'tractor', label: 'Tractor', icon: WrenchScrewdriverIcon },
+                      { value: 'excavadora', label: 'Excavadora', icon: WrenchScrewdriverIcon },
+                      { value: 'retroexcavadora', label: 'Retroexcavadora', icon: WrenchScrewdriverIcon },
+                      { value: 'cargador_frontal', label: 'Cargador Frontal', icon: WrenchScrewdriverIcon },
+                      { value: 'compactadora', label: 'Compactadora', icon: WrenchScrewdriverIcon },
+                      { value: 'motoconformadora', label: 'Motoconformadora', icon: WrenchScrewdriverIcon },
+                      { value: 'montacargas', label: 'Montacargas', icon: WrenchScrewdriverIcon },
+                      { value: 'maquinaria', label: 'Otra Maquinaria', icon: WrenchScrewdriverIcon },
+                    ]
+                  },
+                  {
+                    label: 'Embarcaciones',
+                    options: [
+                      { value: 'lancha', label: 'Lancha', icon: TruckIcon },
+                      { value: 'yate', label: 'Yate', icon: TruckIcon },
+                      { value: 'remolcador', label: 'Remolcador', icon: TruckIcon },
+                      { value: 'barcaza', label: 'Barcaza', icon: TruckIcon },
+                      { value: 'embarcacion', label: 'Otra Embarcación', icon: TruckIcon },
+                    ]
+                  },
+                  {
+                    label: 'Aeronaves',
+                    options: [
+                      { value: 'avion', label: 'Avión', icon: TruckIcon },
+                      { value: 'helicoptero', label: 'Helicóptero', icon: TruckIcon },
+                      { value: 'avioneta', label: 'Avioneta', icon: TruckIcon },
+                      { value: 'dron', label: 'Dron', icon: TruckIcon },
+                    ]
+                  },
+                  {
+                    label: 'Otros',
+                    options: [
+                      { value: 'remolque', label: 'Remolque', icon: TruckIcon },
+                      { value: 'carreta', label: 'Carreta', icon: TruckIcon },
+                      { value: 'otro', label: 'Otro', icon: DocumentTextIcon },
+                    ]
+                  }
+                ]}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Capacidad</label>
@@ -297,20 +328,19 @@ export default function VehiculoNuevo() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Combustible</label>
-              <div className="relative">
-                <select
-                  name="tipo_combustible"
-                  value={formData.tipo_combustible}
-                  onChange={handleChange}
-                  className="select-modern"
-                >
-                  <option value="gasolina">Gasolina</option>
-                  <option value="diesel">Diésel</option>
-                  <option value="electrico">Eléctrico</option>
-                  <option value="hibrido">Híbrido</option>
-                  <option value="gas">Gas LP</option>
-                </select>
-              </div>
+              <SelectModerno
+                name="tipo_combustible"
+                value={formData.tipo_combustible}
+                onChange={handleChange}
+                icon={FireIcon}
+                options={[
+                  { value: 'gasolina', label: 'Gasolina', icon: FireIcon },
+                  { value: 'diesel', label: 'Diésel', icon: FireIcon },
+                  { value: 'electrico', label: 'Eléctrico', icon: BoltIcon },
+                  { value: 'hibrido', label: 'Híbrido', icon: BoltIcon },
+                  { value: 'gas', label: 'Gas LP', icon: FireIcon },
+                ]}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Número de Motor</label>
@@ -331,37 +361,35 @@ export default function VehiculoNuevo() {
           <div className="grid md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Secretaría *</label>
-              <div className="relative">
-                <select
-                  name="secretaria_id"
-                  value={formData.secretaria_id}
-                  onChange={handleChange}
-                  className="select-modern"
-                  required
-                >
-                  <option value="">Seleccionar secretaría...</option>
-                  {secretarias.map(s => (
-                    <option key={s.id} value={s.id}>{s.siglas} - {s.nombre}</option>
-                  ))}
-                </select>
-              </div>
+              <SelectModerno
+                name="secretaria_id"
+                value={formData.secretaria_id}
+                onChange={handleChange}
+                icon={BuildingOfficeIcon}
+                placeholder="Seleccionar secretaría..."
+                required
+                options={secretarias.map(s => ({
+                  value: s.id.toString(),
+                  label: `${s.siglas} - ${s.nombre}`,
+                  icon: BuildingOfficeIcon
+                }))}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Régimen *</label>
-              <div className="relative">
-                <select
-                  name="regimen"
-                  value={formData.regimen}
-                  onChange={handleChange}
-                  className="select-modern"
-                  required
-                >
-                  <option value="propio">Propio</option>
-                  <option value="rentado">Rentado</option>
-                  <option value="comodato">Comodato</option>
-                  <option value="asignado_federal">Asignado Federal</option>
-                </select>
-              </div>
+              <SelectModerno
+                name="regimen"
+                value={formData.regimen}
+                onChange={handleChange}
+                icon={DocumentTextIcon}
+                required
+                options={[
+                  { value: 'propio', label: 'Propio', icon: CheckCircleIcon },
+                  { value: 'rentado', label: 'Rentado', icon: CurrencyDollarIcon },
+                  { value: 'comodato', label: 'Comodato', icon: DocumentTextIcon },
+                  { value: 'asignado_federal', label: 'Asignado Federal', icon: BuildingOfficeIcon },
+                ]}
+              />
             </div>
           </div>
 
@@ -390,21 +418,20 @@ export default function VehiculoNuevo() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Estado Operativo *</label>
-              <div className="relative">
-                <select
-                  name="estado_operativo"
-                  value={formData.estado_operativo}
-                  onChange={handleChange}
-                  className="select-modern"
-                  required
-                >
-                  <option value="activo">Activo</option>
-                  <option value="en_reparacion">En Reparación</option>
-                  <option value="siniestrado">Siniestrado</option>
-                  <option value="baja">Baja</option>
-                  <option value="ocioso">Ocioso</option>
-                </select>
-              </div>
+              <SelectModerno
+                name="estado_operativo"
+                value={formData.estado_operativo}
+                onChange={handleChange}
+                icon={CheckCircleIcon}
+                required
+                options={[
+                  { value: 'activo', label: 'Activo', icon: CheckCircleIcon },
+                  { value: 'en_reparacion', label: 'En Reparación', icon: WrenchScrewdriverIcon },
+                  { value: 'siniestrado', label: 'Siniestrado', icon: ExclamationTriangleIcon },
+                  { value: 'baja', label: 'Baja', icon: XCircleIcon },
+                  { value: 'ocioso', label: 'Ocioso', icon: ClockIcon },
+                ]}
+              />
             </div>
           </div>
         </div>
@@ -459,22 +486,21 @@ export default function VehiculoNuevo() {
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Secretaría que lo tiene *
                 </label>
-                <div className="relative">
-                  <select
-                    name="prestado_a_secretaria_id"
-                    value={formData.prestado_a_secretaria_id}
-                    onChange={handleChange}
-                    className="select-modern border-amber-300 focus:ring-amber-500 focus:border-amber-500"
-                    required={formData.esta_prestado}
-                  >
-                    <option value="">Seleccionar secretaría...</option>
-                    {secretarias
-                      .filter(s => s.id != formData.secretaria_id)
-                      .map(s => (
-                        <option key={s.id} value={s.id}>{s.siglas} - {s.nombre}</option>
-                      ))}
-                  </select>
-                </div>
+                <SelectModerno
+                  name="prestado_a_secretaria_id"
+                  value={formData.prestado_a_secretaria_id}
+                  onChange={handleChange}
+                  icon={BuildingOfficeIcon}
+                  placeholder="Seleccionar secretaría..."
+                  required={formData.esta_prestado}
+                  options={secretarias
+                    .filter(s => s.id != formData.secretaria_id)
+                    .map(s => ({
+                      value: s.id.toString(),
+                      label: `${s.siglas} - ${s.nombre}`,
+                      icon: BuildingOfficeIcon
+                    }))}
+                />
                 <p className="text-xs text-gray-500 mt-1">
                   La secretaría que actualmente tiene el vehículo
                 </p>

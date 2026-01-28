@@ -27,7 +27,7 @@
 
   /* Selectores modernos con estilo personalizado */
   .select-modern {
-    @apply w-full px-4 py-2.5 border border-gray-300 rounded-xl focus:ring-2 focus:ring-veracruz-500 focus:border-veracruz-500 outline-none transition-all duration-200 bg-white cursor-pointer;
+    @apply w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-veracruz-100 focus:border-veracruz-500 outline-none transition-all duration-200 bg-white cursor-pointer font-medium text-gray-700;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
     background-repeat: no-repeat;
@@ -37,19 +37,19 @@
   }
 
   .select-modern:hover {
-    @apply border-veracruz-400 shadow-sm;
+    @apply border-veracruz-400 shadow-md;
   }
 
   .select-modern:focus {
-    @apply ring-2 ring-veracruz-500 border-veracruz-500 shadow-md;
+    @apply ring-2 ring-veracruz-100 border-veracruz-500 shadow-lg;
   }
 
   .select-modern option {
-    @apply py-2 px-3;
+    @apply py-3 px-4;
   }
 
   .select-modern optgroup {
-    @apply font-semibold text-gray-900 bg-gray-50;
+    @apply font-bold text-gray-900 bg-gray-100 py-2;
   }
 
   .card {
