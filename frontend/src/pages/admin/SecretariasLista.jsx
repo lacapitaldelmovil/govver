@@ -8,7 +8,9 @@ import {
   UsersIcon,
   UserPlusIcon,
   TrashIcon,
-  XMarkIcon
+  XMarkIcon,
+  ArrowRightOnRectangleIcon,
+  KeyIcon
 } from '@heroicons/react/24/outline';
 
 export default function SecretariasLista() {
@@ -259,22 +261,16 @@ export default function SecretariasLista() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Secretaria
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Siglas
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Titular
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Contacto
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Usuarios
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Estado
-              </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Acciones
               </th>
             </tr>
@@ -282,43 +278,42 @@ export default function SecretariasLista() {
           <tbody className="bg-white divide-y divide-gray-200">
             {secretarias.map((secretaria) => (
               <tr key={secretaria.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="flex items-center">
+                <td className="px-4 py-3">
+                  <div className="flex items-center gap-3">
                     <div className="flex-shrink-0 h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
-                      <BuildingOfficeIcon className="h-5 w-5 text-green-600" />
+                      <span className="text-green-700 font-bold text-sm">{secretaria.siglas?.substring(0,3)}</span>
                     </div>
-                    <div className="ml-4">
+                    <div>
                       <div className="text-sm font-medium text-gray-900">{secretaria.nombre}</div>
+                      <div className="text-xs text-gray-500">{secretaria.email}</div>
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 py-1 text-xs font-bold bg-gray-100 rounded">
-                    {secretaria.siglas}
-                  </span>
+                <td className="px-4 py-3">
+                  <div className="text-sm text-gray-900">{secretaria.titular || '-'}</div>
+                  <div className="text-xs text-gray-500">{secretaria.telefono}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  {secretaria.titular || '-'}
+                <td className="px-4 py-3">
+                  <button
+                    onClick={() => abrirModalUsuarios(secretaria)}
+                    className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 text-sm font-medium"
+                  >
+                    <UsersIcon className="h-4 w-4" />
+                    Ver Usuarios
+                  </button>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                  <div>{secretaria.email || '-'}</div>
-                  <div className="text-xs">{secretaria.telefono || ''}</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {getRolBadge(secretaria.activa)}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <div className="flex items-center justify-end gap-2">
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-center gap-1">
                     <button
                       onClick={() => abrirModalUsuarios(secretaria)}
-                      className="text-blue-600 hover:text-blue-900 p-1 hover:bg-blue-50 rounded"
-                      title="Ver usuarios"
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                      title="Agregar usuario"
                     >
-                      <UsersIcon className="h-5 w-5" />
+                      <UserPlusIcon className="h-5 w-5" />
                     </button>
                     <button
                       onClick={() => abrirModalEditar(secretaria)}
-                      className="text-green-600 hover:text-green-900 p-1 hover:bg-green-50 rounded"
+                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
                       title="Editar secretaría"
                     >
                       <PencilIcon className="h-5 w-5" />
@@ -461,35 +456,51 @@ export default function SecretariasLista() {
                   {usuariosSecretaria.length > 0 ? (
                     <div className="space-y-3 mb-4">
                       {usuariosSecretaria.map((usuario) => (
-                        <div key={usuario.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div key={usuario.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
                           <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
-                              <span className="text-green-700 font-bold">
+                            <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
+                              <span className="text-green-700 font-bold text-lg">
                                 {usuario.nombre?.charAt(0) || 'U'}
                               </span>
                             </div>
                             <div>
                               <p className="font-medium text-gray-900">{usuario.nombre}</p>
                               <p className="text-sm text-gray-500">{usuario.email}</p>
+                              <div className="mt-1">
+                                {getRolUsuarioBadge(usuario.rol)}
+                              </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            {getRolUsuarioBadge(usuario.rol)}
+                          <div className="flex flex-col gap-2">
+                            <button
+                              onClick={() => {
+                                // Copiar credenciales al portapapeles
+                                navigator.clipboard.writeText(usuario.email);
+                                toast.success(`Email copiado: ${usuario.email}`);
+                              }}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-amber-50 text-amber-700 rounded-lg hover:bg-amber-100 text-xs font-medium"
+                              title="Copiar email para login"
+                            >
+                              <KeyIcon className="h-3.5 w-3.5" />
+                              Copiar Email
+                            </button>
                             <button
                               onClick={() => eliminarUsuario(usuario.id)}
-                              className="p-1 text-red-500 hover:bg-red-50 rounded"
+                              className="flex items-center gap-1 px-3 py-1.5 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 text-xs font-medium"
                               title="Eliminar usuario"
                             >
-                              <TrashIcon className="h-4 w-4" />
+                              <TrashIcon className="h-3.5 w-3.5" />
+                              Eliminar
                             </button>
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
+                    <div className="text-center py-8 text-gray-500 bg-gray-50 rounded-lg">
                       <UsersIcon className="h-12 w-12 mx-auto mb-2 text-gray-300" />
-                      <p>No hay usuarios en esta secretaría</p>
+                      <p className="font-medium">No hay usuarios en esta secretaría</p>
+                      <p className="text-sm mt-1">Haz clic en "Agregar Usuario" para crear uno</p>
                     </div>
                   )}
 
@@ -571,6 +582,16 @@ export default function SecretariasLista() {
                       Agregar Usuario
                     </button>
                   )}
+                  
+                  {/* Nota de contraseña */}
+                  <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p className="text-sm text-amber-800">
+                      <strong>💡 Contraseña por defecto:</strong> Veracruz2024!
+                    </p>
+                    <p className="text-xs text-amber-600 mt-1">
+                      Los usuarios pueden cambiarla después de iniciar sesión.
+                    </p>
+                  </div>
                 </>
               )}
             </div>
