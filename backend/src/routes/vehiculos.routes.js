@@ -460,72 +460,123 @@ router.get('/:id', authMiddleware, (req, res) => {
 });
 
 /**
- * POST /api/vehiculos - Crear vehículo
+ * POST /api/vehiculos - Crear vehículo (62 variables del Padrón Vehicular)
  */
 router.post('/', authMiddleware, requireAdminSecretaria, (req, res) => {
   try {
     const {
-      numero_inventario, numero_economico, placas, numero_serie,
-      descripcion, descripcion_detallada, marca, modelo, anio, color, tipo,
-      numero_motor, capacidad_pasajeros, tipo_combustible,
-      valor_libros, fecha_adquisicion,
-      ubicacion_fisica, municipio, secretaria_id, area_responsable,
-      tarjeta_circulacion, vigencia_tarjeta,
-      estado_operativo, estatus, kilometraje,
-      seguro, poliza_seguro, vigencia_seguro,
-      regimen, proveedor_arrendadora, renta_mensual, vigencia_contrato,
-      telefono_area, quien_reporta,
-      resguardante_nombre, resguardante_cargo, resguardante_telefono,
-      observaciones
+      // 1. Identificación
+      numero_inventario, placas, numero_serie, numero_motor, numero_economico,
+      // 2. Características del vehículo
+      marca, linea, modelo, anio, color, tipo, capacidad_pasajeros, tipo_combustible,
+      cilindros, transmision, clase, puertas, ejes, traccion, origen,
+      descripcion, descripcion_detallada,
+      // 3. Asignación
+      secretaria_id, municipio, area_responsable, telefono_area, quien_reporta,
+      // 4. Adquisición
+      forma_adquisicion, fecha_adquisicion, valor_libros, proveedor, numero_factura, regimen, uso,
+      // 5. Documentación
+      tipo_placas, tarjeta_circulacion, vigencia_tarjeta,
+      // 6. Inventario
+      refrendado, ultimo_refrendo,
+      // 7. Estatus
+      estatus_operativo, estatus_administrativo, estatus, estado_operativo, en_uso, propuesto_baja, fecha_propuesta_baja, motivo_propuesta_baja,
+      // 8. Ubicación
+      ubicacion_fisica, direccion_ubicacion,
+      // 9. Resguardatario
+      resguardante_nombre, resguardante_cargo, resguardante_telefono, resguardante_email, fecha_resguardo,
+      // 10. Seguro
+      seguro, aseguradora, poliza_seguro, vigencia_seguro, tipo_cobertura, suma_asegurada,
+      // 11. Mantenimiento
+      kilometraje, fecha_ultimo_servicio, proximo_servicio_km,
+      // 12. Préstamo / Arrendamiento
+      proveedor_arrendadora, renta_mensual, vigencia_contrato,
+      prestamo_activo, prestamo_destino, prestamo_responsable, prestamo_fecha_inicio, prestamo_fecha_fin,
+      comodato_activo, comodato_institucion, comodato_fecha_inicio, comodato_fecha_fin,
+      // 13. Evidencia
+      foto_url, documento_url,
+      // Extras
+      observaciones, situacion_juridica, clasificacion
     } = req.body;
     
-    // Mapear valores del frontend a los valores que acepta la BD
+    // Compatibilidad: mapear estado_operativo antiguo a estatus_operativo
+    let estatusOperativoFinal = estatus_operativo || estado_operativo || 'Operando';
+    let estatusAdminFinal = estatus_administrativo || 'Activo';
+    
+    // Mapear valores del frontend antiguo si es necesario
     const estadoMap = {
       'activo': 'Operando',
-      'propuesto': 'Disponible',
-      'en_reparacion': 'En taller',
-      'siniestrado': 'Mal estado',
-      'baja': 'Baja',
-      'ocioso': 'Disponible'
+      'propuesto': 'Operando',
+      'en_reparacion': 'En mantenimiento',
+      'siniestrado': 'Fuera de servicio',
+      'baja': 'Fuera de servicio',
+      'ocioso': 'Operando'
     };
-    
-    const regimenMap = {
-      'propio': 'Propio',
-      'arrendado': 'Arrendado',
-      'comodato': 'Comodato'
-    };
-    
-    const estadoFinal = estadoMap[estado_operativo] || estado_operativo || 'Operando';
-    const regimenFinal = regimenMap[regimen] || regimen || 'Propio';
+    if (estadoMap[estatusOperativoFinal]) {
+      estatusOperativoFinal = estadoMap[estatusOperativoFinal];
+    }
     
     const result = query(`
       INSERT INTO vehiculos (
-        numero_inventario, numero_economico, placas, numero_serie,
-        descripcion, descripcion_detallada, marca, modelo, anio, color, tipo,
-        numero_motor, capacidad_pasajeros, tipo_combustible,
-        valor_libros, fecha_adquisicion,
-        ubicacion_fisica, municipio, secretaria_id, area_responsable,
-        tarjeta_circulacion, vigencia_tarjeta,
-        estado_operativo, estatus, kilometraje,
-        seguro, poliza_seguro, vigencia_seguro,
-        regimen, proveedor_arrendadora, renta_mensual, vigencia_contrato,
-        telefono_area, quien_reporta,
-        resguardante_nombre, resguardante_cargo, resguardante_telefono,
-        observaciones
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        numero_inventario, placas, numero_serie, numero_motor, numero_economico,
+        marca, linea, modelo, anio, color, tipo, capacidad_pasajeros, tipo_combustible,
+        cilindros, transmision, clase, puertas, ejes, traccion, origen,
+        descripcion, descripcion_detallada,
+        secretaria_id, municipio, area_responsable, telefono_area, quien_reporta,
+        forma_adquisicion, fecha_adquisicion, valor_libros, proveedor, numero_factura, regimen, uso,
+        tipo_placas, tarjeta_circulacion, vigencia_tarjeta,
+        refrendado, ultimo_refrendo,
+        estatus_operativo, estatus_administrativo, estatus, estado_operativo, en_uso, propuesto_baja, fecha_propuesta_baja, motivo_propuesta_baja,
+        ubicacion_fisica, direccion_ubicacion,
+        resguardante_nombre, resguardante_cargo, resguardante_telefono, resguardante_email, fecha_resguardo,
+        seguro, aseguradora, poliza_seguro, vigencia_seguro, tipo_cobertura, suma_asegurada,
+        kilometraje, fecha_ultimo_servicio, proximo_servicio_km,
+        proveedor_arrendadora, renta_mensual, vigencia_contrato,
+        prestamo_activo, prestamo_destino, prestamo_responsable, prestamo_fecha_inicio, prestamo_fecha_fin,
+        comodato_activo, comodato_institucion, comodato_fecha_inicio, comodato_fecha_fin,
+        foto_url, documento_url,
+        observaciones, situacion_juridica, clasificacion,
+        activo
+      ) VALUES (
+        ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?,
+        ?, ?,
+        ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?, ?,
+        ?, ?, ?,
+        ?, ?,
+        ?, ?, ?, ?, ?, ?, ?, ?,
+        ?, ?,
+        ?, ?, ?, ?, ?,
+        ?, ?, ?, ?, ?, ?,
+        ?, ?, ?,
+        ?, ?, ?,
+        ?, ?, ?, ?, ?,
+        ?, ?, ?, ?,
+        ?, ?,
+        ?, ?, ?,
+        1
+      )
     `, [
-      numero_inventario || null, numero_economico || null, placas || null, numero_serie || null,
-      descripcion || null, descripcion_detallada || null, marca || null, modelo || null, anio || null, color || null, tipo || null,
-      numero_motor || null, capacidad_pasajeros || null, tipo_combustible || null,
-      valor_libros || null, fecha_adquisicion || null,
-      ubicacion_fisica || null, municipio || null, secretaria_id || null, area_responsable || null,
-      tarjeta_circulacion || null, vigencia_tarjeta || null,
-      estadoFinal, estatus || null, kilometraje || 0,
-      seguro || null, poliza_seguro || null, vigencia_seguro || null,
-      regimenFinal, proveedor_arrendadora || null, renta_mensual || null, vigencia_contrato || null,
-      telefono_area || null, quien_reporta || null,
-      resguardante_nombre || null, resguardante_cargo || null, resguardante_telefono || null,
-      observaciones || null
+      numero_inventario || null, placas || null, numero_serie || null, numero_motor || null, numero_economico || null,
+      marca || null, linea || null, modelo || null, anio || null, color || null, tipo || null, capacidad_pasajeros || null, tipo_combustible || null,
+      cilindros || null, transmision || null, clase || null, puertas || null, ejes || null, traccion || null, origen || null,
+      descripcion || null, descripcion_detallada || null,
+      secretaria_id || null, municipio || null, area_responsable || null, telefono_area || null, quien_reporta || null,
+      forma_adquisicion || null, fecha_adquisicion || null, valor_libros || null, proveedor || null, numero_factura || null, regimen || null, uso || null,
+      tipo_placas || null, tarjeta_circulacion || null, vigencia_tarjeta || null,
+      refrendado || null, ultimo_refrendo || null,
+      estatusOperativoFinal, estatusAdminFinal, estatus || null, estatusOperativoFinal, en_uso || 1, propuesto_baja || 0, fecha_propuesta_baja || null, motivo_propuesta_baja || null,
+      ubicacion_fisica || null, direccion_ubicacion || null,
+      resguardante_nombre || null, resguardante_cargo || null, resguardante_telefono || null, resguardante_email || null, fecha_resguardo || null,
+      seguro || null, aseguradora || null, poliza_seguro || null, vigencia_seguro || null, tipo_cobertura || null, suma_asegurada || null,
+      kilometraje || 0, fecha_ultimo_servicio || null, proximo_servicio_km || null,
+      proveedor_arrendadora || null, renta_mensual || null, vigencia_contrato || null,
+      prestamo_activo || 0, prestamo_destino || null, prestamo_responsable || null, prestamo_fecha_inicio || null, prestamo_fecha_fin || null,
+      comodato_activo || 0, comodato_institucion || null, comodato_fecha_inicio || null, comodato_fecha_fin || null,
+      foto_url || null, documento_url || null,
+      observaciones || null, situacion_juridica || null, clasificacion || null
     ]);
     
     res.status(201).json({ 
@@ -541,7 +592,7 @@ router.post('/', authMiddleware, requireAdminSecretaria, (req, res) => {
 });
 
 /**
- * PUT /api/vehiculos/:id - Actualizar vehículo
+ * PUT /api/vehiculos/:id - Actualizar vehículo (62 variables del Padrón Vehicular)
  */
 router.put('/:id', authMiddleware, requireAdminSecretaria, (req, res) => {
   try {
@@ -553,18 +604,38 @@ router.put('/:id', authMiddleware, requireAdminSecretaria, (req, res) => {
     const params = [];
     
     const allowedFields = [
-      'numero_inventario', 'numero_economico', 'placas', 'numero_serie',
-      'descripcion', 'descripcion_detallada', 'marca', 'modelo', 'linea', 'anio', 'color', 'tipo',
-      'numero_motor', 'capacidad_pasajeros', 'tipo_combustible', 'cilindros', 'transmision',
-      'valor_libros', 'fecha_adquisicion',
-      'ubicacion_fisica', 'municipio', 'secretaria_id', 'area_responsable',
-      'tarjeta_circulacion', 'vigencia_tarjeta',
-      'estado_operativo', 'estatus', 'en_uso', 'kilometraje',
-      'seguro', 'poliza_seguro', 'vigencia_seguro',
-      'regimen', 'proveedor_arrendadora', 'renta_mensual', 'vigencia_contrato',
-      'telefono_area', 'quien_reporta',
-      'resguardante_nombre', 'resguardante_cargo', 'resguardante_telefono',
-      'observaciones', 'situacion_juridica', 'activo', 'propuesto_baja', 'fecha_propuesta_baja', 'motivo_propuesta_baja'
+      // 1. Identificación
+      'numero_inventario', 'placas', 'numero_serie', 'numero_motor', 'numero_economico',
+      // 2. Características del vehículo
+      'marca', 'linea', 'modelo', 'anio', 'color', 'tipo', 'capacidad_pasajeros', 'tipo_combustible',
+      'cilindros', 'transmision', 'clase', 'puertas', 'ejes', 'traccion', 'origen',
+      'descripcion', 'descripcion_detallada',
+      // 3. Asignación
+      'secretaria_id', 'municipio', 'area_responsable', 'telefono_area', 'quien_reporta',
+      // 4. Adquisición
+      'forma_adquisicion', 'fecha_adquisicion', 'valor_libros', 'proveedor', 'numero_factura', 'regimen', 'uso',
+      // 5. Documentación
+      'tipo_placas', 'tarjeta_circulacion', 'vigencia_tarjeta',
+      // 6. Inventario
+      'refrendado', 'ultimo_refrendo',
+      // 7. Estatus
+      'estatus_operativo', 'estatus_administrativo', 'estatus', 'estado_operativo', 'en_uso', 'propuesto_baja', 'fecha_propuesta_baja', 'motivo_propuesta_baja',
+      // 8. Ubicación
+      'ubicacion_fisica', 'direccion_ubicacion',
+      // 9. Resguardatario
+      'resguardante_nombre', 'resguardante_cargo', 'resguardante_telefono', 'resguardante_email', 'fecha_resguardo',
+      // 10. Seguro
+      'seguro', 'aseguradora', 'poliza_seguro', 'vigencia_seguro', 'tipo_cobertura', 'suma_asegurada',
+      // 11. Mantenimiento
+      'kilometraje', 'fecha_ultimo_servicio', 'proximo_servicio_km',
+      // 12. Préstamo / Arrendamiento
+      'proveedor_arrendadora', 'renta_mensual', 'vigencia_contrato',
+      'prestamo_activo', 'prestamo_destino', 'prestamo_responsable', 'prestamo_fecha_inicio', 'prestamo_fecha_fin',
+      'comodato_activo', 'comodato_institucion', 'comodato_fecha_inicio', 'comodato_fecha_fin',
+      // 13. Evidencia
+      'foto_url', 'documento_url',
+      // Extras
+      'observaciones', 'situacion_juridica', 'clasificacion', 'activo'
     ];
     
     for (const field of allowedFields) {

@@ -57,81 +57,152 @@ async function migrate() {
   `);
   console.log('✅ Tabla usuarios creada');
 
-  // Tabla de Vehículos - Estructura completa según Excel
+  // Tabla de Vehículos - Estructura completa según Excel Padrón Vehicular 62 variables
   query(`
     CREATE TABLE IF NOT EXISTS vehiculos (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       
-      -- Identificación
+      -- ========== 1. IDENTIFICACIÓN ==========
       numero_inventario TEXT UNIQUE,
-      numero_economico TEXT,
       placas TEXT,
       numero_serie TEXT,
+      numero_motor TEXT,
+      numero_economico TEXT,
       
-      -- Descripción del vehículo
-      descripcion TEXT,
-      descripcion_detallada TEXT,
-      marca TEXT NOT NULL,
-      modelo TEXT NOT NULL,
+      -- ========== 2. CARACTERÍSTICAS DEL VEHÍCULO ==========
+      marca TEXT,
+      linea TEXT,
+      modelo TEXT,
       anio INTEGER,
       color TEXT,
-      tipo TEXT CHECK(tipo IN ('sedan', 'camioneta', 'pickup', 'suv', 'van', 'autobus', 'motocicleta', 'maquinaria', 'emergencia', 'otro')),
+      tipo TEXT,
+      capacidad_pasajeros INTEGER,
+      tipo_combustible TEXT,
+      cilindros INTEGER,
+      transmision TEXT,
+      clase TEXT,
+      puertas INTEGER,
+      ejes INTEGER,
+      traccion TEXT,
+      origen TEXT,
+      descripcion TEXT,
+      descripcion_detallada TEXT,
+      cilindraje TEXT,
       
-      -- Valores y fechas
-      valor_libros REAL,
-      fecha_adquisicion TEXT,
-      
-      -- Ubicación
-      ubicacion_fisica TEXT,
-      municipio TEXT,
+      -- ========== 3. ASIGNACIÓN ==========
       secretaria_id INTEGER REFERENCES secretarias(id),
+      municipio TEXT,
       area_responsable TEXT,
-      
-      -- Documentación
-      tarjeta_circulacion TEXT CHECK(tarjeta_circulacion IN ('Vigente', 'No vigente', 'En trámite', 'No aplica')),
-      vigencia_tarjeta TEXT,
-      
-      -- Estado operativo
-      estado_operativo TEXT DEFAULT 'Operando' CHECK(estado_operativo IN ('Operando', 'Disponible', 'Mal estado', 'En taller', 'Baja')),
-      estatus TEXT CHECK(estatus IN ('Bueno', 'Regular', 'Malo')),
-      en_uso INTEGER DEFAULT 1,
-      kilometraje INTEGER DEFAULT 0,
-      
-      -- Seguro
-      seguro TEXT CHECK(seguro IN ('Vigente', 'No vigente', 'En trámite')),
-      poliza_seguro TEXT,
-      vigencia_seguro TEXT,
-      
-      -- Régimen de propiedad
-      regimen TEXT CHECK(regimen IN ('Propio', 'Arrendado', 'Comodato')),
-      
-      -- Datos de arrendamiento/comodato
-      proveedor_arrendadora TEXT,
-      renta_mensual REAL,
-      vigencia_contrato TEXT,
-      
-      -- Contacto del área
       telefono_area TEXT,
       quien_reporta TEXT,
+      asignacion_actual TEXT,
       
-      -- Resguardante
-      resguardante_nombre TEXT,
-      resguardante_cargo TEXT,
-      resguardante_telefono TEXT,
+      -- ========== 4. ADQUISICIÓN ==========
+      forma_adquisicion TEXT,
+      fecha_adquisicion TEXT,
+      valor_libros REAL,
+      proveedor TEXT,
+      proveedor_unidad TEXT,
+      numero_factura TEXT,
+      regimen TEXT,
+      uso TEXT,
+      valor_contrato REAL,
+      cfdi TEXT,
+      contrato TEXT,
+      factura_original TEXT,
+      valor_factura REAL,
+      valor_mercado REAL,
       
-      -- Control
-      observaciones TEXT,
-      situacion_juridica TEXT,
-      clasificacion TEXT CHECK(clasificacion IN ('operativo', 'donado', 'determinacion', 'comodato_externo')),
+      -- ========== 5. DOCUMENTACIÓN (PLACAS) ==========
+      tipo_placas TEXT,
+      fecha_expedicion_placas TEXT,
+      acta_entrega_recepcion TEXT,
+      resguardo_vehicular TEXT,
+      tarjeta_circulacion TEXT,
+      vigencia_tarjeta TEXT,
+      verificacion_vehicular TEXT,
+      vigencia_verificacion TEXT,
+      comprobante_reemplacamiento TEXT,
+      pago_derechos TEXT,
+      
+      -- ========== 6. INVENTARIO ==========
+      refrendado TEXT,
+      ultimo_refrendo TEXT,
+      inventario_patrimonial TEXT,
+      fecha_alta_inventario TEXT,
+      bitacora_mantenimiento TEXT,
+      
+      -- ========== 7. ESTATUS ==========
+      estatus_operativo TEXT DEFAULT 'Operando',
+      estatus_administrativo TEXT DEFAULT 'Activo',
+      estatus TEXT,
+      estado_operativo TEXT DEFAULT 'Operando',
+      en_uso INTEGER DEFAULT 1,
       propuesto_baja INTEGER DEFAULT 0,
       fecha_propuesta_baja TEXT,
       motivo_propuesta_baja TEXT,
+      
+      -- ========== 8. UBICACIÓN ==========
+      ubicacion_fisica TEXT,
+      direccion_ubicacion TEXT,
+      ubicacion_especifica TEXT,
+      
+      -- ========== 9. RESGUARDATARIO ==========
+      resguardante_nombre TEXT,
+      resguardante_cargo TEXT,
+      resguardante_telefono TEXT,
+      resguardante_email TEXT,
+      fecha_resguardo TEXT,
+      
+      -- ========== 10. SEGURO ==========
+      seguro TEXT,
+      aseguradora TEXT,
+      poliza_seguro TEXT,
+      vigencia_seguro TEXT,
+      tipo_cobertura TEXT,
+      suma_asegurada REAL,
+      
+      -- ========== 11. MANTENIMIENTO Y CONDICIÓN ==========
+      kilometraje INTEGER DEFAULT 0,
+      fecha_ultimo_servicio TEXT,
+      proximo_servicio_km INTEGER,
+      ultimo_servicio TEXT,
+      porcentaje_motor INTEGER,
+      porcentaje_transmision INTEGER,
+      porcentaje_chasis INTEGER,
+      consumo_combustible REAL,
+      costo_mantenimiento_anual REAL,
+      proveedor_mantenimiento TEXT,
+      
+      -- ========== 12. PRÉSTAMO / ARRENDAMIENTO ==========
+      proveedor_arrendadora TEXT,
+      renta_mensual REAL,
+      vigencia_contrato TEXT,
+      prestamo_activo INTEGER DEFAULT 0,
+      prestamo_destino TEXT,
+      prestamo_responsable TEXT,
+      prestamo_fecha_inicio TEXT,
+      prestamo_fecha_fin TEXT,
+      comodato_activo INTEGER DEFAULT 0,
+      comodato_institucion TEXT,
+      comodato_fecha_inicio TEXT,
+      comodato_fecha_fin TEXT,
+      
+      -- ========== 13. EVIDENCIA ==========
+      foto_url TEXT,
+      documento_url TEXT,
+      evidencia_fotografica TEXT,
+      
+      -- ========== EXTRAS ==========
+      observaciones TEXT,
+      situacion_juridica TEXT,
+      clasificacion TEXT,
       activo INTEGER DEFAULT 1,
       created_at TEXT DEFAULT (datetime('now')),
       updated_at TEXT DEFAULT (datetime('now'))
     )
   `);
-  console.log('✅ Tabla vehiculos creada');
+  console.log('✅ Tabla vehiculos creada (62 variables del Padrón Vehicular)');
 
   // Tabla de Solicitudes
   query(`

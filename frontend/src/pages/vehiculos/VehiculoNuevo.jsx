@@ -3,19 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import { 
-  ArrowLeftIcon, 
-  TruckIcon, 
-  BuildingOfficeIcon,
-  WrenchScrewdriverIcon,
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  XCircleIcon,
-  ClockIcon,
-  DocumentTextIcon,
-  CurrencyDollarIcon,
-  FireIcon,
-  BoltIcon,
-  DocumentPlusIcon
+  ArrowLeftIcon, TruckIcon, BuildingOfficeIcon, WrenchScrewdriverIcon,
+  CheckCircleIcon, XCircleIcon, ClockIcon, DocumentTextIcon,
+  CurrencyDollarIcon, FireIcon, BoltIcon, MapPinIcon, UserIcon,
+  ShieldCheckIcon, CameraIcon, Cog6ToothIcon, ArchiveBoxIcon,
+  DocumentCheckIcon, ClipboardDocumentListIcon
 } from '@heroicons/react/24/outline';
 import SelectModerno from '../../components/ui/SelectModerno';
 import useAuthStore from '../../store/authStore';
@@ -26,47 +18,34 @@ export default function VehiculoNuevo() {
   const [loading, setLoading] = useState(false);
   const [secretarias, setSecretarias] = useState([]);
   const [formData, setFormData] = useState({
-    numero_inventario: '',
-    placas: '',
-    marca: '',
-    linea: '',
-    modelo: '',
-    numero_serie: '',
-    numero_motor: '',
-    color: '',
-    tipo: 'sedan',
-    capacidad_pasajeros: 5,
-    tipo_combustible: 'gasolina',
-    regimen: 'propio',
-    secretaria_id: '',
-    municipio: '',
-    ubicacion: '',
-    estado_operativo: 'activo',
-    fecha_adquisicion: '',
-    valor_adquisicion: '',
-    aseguradora: '',
-    poliza_numero: '',
-    poliza_vigencia: '',
-    verificacion_vigencia: '',
-    resguardatario_nombre: '',
-    resguardatario_cargo: '',
-    notas: '',
-    // Campos de préstamo
-    esta_prestado: false,
-    prestado_a_secretaria_id: '',
-    prestamo_fecha_inicio: '',
-    prestamo_fecha_fin_estimada: '',
-    prestamo_motivo: ''
+    numero_inventario: '', numero_economico: '', placas: '', numero_serie: '', numero_motor: '',
+    marca: '', linea: '', modelo: '', color: '', cilindraje: '', capacidad_pasajeros: 5,
+    tipo: 'compactos', tipo_combustible: 'Gasolina',
+    secretaria_id: '', asignacion_actual: '', uso: '',
+    forma_adquisicion: 'Compra', proveedor_unidad: '', fecha_adquisicion: '',
+    valor_contrato: '', cfdi: '', contrato: '', factura_original: '',
+    valor_factura: '', valor_mercado: '', valor_libros: '',
+    tipo_placas: 'Oficiales', fecha_expedicion_placas: '',
+    acta_entrega_recepcion: '', resguardo_vehicular: '',
+    tarjeta_circulacion: '', vigencia_tarjeta: '',
+    verificacion_vehicular: '', vigencia_verificacion: '',
+    comprobante_reemplacamiento: '', pago_derechos: '',
+    inventario_patrimonial: '', fecha_alta_inventario: '', bitacora_mantenimiento: '',
+    estatus_operativo: 'Operando', estatus_administrativo: 'Activo',
+    municipio: '', ubicacion_fisica: '', ubicacion_especifica: '',
+    resguardante_nombre: '', resguardante_cargo: '', resguardante_telefono: '', resguardante_email: '',
+    seguro: '', aseguradora: '', poliza_seguro: '', vigencia_seguro: '',
+    ultimo_servicio: '', porcentaje_motor: '', porcentaje_transmision: '', porcentaje_chasis: '',
+    kilometraje: '', consumo_combustible: '', costo_mantenimiento_anual: '', proveedor_mantenimiento: '',
+    evidencia_fotografica: '', observaciones: '',
+    esta_prestado: false, prestado_a_secretaria_id: '', prestamo_fecha_inicio: '', prestamo_motivo: ''
   });
 
-  // Cargar secretarías y preseleccionar la del usuario
   useEffect(() => {
     const cargar = async () => {
       try {
         const response = await api.get('/secretarias');
         setSecretarias(response.data);
-        
-        // Preseleccionar secretaría del usuario
         if (user?.secretaria_id) {
           setFormData(prev => ({ ...prev, secretaria_id: user.secretaria_id.toString() }));
         }
@@ -85,620 +64,384 @@ export default function VehiculoNuevo() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      // Separar datos del préstamo
-      const { esta_prestado, prestado_a_secretaria_id, prestamo_fecha_inicio, prestamo_fecha_fin_estimada, prestamo_motivo, ...vehiculoData } = formData;
-      
-      // Mapear campos del frontend a los nombres del backend
-      const datosBackend = {
-        numero_inventario: vehiculoData.numero_inventario,
-        placas: vehiculoData.placas,
-        marca: vehiculoData.marca,
-        modelo: vehiculoData.linea, // línea/modelo del vehículo
-        anio: vehiculoData.modelo, // año
-        numero_serie: vehiculoData.numero_serie,
-        numero_motor: vehiculoData.numero_motor,
-        color: vehiculoData.color,
-        tipo: vehiculoData.tipo,
-        capacidad_pasajeros: vehiculoData.capacidad_pasajeros,
-        tipo_combustible: vehiculoData.tipo_combustible,
-        regimen: vehiculoData.regimen,
-        secretaria_id: vehiculoData.secretaria_id ? parseInt(vehiculoData.secretaria_id) : null,
-        municipio: vehiculoData.municipio,
-        ubicacion_fisica: vehiculoData.ubicacion,
-        estado_operativo: vehiculoData.estado_operativo,
-        fecha_adquisicion: vehiculoData.fecha_adquisicion || null,
-        valor_libros: vehiculoData.valor_adquisicion || null,
-        seguro: vehiculoData.aseguradora,
-        poliza_seguro: vehiculoData.poliza_numero,
-        vigencia_seguro: vehiculoData.poliza_vigencia || null,
-        resguardante_nombre: vehiculoData.resguardatario_nombre,
-        resguardante_cargo: vehiculoData.resguardatario_cargo,
-        observaciones: vehiculoData.notas
-      };
-      
-      // Limpiar campos vacíos
-      const datos = Object.fromEntries(
-        Object.entries(datosBackend).filter(([_, v]) => v !== '' && v !== null && v !== undefined)
-      );
-
-      console.log('Enviando datos:', datos);
-
-      // Crear el vehículo
+      const { esta_prestado, prestado_a_secretaria_id, prestamo_fecha_inicio, prestamo_motivo, ...vehiculoData } = formData;
+      const datos = Object.fromEntries(Object.entries(vehiculoData).filter(([_, v]) => v !== '' && v !== null && v !== undefined));
+      if (datos.secretaria_id) datos.secretaria_id = parseInt(datos.secretaria_id);
       const response = await api.post('/vehiculos', datos);
       const vehiculoId = response.data.vehiculo?.id || response.data.id;
-      
-      // Si está prestado, crear el registro de préstamo
       if (esta_prestado && prestado_a_secretaria_id && vehiculoId) {
         try {
           await api.post('/movimientos/prestamos', {
             vehiculo_id: vehiculoId,
             secretaria_destino_id: parseInt(prestado_a_secretaria_id),
             fecha_inicio: prestamo_fecha_inicio || new Date().toISOString().split('T')[0],
-            fecha_fin_estimada: prestamo_fecha_fin_estimada || null,
-            motivo: prestamo_motivo || 'Préstamo inicial al registrar vehículo'
+            motivo: prestamo_motivo || 'Préstamo inicial'
           });
-          toast.success('Vehículo creado y préstamo registrado correctamente');
-        } catch (prestamoError) {
-          console.error('Error al crear préstamo:', prestamoError);
-          toast.success('Vehículo creado, pero hubo un error al registrar el préstamo');
-        }
+          toast.success('Vehículo creado y préstamo registrado');
+        } catch (e) { toast.success('Vehículo creado, error en préstamo'); }
       } else {
         toast.success('Vehículo creado correctamente');
       }
-      
       navigate('/vehiculos');
     } catch (error) {
-      console.error('Error completo:', error);
-      console.error('Response:', error.response);
-      console.error('Data:', error.response?.data);
-      const errorMsg = error.response?.data?.error || error.response?.data?.message || error.message || 'Error al crear vehículo';
-      toast.error(errorMsg);
+      toast.error(error.response?.data?.error || 'Error al crear vehículo');
     }
     setLoading(false);
   };
 
+  const opcionesTipo = [
+    { value: 'subcompactos', label: 'Subcompactos', icon: TruckIcon },
+    { value: 'compactos', label: 'Compactos', icon: TruckIcon },
+    { value: 'de_lujo', label: 'De lujo', icon: TruckIcon },
+    { value: 'deportivos', label: 'Deportivos', icon: TruckIcon },
+    { value: 'uso_multiple', label: 'Uso múltiple (SUV/Van)', icon: TruckIcon },
+    { value: 'autobuses_integrales', label: 'Autobuses Integrales', icon: TruckIcon },
+    { value: 'camiones', label: 'Camiones', icon: TruckIcon },
+    { value: 'tractocamiones', label: 'Tractocamiones', icon: TruckIcon },
+    { value: 'motocicleta', label: 'Motocicleta', icon: TruckIcon },
+    { value: 'maquinaria_pesada', label: 'Maquinaria Pesada', icon: WrenchScrewdriverIcon },
+    { value: 'maritimo', label: 'Marítimo', icon: TruckIcon },
+    { value: 'aereo', label: 'Aéreo', icon: TruckIcon },
+    { value: 'otro', label: 'Otro', icon: DocumentTextIcon },
+  ];
+  const opcionesCombustible = [
+    { value: 'Gasolina', label: 'Gasolina', icon: FireIcon },
+    { value: 'Diésel', label: 'Diésel', icon: FireIcon },
+    { value: 'Híbrido', label: 'Híbrido', icon: BoltIcon },
+    { value: 'Eléctrico', label: 'Eléctrico', icon: BoltIcon },
+  ];
+  const opcionesAdquisicion = [
+    { value: 'Compra', label: 'Compra', icon: CurrencyDollarIcon },
+    { value: 'Arrendamiento', label: 'Arrendamiento', icon: DocumentTextIcon },
+    { value: 'Comodato', label: 'Comodato', icon: ClockIcon },
+    { value: 'Donación', label: 'Donación', icon: CheckCircleIcon },
+  ];
+  const opcionesUso = [
+    { value: 'Notificación de oficios', label: 'Notificación oficios', icon: DocumentTextIcon },
+    { value: 'Transporte de personal de confianza', label: 'Personal confianza', icon: UserIcon },
+    { value: 'Transporte de personal de base', label: 'Personal base', icon: UserIcon },
+    { value: 'Transporte de equipo', label: 'Transporte equipo', icon: TruckIcon },
+    { value: 'Transporte de medicamentos', label: 'Medicamentos', icon: ShieldCheckIcon },
+    { value: 'Otro', label: 'Otro', icon: DocumentTextIcon },
+  ];
+  const opcionesPlacas = [
+    { value: 'Oficiales', label: 'Oficiales', icon: BuildingOfficeIcon },
+    { value: 'Particulares', label: 'Particulares', icon: DocumentTextIcon },
+  ];
+  const opcionesOperativo = [
+    { value: 'Operando', label: 'Operando', icon: CheckCircleIcon },
+    { value: 'En mantenimiento', label: 'En mantenimiento', icon: WrenchScrewdriverIcon },
+    { value: 'Fuera de servicio', label: 'Fuera de servicio', icon: XCircleIcon },
+  ];
+  const opcionesAdmin = [
+    { value: 'Activo', label: 'Activo', icon: CheckCircleIcon },
+    { value: 'En resguardo', label: 'En resguardo', icon: ArchiveBoxIcon },
+    { value: 'Baja', label: 'Baja', icon: XCircleIcon },
+  ];
+  const opcionesUbicacion = [
+    { value: 'Patio', label: 'Patio', icon: MapPinIcon },
+    { value: 'Cochera', label: 'Cochera', icon: MapPinIcon },
+    { value: 'Estacionamiento', label: 'Estacionamiento', icon: MapPinIcon },
+    { value: 'Edificio', label: 'Edificio', icon: BuildingOfficeIcon },
+  ];
+  const opcionesSiNo = [
+    { value: 'Sí', label: 'Sí', icon: CheckCircleIcon },
+    { value: 'No', label: 'No', icon: XCircleIcon },
+    { value: 'En trámite', label: 'En trámite', icon: ClockIcon },
+  ];
+  const opcionesVigencia = [
+    { value: 'Vigente', label: 'Vigente', icon: CheckCircleIcon },
+    { value: 'No vigente', label: 'No vigente', icon: XCircleIcon },
+    { value: 'En trámite', label: 'En trámite', icon: ClockIcon },
+  ];
+
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
+    <div className="max-w-5xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
         <button onClick={() => navigate('/vehiculos')} className="p-2 hover:bg-gray-100 rounded-lg">
           <ArrowLeftIcon className="h-5 w-5" />
         </button>
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Nuevo Vehículo</h1>
-          <p className="text-gray-500">Registra un nuevo vehículo en el sistema</p>
+          <p className="text-gray-500">Padrón Vehicular - 62 Variables</p>
         </div>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Identificación */}
+        {/* 1. IDENTIFICACIÓN */}
         <div className="card">
-          <h2 className="font-semibold text-gray-900 mb-4">Identificación</h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Número de Inventario *
-              </label>
-              <input
-                type="text"
-                name="numero_inventario"
-                value={formData.numero_inventario}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="VER-2024-001"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Placas *
-              </label>
-              <input
-                type="text"
-                name="placas"
-                value={formData.placas}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="ABC-123-A"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Número de Serie
-              </label>
-              <input
-                type="text"
-                name="numero_serie"
-                value={formData.numero_serie}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="VIN"
-              />
-            </div>
+          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <DocumentTextIcon className="h-5 w-5 text-veracruz-600" /> 1. Identificación
+          </h2>
+          <div className="grid md:grid-cols-5 gap-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">N° Inventario *</label>
+              <input type="text" name="numero_inventario" value={formData.numero_inventario} onChange={handleChange} className="input-field" required /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">N° Económico</label>
+              <input type="text" name="numero_economico" value={formData.numero_economico} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Placas *</label>
+              <input type="text" name="placas" value={formData.placas} onChange={handleChange} className="input-field" required /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">N° Serie</label>
+              <input type="text" name="numero_serie" value={formData.numero_serie} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">N° Motor</label>
+              <input type="text" name="numero_motor" value={formData.numero_motor} onChange={handleChange} className="input-field" /></div>
           </div>
         </div>
 
-        {/* Características */}
+        {/* 2. CARACTERÍSTICAS */}
         <div className="card">
-          <h2 className="font-semibold text-gray-900 mb-4">Características del Vehículo</h2>
+          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <TruckIcon className="h-5 w-5 text-veracruz-600" /> 2. Características
+          </h2>
           <div className="grid md:grid-cols-4 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Marca *</label>
-              <input
-                type="text"
-                name="marca"
-                value={formData.marca}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="Toyota"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Línea *</label>
-              <input
-                type="text"
-                name="linea"
-                value={formData.linea}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="Hilux"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Modelo (Año) *</label>
-              <input
-                type="number"
-                name="modelo"
-                value={formData.modelo}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="2024"
-                min="1990"
-                max="2030"
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
-              <input
-                type="text"
-                name="color"
-                value={formData.color}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="Blanco"
-              />
-            </div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Marca *</label>
+              <input type="text" name="marca" value={formData.marca} onChange={handleChange} className="input-field" required /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Línea *</label>
+              <input type="text" name="linea" value={formData.linea} onChange={handleChange} className="input-field" required /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Modelo (Año) *</label>
+              <input type="number" name="modelo" value={formData.modelo} onChange={handleChange} className="input-field" min="1990" max="2030" required /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+              <input type="text" name="color" value={formData.color} onChange={handleChange} className="input-field" /></div>
           </div>
-
           <div className="grid md:grid-cols-4 gap-4 mt-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
-              <SelectModerno
-                name="tipo"
-                value={formData.tipo}
-                onChange={handleChange}
-                icon={TruckIcon}
-                required
-                groupedOptions={[
-                  {
-                    label: 'Vehículos Terrestres',
-                    options: [
-                      { value: 'sedan', label: 'Sedán', icon: TruckIcon },
-                      { value: 'suv', label: 'SUV', icon: TruckIcon },
-                      { value: 'camioneta', label: 'Camioneta', icon: TruckIcon },
-                      { value: 'pick_up', label: 'Pick-up', icon: TruckIcon },
-                      { value: 'van', label: 'Van / Minivan', icon: TruckIcon },
-                      { value: 'autobus', label: 'Autobús', icon: TruckIcon },
-                      { value: 'motocicleta', label: 'Motocicleta', icon: TruckIcon },
-                      { value: 'cuatrimoto', label: 'Cuatrimoto', icon: TruckIcon },
-                    ]
-                  },
-                  {
-                    label: 'Vehículos de Emergencia',
-                    options: [
-                      { value: 'ambulancia', label: 'Ambulancia', icon: ExclamationTriangleIcon },
-                      { value: 'patrulla', label: 'Patrulla', icon: ExclamationTriangleIcon },
-                      { value: 'bomberos', label: 'Camión de Bomberos', icon: FireIcon },
-                      { value: 'rescate', label: 'Vehículo de Rescate', icon: ExclamationTriangleIcon },
-                      { value: 'grua', label: 'Grúa', icon: WrenchScrewdriverIcon },
-                    ]
-                  },
-                  {
-                    label: 'Maquinaria y Carga',
-                    options: [
-                      { value: 'camion_carga', label: 'Camión de Carga', icon: TruckIcon },
-                      { value: 'tractocamion', label: 'Tractocamión', icon: TruckIcon },
-                      { value: 'volteo', label: 'Volteo', icon: TruckIcon },
-                      { value: 'pipa', label: 'Pipa', icon: TruckIcon },
-                      { value: 'tractor', label: 'Tractor', icon: WrenchScrewdriverIcon },
-                      { value: 'excavadora', label: 'Excavadora', icon: WrenchScrewdriverIcon },
-                      { value: 'retroexcavadora', label: 'Retroexcavadora', icon: WrenchScrewdriverIcon },
-                      { value: 'cargador_frontal', label: 'Cargador Frontal', icon: WrenchScrewdriverIcon },
-                      { value: 'compactadora', label: 'Compactadora', icon: WrenchScrewdriverIcon },
-                      { value: 'motoconformadora', label: 'Motoconformadora', icon: WrenchScrewdriverIcon },
-                      { value: 'montacargas', label: 'Montacargas', icon: WrenchScrewdriverIcon },
-                      { value: 'maquinaria', label: 'Otra Maquinaria', icon: WrenchScrewdriverIcon },
-                    ]
-                  },
-                  {
-                    label: 'Embarcaciones',
-                    options: [
-                      { value: 'lancha', label: 'Lancha', icon: TruckIcon },
-                      { value: 'yate', label: 'Yate', icon: TruckIcon },
-                      { value: 'remolcador', label: 'Remolcador', icon: TruckIcon },
-                      { value: 'barcaza', label: 'Barcaza', icon: TruckIcon },
-                      { value: 'embarcacion', label: 'Otra Embarcación', icon: TruckIcon },
-                    ]
-                  },
-                  {
-                    label: 'Aeronaves',
-                    options: [
-                      { value: 'avion', label: 'Avión', icon: TruckIcon },
-                      { value: 'helicoptero', label: 'Helicóptero', icon: TruckIcon },
-                      { value: 'avioneta', label: 'Avioneta', icon: TruckIcon },
-                      { value: 'dron', label: 'Dron', icon: TruckIcon },
-                    ]
-                  },
-                  {
-                    label: 'Otros',
-                    options: [
-                      { value: 'remolque', label: 'Remolque', icon: TruckIcon },
-                      { value: 'carreta', label: 'Carreta', icon: TruckIcon },
-                      { value: 'otro', label: 'Otro', icon: DocumentTextIcon },
-                    ]
-                  }
-                ]}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Capacidad</label>
-              <input
-                type="number"
-                name="capacidad_pasajeros"
-                value={formData.capacidad_pasajeros}
-                onChange={handleChange}
-                className="input-field"
-                min="1"
-                max="60"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Combustible</label>
-              <SelectModerno
-                name="tipo_combustible"
-                value={formData.tipo_combustible}
-                onChange={handleChange}
-                icon={FireIcon}
-                options={[
-                  { value: 'gasolina', label: 'Gasolina', icon: FireIcon },
-                  { value: 'diesel', label: 'Diésel', icon: FireIcon },
-                  { value: 'electrico', label: 'Eléctrico', icon: BoltIcon },
-                  { value: 'hibrido', label: 'Híbrido', icon: BoltIcon },
-                  { value: 'gas', label: 'Gas LP', icon: FireIcon },
-                ]}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Número de Motor</label>
-              <input
-                type="text"
-                name="numero_motor"
-                value={formData.numero_motor}
-                onChange={handleChange}
-                className="input-field"
-              />
-            </div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Tipo *</label>
+              <SelectModerno name="tipo" value={formData.tipo} onChange={handleChange} icon={TruckIcon} options={opcionesTipo} /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Cilindraje</label>
+              <input type="text" name="cilindraje" value={formData.cilindraje} onChange={handleChange} className="input-field" placeholder="2.5L" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Capacidad</label>
+              <input type="number" name="capacidad_pasajeros" value={formData.capacidad_pasajeros} onChange={handleChange} className="input-field" min="1" max="60" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Combustible</label>
+              <SelectModerno name="tipo_combustible" value={formData.tipo_combustible} onChange={handleChange} icon={FireIcon} options={opcionesCombustible} /></div>
           </div>
         </div>
 
-        {/* Asignación */}
+        {/* 3. ASIGNACIÓN */}
         <div className="card">
-          <h2 className="font-semibold text-gray-900 mb-4">Asignación y Ubicación</h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Secretaría *</label>
-              {/* Solo admin/gobernacion pueden cambiar secretaría, otros usuarios la tienen fija */}
+          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <BuildingOfficeIcon className="h-5 w-5 text-veracruz-600" /> 3. Asignación
+          </h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Secretaría *</label>
               {(user?.rol === 'admin' || user?.rol === 'gobernacion') ? (
-                <SelectModerno
-                  name="secretaria_id"
-                  value={formData.secretaria_id}
-                  onChange={handleChange}
-                  icon={BuildingOfficeIcon}
-                  placeholder="Seleccionar secretaría..."
-                  required
-                  options={secretarias.map(s => ({
-                    value: s.id.toString(),
-                    label: `${s.siglas} - ${s.nombre}`,
-                    icon: BuildingOfficeIcon
-                  }))}
-                />
+                <SelectModerno name="secretaria_id" value={formData.secretaria_id} onChange={handleChange} icon={BuildingOfficeIcon} placeholder="Seleccionar..." required options={secretarias.map(s => ({ value: s.id.toString(), label: `${s.siglas} - ${s.nombre}`, icon: BuildingOfficeIcon }))} />
               ) : (
-                <div className="input bg-gray-100 cursor-not-allowed flex items-center gap-2 text-gray-700">
+                <div className="input-field bg-gray-100 flex items-center gap-2">
                   <BuildingOfficeIcon className="h-5 w-5 text-veracruz-600" />
-                  {secretarias.length > 0 && formData.secretaria_id ? (
-                    <span className="font-medium">
-                      {secretarias.find(s => s.id.toString() === formData.secretaria_id)?.siglas} - {secretarias.find(s => s.id.toString() === formData.secretaria_id)?.nombre}
-                    </span>
-                  ) : (
-                    <span className="text-gray-400">Cargando secretaría...</span>
-                  )}
+                  <span>{secretarias.find(s => s.id.toString() === formData.secretaria_id)?.siglas || 'Cargando...'}</span>
                 </div>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Régimen *</label>
-              <SelectModerno
-                name="regimen"
-                value={formData.regimen}
-                onChange={handleChange}
-                icon={DocumentTextIcon}
-                required
-                options={[
-                  { value: 'propio', label: 'Propio', icon: CheckCircleIcon },
-                  { value: 'rentado', label: 'Rentado', icon: CurrencyDollarIcon },
-                  { value: 'comodato', label: 'Comodato', icon: DocumentTextIcon },
-                  { value: 'asignado_federal', label: 'Asignado Federal', icon: BuildingOfficeIcon },
-                ]}
-              />
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-4 mt-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Municipio</label>
-              <input
-                type="text"
-                name="municipio"
-                value={formData.municipio}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="Xalapa"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Ubicación</label>
-              <input
-                type="text"
-                name="ubicacion"
-                value={formData.ubicacion}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="Palacio de Gobierno"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Estado Operativo *</label>
-              <SelectModerno
-                name="estado_operativo"
-                value={formData.estado_operativo}
-                onChange={handleChange}
-                icon={CheckCircleIcon}
-                required
-                options={[
-                  { value: 'activo', label: 'Activo', icon: CheckCircleIcon },
-                  { value: 'propuesto', label: 'Propuesto', icon: DocumentPlusIcon },
-                  { value: 'en_reparacion', label: 'En Reparación', icon: WrenchScrewdriverIcon },
-                  { value: 'siniestrado', label: 'Siniestrado', icon: ExclamationTriangleIcon },
-                  { value: 'baja', label: 'Baja', icon: XCircleIcon },
-                  { value: 'ocioso', label: 'Ocioso', icon: ClockIcon },
-                ]}
-              />
-            </div>
+              )}</div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Asignación Actual</label>
+              <input type="text" name="asignacion_actual" value={formData.asignacion_actual} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Uso</label>
+              <SelectModerno name="uso" value={formData.uso} onChange={handleChange} icon={DocumentTextIcon} placeholder="Seleccionar..." options={opcionesUso} /></div>
           </div>
         </div>
 
-        {/* Resguardatario */}
+        {/* 4. ADQUISICIÓN */}
         <div className="card">
-          <h2 className="font-semibold text-gray-900 mb-4">Resguardatario</h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
-              <input
-                type="text"
-                name="resguardatario_nombre"
-                value={formData.resguardatario_nombre}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="Nombre completo"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
-              <input
-                type="text"
-                name="resguardatario_cargo"
-                value={formData.resguardatario_cargo}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="Director de..."
-              />
-            </div>
+          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <CurrencyDollarIcon className="h-5 w-5 text-veracruz-600" /> 4. Adquisición
+          </h2>
+          <div className="grid md:grid-cols-4 gap-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Forma Adquisición</label>
+              <SelectModerno name="forma_adquisicion" value={formData.forma_adquisicion} onChange={handleChange} icon={CurrencyDollarIcon} options={opcionesAdquisicion} /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
+              <input type="text" name="proveedor_unidad" value={formData.proveedor_unidad} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Fecha Adquisición</label>
+              <input type="date" name="fecha_adquisicion" value={formData.fecha_adquisicion} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">N° Contrato</label>
+              <input type="text" name="contrato" value={formData.contrato} onChange={handleChange} className="input-field" /></div>
+          </div>
+          <div className="grid md:grid-cols-5 gap-4 mt-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">CFDI</label>
+              <input type="text" name="cfdi" value={formData.cfdi} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Factura Original</label>
+              <SelectModerno name="factura_original" value={formData.factura_original} onChange={handleChange} icon={DocumentTextIcon} placeholder="..." options={opcionesSiNo} /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Valor Factura</label>
+              <input type="number" name="valor_factura" value={formData.valor_factura} onChange={handleChange} className="input-field" step="0.01" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Valor Contrato</label>
+              <input type="number" name="valor_contrato" value={formData.valor_contrato} onChange={handleChange} className="input-field" step="0.01" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Valor Mercado</label>
+              <input type="number" name="valor_mercado" value={formData.valor_mercado} onChange={handleChange} className="input-field" step="0.01" /></div>
           </div>
         </div>
 
-        {/* Préstamo a otra Secretaría */}
+        {/* 5. DOCUMENTACIÓN */}
+        <div className="card">
+          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <DocumentCheckIcon className="h-5 w-5 text-veracruz-600" /> 5. Documentación
+          </h2>
+          <div className="grid md:grid-cols-4 gap-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Tipo Placas</label>
+              <SelectModerno name="tipo_placas" value={formData.tipo_placas} onChange={handleChange} icon={DocumentTextIcon} options={opcionesPlacas} /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Fecha Exp. Placas</label>
+              <input type="date" name="fecha_expedicion_placas" value={formData.fecha_expedicion_placas} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Tarjeta Circulación</label>
+              <SelectModerno name="tarjeta_circulacion" value={formData.tarjeta_circulacion} onChange={handleChange} icon={DocumentTextIcon} placeholder="..." options={opcionesVigencia} /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Vigencia Tarjeta</label>
+              <input type="date" name="vigencia_tarjeta" value={formData.vigencia_tarjeta} onChange={handleChange} className="input-field" /></div>
+          </div>
+          <div className="grid md:grid-cols-4 gap-4 mt-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Acta Entrega</label>
+              <SelectModerno name="acta_entrega_recepcion" value={formData.acta_entrega_recepcion} onChange={handleChange} icon={DocumentTextIcon} placeholder="..." options={opcionesSiNo} /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Resguardo</label>
+              <SelectModerno name="resguardo_vehicular" value={formData.resguardo_vehicular} onChange={handleChange} icon={DocumentTextIcon} placeholder="..." options={opcionesSiNo} /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Verificación</label>
+              <SelectModerno name="verificacion_vehicular" value={formData.verificacion_vehicular} onChange={handleChange} icon={CheckCircleIcon} placeholder="..." options={[...opcionesVigencia, { value: 'Exento', label: 'Exento', icon: DocumentTextIcon }]} /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Vigencia Verif.</label>
+              <input type="date" name="vigencia_verificacion" value={formData.vigencia_verificacion} onChange={handleChange} className="input-field" /></div>
+          </div>
+          <div className="grid md:grid-cols-3 gap-4 mt-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Reemplacamiento</label>
+              <SelectModerno name="comprobante_reemplacamiento" value={formData.comprobante_reemplacamiento} onChange={handleChange} icon={DocumentTextIcon} placeholder="..." options={[{ value: 'Sí', label: 'Sí', icon: CheckCircleIcon }, { value: 'No', label: 'No', icon: XCircleIcon }, { value: 'No aplica', label: 'No aplica', icon: DocumentTextIcon }]} /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Pago Derechos</label>
+              <SelectModerno name="pago_derechos" value={formData.pago_derechos} onChange={handleChange} icon={CurrencyDollarIcon} placeholder="..." options={[{ value: 'Vigente', label: 'Vigente', icon: CheckCircleIcon }, { value: 'No vigente', label: 'No vigente', icon: XCircleIcon }, { value: 'Exento', label: 'Exento', icon: DocumentTextIcon }]} /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Bitácora Mant.</label>
+              <SelectModerno name="bitacora_mantenimiento" value={formData.bitacora_mantenimiento} onChange={handleChange} icon={ClipboardDocumentListIcon} placeholder="..." options={[{ value: 'Sí', label: 'Sí', icon: CheckCircleIcon }, { value: 'No', label: 'No', icon: XCircleIcon }]} /></div>
+          </div>
+        </div>
+
+        {/* 6. INVENTARIO */}
+        <div className="card">
+          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <ArchiveBoxIcon className="h-5 w-5 text-veracruz-600" /> 6. Inventario
+          </h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">N° Inv. Patrimonial</label>
+              <input type="text" name="inventario_patrimonial" value={formData.inventario_patrimonial} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Fecha Alta</label>
+              <input type="date" name="fecha_alta_inventario" value={formData.fecha_alta_inventario} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Valor en Libros</label>
+              <input type="number" name="valor_libros" value={formData.valor_libros} onChange={handleChange} className="input-field" step="0.01" /></div>
+          </div>
+        </div>
+
+        {/* 7. ESTATUS */}
+        <div className="card">
+          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Cog6ToothIcon className="h-5 w-5 text-veracruz-600" /> 7. Estatus
+          </h2>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Estatus Operativo *</label>
+              <SelectModerno name="estatus_operativo" value={formData.estatus_operativo} onChange={handleChange} icon={Cog6ToothIcon} options={opcionesOperativo} />
+              <p className="text-xs text-gray-500 mt-1">Estado de funcionamiento</p></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Estatus Administrativo *</label>
+              <SelectModerno name="estatus_administrativo" value={formData.estatus_administrativo} onChange={handleChange} icon={DocumentTextIcon} options={opcionesAdmin} />
+              <p className="text-xs text-gray-500 mt-1">Estado en el padrón</p></div>
+          </div>
+        </div>
+
+        {/* 8. UBICACIÓN */}
+        <div className="card">
+          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <MapPinIcon className="h-5 w-5 text-veracruz-600" /> 8. Ubicación
+          </h2>
+          <div className="grid md:grid-cols-3 gap-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Municipio</label>
+              <input type="text" name="municipio" value={formData.municipio} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Ubicación Física</label>
+              <SelectModerno name="ubicacion_fisica" value={formData.ubicacion_fisica} onChange={handleChange} icon={MapPinIcon} placeholder="..." options={opcionesUbicacion} /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Ubicación Específica</label>
+              <input type="text" name="ubicacion_especifica" value={formData.ubicacion_especifica} onChange={handleChange} className="input-field" /></div>
+          </div>
+        </div>
+
+        {/* 9. RESGUARDATARIO */}
+        <div className="card">
+          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <UserIcon className="h-5 w-5 text-veracruz-600" /> 9. Resguardatario
+          </h2>
+          <div className="grid md:grid-cols-4 gap-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Nombre</label>
+              <input type="text" name="resguardante_nombre" value={formData.resguardante_nombre} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+              <input type="text" name="resguardante_cargo" value={formData.resguardante_cargo} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+              <input type="tel" name="resguardante_telefono" value={formData.resguardante_telefono} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input type="email" name="resguardante_email" value={formData.resguardante_email} onChange={handleChange} className="input-field" /></div>
+          </div>
+        </div>
+
+        {/* 10. SEGURO */}
+        <div className="card">
+          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <ShieldCheckIcon className="h-5 w-5 text-veracruz-600" /> 10. Seguro
+          </h2>
+          <div className="grid md:grid-cols-4 gap-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+              <SelectModerno name="seguro" value={formData.seguro} onChange={handleChange} icon={ShieldCheckIcon} placeholder="..." options={opcionesVigencia} /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Aseguradora</label>
+              <input type="text" name="aseguradora" value={formData.aseguradora} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">N° Póliza</label>
+              <input type="text" name="poliza_seguro" value={formData.poliza_seguro} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Vigencia</label>
+              <input type="date" name="vigencia_seguro" value={formData.vigencia_seguro} onChange={handleChange} className="input-field" /></div>
+          </div>
+        </div>
+
+        {/* 11. MANTENIMIENTO */}
+        <div className="card">
+          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <WrenchScrewdriverIcon className="h-5 w-5 text-veracruz-600" /> 11. Mantenimiento
+          </h2>
+          <div className="grid md:grid-cols-4 gap-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Último Servicio</label>
+              <input type="date" name="ultimo_servicio" value={formData.ultimo_servicio} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Kilometraje</label>
+              <input type="number" name="kilometraje" value={formData.kilometraje} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Consumo (L/100km)</label>
+              <input type="number" name="consumo_combustible" value={formData.consumo_combustible} onChange={handleChange} className="input-field" step="0.1" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Proveedor Mant.</label>
+              <input type="text" name="proveedor_mantenimiento" value={formData.proveedor_mantenimiento} onChange={handleChange} className="input-field" /></div>
+          </div>
+          <div className="grid md:grid-cols-4 gap-4 mt-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">% Motor</label>
+              <input type="number" name="porcentaje_motor" value={formData.porcentaje_motor} onChange={handleChange} className="input-field" min="0" max="100" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">% Transmisión</label>
+              <input type="number" name="porcentaje_transmision" value={formData.porcentaje_transmision} onChange={handleChange} className="input-field" min="0" max="100" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">% Chasis</label>
+              <input type="number" name="porcentaje_chasis" value={formData.porcentaje_chasis} onChange={handleChange} className="input-field" min="0" max="100" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Costo Anual</label>
+              <input type="number" name="costo_mantenimiento_anual" value={formData.costo_mantenimiento_anual} onChange={handleChange} className="input-field" step="0.01" /></div>
+          </div>
+        </div>
+
+        {/* 12. PRÉSTAMO */}
         <div className="card border-2 border-amber-200 bg-amber-50/30">
           <div className="flex items-center gap-3 mb-4">
-            <input
-              type="checkbox"
-              id="esta_prestado"
-              checked={formData.esta_prestado}
-              onChange={(e) => setFormData(prev => ({ ...prev, esta_prestado: e.target.checked }))}
-              className="h-5 w-5 text-amber-600 rounded focus:ring-amber-500"
-            />
-            <label htmlFor="esta_prestado" className="font-semibold text-gray-900 cursor-pointer">
-              Este vehículo está prestado a otra Secretaría
-            </label>
+            <input type="checkbox" id="esta_prestado" checked={formData.esta_prestado} onChange={(e) => setFormData(prev => ({ ...prev, esta_prestado: e.target.checked }))} className="h-5 w-5 text-amber-600 rounded" />
+            <label htmlFor="esta_prestado" className="font-semibold text-gray-900 cursor-pointer">12. Prestado a otra Secretaría</label>
           </div>
-          
           {formData.esta_prestado && (
             <div className="grid md:grid-cols-2 gap-4 pt-4 border-t border-amber-200">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Secretaría que lo tiene *
-                </label>
-                <SelectModerno
-                  name="prestado_a_secretaria_id"
-                  value={formData.prestado_a_secretaria_id}
-                  onChange={handleChange}
-                  icon={BuildingOfficeIcon}
-                  placeholder="Seleccionar secretaría..."
-                  required={formData.esta_prestado}
-                  options={secretarias
-                    .filter(s => s.id != formData.secretaria_id)
-                    .map(s => ({
-                      value: s.id.toString(),
-                      label: `${s.siglas} - ${s.nombre}`,
-                      icon: BuildingOfficeIcon
-                    }))}
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  La secretaría que actualmente tiene el vehículo
-                </p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Fecha de Préstamo
-                </label>
-                <input
-                  type="date"
-                  name="prestamo_fecha_inicio"
-                  value={formData.prestamo_fecha_inicio}
-                  onChange={handleChange}
-                  className="input-field"
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Motivo del Préstamo
-                </label>
-                <input
-                  type="text"
-                  name="prestamo_motivo"
-                  value={formData.prestamo_motivo}
-                  onChange={handleChange}
-                  className="input-field"
-                  placeholder="Ej: Apoyo en operativo, evento especial, etc."
-                />
-              </div>
+              <div><label className="block text-sm font-medium text-gray-700 mb-1">Secretaría *</label>
+                <SelectModerno name="prestado_a_secretaria_id" value={formData.prestado_a_secretaria_id} onChange={handleChange} icon={BuildingOfficeIcon} placeholder="..." required options={secretarias.filter(s => s.id != formData.secretaria_id).map(s => ({ value: s.id.toString(), label: `${s.siglas}`, icon: BuildingOfficeIcon }))} /></div>
+              <div><label className="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+                <input type="date" name="prestamo_fecha_inicio" value={formData.prestamo_fecha_inicio} onChange={handleChange} className="input-field" /></div>
+              <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700 mb-1">Motivo</label>
+                <input type="text" name="prestamo_motivo" value={formData.prestamo_motivo} onChange={handleChange} className="input-field" /></div>
             </div>
-          )}
-          
-          {!formData.esta_prestado && (
-            <p className="text-sm text-gray-500">
-              Marca esta opción si el vehículo pertenece a una secretaría pero actualmente está prestado a otra.
-              El préstamo se registrará automáticamente en el sistema.
-            </p>
           )}
         </div>
 
-        {/* Información adicional */}
+        {/* 13. EVIDENCIA */}
         <div className="card">
-          <h2 className="font-semibold text-gray-900 mb-4">Información Adicional</h2>
-          <div className="grid md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Fecha de Adquisición</label>
-              <input
-                type="date"
-                name="fecha_adquisicion"
-                value={formData.fecha_adquisicion}
-                onChange={handleChange}
-                className="input-field"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Valor de Adquisición</label>
-              <input
-                type="number"
-                name="valor_adquisicion"
-                value={formData.valor_adquisicion}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="0.00"
-                step="0.01"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Aseguradora</label>
-              <input
-                type="text"
-                name="aseguradora"
-                value={formData.aseguradora}
-                onChange={handleChange}
-                className="input-field"
-                placeholder="Nombre de aseguradora"
-              />
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-4 mt-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Número de Póliza</label>
-              <input
-                type="text"
-                name="poliza_numero"
-                value={formData.poliza_numero}
-                onChange={handleChange}
-                className="input-field"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Vigencia Póliza</label>
-              <input
-                type="date"
-                name="poliza_vigencia"
-                value={formData.poliza_vigencia}
-                onChange={handleChange}
-                className="input-field"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Vigencia Verificación</label>
-              <input
-                type="date"
-                name="verificacion_vigencia"
-                value={formData.verificacion_vigencia}
-                onChange={handleChange}
-                className="input-field"
-              />
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
-            <textarea
-              name="notas"
-              value={formData.notas}
-              onChange={handleChange}
-              className="input-field"
-              rows={3}
-              placeholder="Observaciones adicionales..."
-            />
+          <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <CameraIcon className="h-5 w-5 text-veracruz-600" /> 13. Evidencia
+          </h2>
+          <div className="space-y-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Fotos (URL)</label>
+              <input type="text" name="evidencia_fotografica" value={formData.evidencia_fotografica} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+              <textarea name="observaciones" value={formData.observaciones} onChange={handleChange} className="input-field" rows={3} /></div>
           </div>
         </div>
 
-        {/* Acciones */}
+        {/* ACCIONES */}
         <div className="flex justify-end gap-4">
-          <button
-            type="button"
-            onClick={() => navigate('/vehiculos')}
-            className="btn-secondary"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn-primary"
-          >
-            {loading ? 'Guardando...' : 'Crear Vehículo'}
-          </button>
+          <button type="button" onClick={() => navigate('/vehiculos')} className="btn-secondary">Cancelar</button>
+          <button type="submit" disabled={loading} className="btn-primary">{loading ? 'Guardando...' : 'Crear Vehículo'}</button>
         </div>
       </form>
     </div>
