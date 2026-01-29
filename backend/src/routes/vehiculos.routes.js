@@ -609,31 +609,41 @@ router.put('/:id', authMiddleware, requireAdminSecretaria, (req, res) => {
       // 2. Características del vehículo
       'marca', 'linea', 'modelo', 'anio', 'color', 'tipo', 'capacidad_pasajeros', 'tipo_combustible',
       'cilindros', 'transmision', 'clase', 'puertas', 'ejes', 'traccion', 'origen',
-      'descripcion', 'descripcion_detallada',
+      'descripcion', 'descripcion_detallada', 'cilindraje',
       // 3. Asignación
-      'secretaria_id', 'municipio', 'area_responsable', 'telefono_area', 'quien_reporta',
+      'secretaria_id', 'municipio', 'area_responsable', 'telefono_area', 'quien_reporta', 'asignacion_actual',
       // 4. Adquisición
-      'forma_adquisicion', 'fecha_adquisicion', 'valor_libros', 'proveedor', 'numero_factura', 'regimen', 'uso',
+      'forma_adquisicion', 'fecha_adquisicion', 'valor_libros', 'proveedor', 'proveedor_unidad', 'numero_factura', 'regimen', 'uso',
+      'valor_contrato', 'cfdi', 'contrato', 'factura_original', 'valor_factura', 'valor_mercado',
       // 5. Documentación
-      'tipo_placas', 'tarjeta_circulacion', 'vigencia_tarjeta',
+      'tipo_placas', 'fecha_expedicion_placas', 'acta_entrega_recepcion', 'resguardo_vehicular',
+      'tarjeta_circulacion', 'vigencia_tarjeta', 'verificacion_vehicular', 'vigencia_verificacion',
+      'comprobante_reemplacamiento', 'pago_derechos',
       // 6. Inventario
-      'refrendado', 'ultimo_refrendo',
+      'refrendado', 'ultimo_refrendo', 'inventario_patrimonial', 'fecha_alta_inventario', 'bitacora_mantenimiento',
       // 7. Estatus
       'estatus_operativo', 'estatus_administrativo', 'estatus', 'estado_operativo', 'en_uso', 'propuesto_baja', 'fecha_propuesta_baja', 'motivo_propuesta_baja',
       // 8. Ubicación
-      'ubicacion_fisica', 'direccion_ubicacion',
+      'ubicacion_fisica', 'direccion_ubicacion', 'ubicacion_especifica', 'latitud', 'longitud', 'direccion_completa',
       // 9. Resguardatario
       'resguardante_nombre', 'resguardante_cargo', 'resguardante_telefono', 'resguardante_email', 'fecha_resguardo',
       // 10. Seguro
       'seguro', 'aseguradora', 'poliza_seguro', 'vigencia_seguro', 'tipo_cobertura', 'suma_asegurada',
       // 11. Mantenimiento
-      'kilometraje', 'fecha_ultimo_servicio', 'proximo_servicio_km',
+      'kilometraje', 'fecha_ultimo_servicio', 'proximo_servicio_km', 'ultimo_servicio',
+      'porcentaje_motor', 'porcentaje_transmision', 'porcentaje_chasis',
+      'consumo_combustible', 'costo_mantenimiento_anual', 'proveedor_mantenimiento',
+      'desglose_mantenimiento', 'observaciones_tecnicas',
+      // 11.1 Mecánico
+      'costo_anual_mecanico', 'frecuencia_mecanico', 'desglose_mecanico', 'proveedor_mecanico',
+      // 11.2 Eléctrico
+      'costo_anual_electrico', 'frecuencia_electrico', 'desglose_electrico', 'proveedor_electrico',
       // 12. Préstamo / Arrendamiento
       'proveedor_arrendadora', 'renta_mensual', 'vigencia_contrato',
       'prestamo_activo', 'prestamo_destino', 'prestamo_responsable', 'prestamo_fecha_inicio', 'prestamo_fecha_fin',
       'comodato_activo', 'comodato_institucion', 'comodato_fecha_inicio', 'comodato_fecha_fin',
       // 13. Evidencia
-      'foto_url', 'documento_url',
+      'foto_url', 'documento_url', 'evidencia_fotografica',
       // Extras
       'observaciones', 'situacion_juridica', 'clasificacion', 'activo'
     ];

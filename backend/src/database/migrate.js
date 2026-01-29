@@ -173,8 +173,27 @@ async function migrate() {
       consumo_combustible REAL,
       costo_mantenimiento_anual REAL,
       proveedor_mantenimiento TEXT,
+      desglose_mantenimiento TEXT,
+      observaciones_tecnicas TEXT,
       
-      -- ========== 12. PRÉSTAMO / ARRENDAMIENTO ==========
+      -- ========== 11.1 MECÁNICO ==========
+      costo_anual_mecanico REAL,
+      frecuencia_mecanico INTEGER,
+      desglose_mecanico TEXT,
+      proveedor_mecanico TEXT,
+      
+      -- ========== 11.2 ELÉCTRICO ==========
+      costo_anual_electrico REAL,
+      frecuencia_electrico INTEGER,
+      desglose_electrico TEXT,
+      proveedor_electrico TEXT,
+      
+      -- ========== 12. UBICACIÓN GEOREFERENCIADA ==========
+      latitud REAL,
+      longitud REAL,
+      direccion_completa TEXT,
+      
+      -- ========== 13. PRÉSTAMO / ARRENDAMIENTO ==========
       proveedor_arrendadora TEXT,
       renta_mensual REAL,
       vigencia_contrato TEXT,

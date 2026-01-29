@@ -32,11 +32,18 @@ export default function VehiculoNuevo() {
     comprobante_reemplacamiento: '', pago_derechos: '',
     inventario_patrimonial: '', fecha_alta_inventario: '', bitacora_mantenimiento: '',
     estatus_operativo: 'Operando', estatus_administrativo: 'Activo',
-    municipio: '', ubicacion_fisica: '', ubicacion_especifica: '',
+    municipio: '', ubicacion_fisica: '', ubicacion_especifica: '', latitud: '', longitud: '', direccion_completa: '',
     resguardante_nombre: '', resguardante_cargo: '', resguardante_telefono: '', resguardante_email: '',
     seguro: '', aseguradora: '', poliza_seguro: '', vigencia_seguro: '',
+    // Mantenimiento general
     ultimo_servicio: '', porcentaje_motor: '', porcentaje_transmision: '', porcentaje_chasis: '',
     kilometraje: '', consumo_combustible: '', costo_mantenimiento_anual: '', proveedor_mantenimiento: '',
+    desglose_mantenimiento: '', observaciones_tecnicas: '',
+    // Mecánico
+    costo_anual_mecanico: '', frecuencia_mecanico: '', desglose_mecanico: '', proveedor_mecanico: '',
+    // Eléctrico
+    costo_anual_electrico: '', frecuencia_electrico: '', desglose_electrico: '', proveedor_electrico: '',
+    // Evidencia
     evidencia_fotografica: '', observaciones: '',
     esta_prestado: false, prestado_a_secretaria_id: '', prestamo_fecha_inicio: '', prestamo_motivo: ''
   });
@@ -344,6 +351,14 @@ export default function VehiculoNuevo() {
             <div><label className="block text-sm font-medium text-gray-700 mb-1">Ubicación Específica</label>
               <input type="text" name="ubicacion_especifica" value={formData.ubicacion_especifica} onChange={handleChange} className="input-field" /></div>
           </div>
+          <div className="grid md:grid-cols-3 gap-4 mt-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Latitud</label>
+              <input type="text" name="latitud" value={formData.latitud} onChange={handleChange} className="input-field" placeholder="Ej: 19.5438" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Longitud</label>
+              <input type="text" name="longitud" value={formData.longitud} onChange={handleChange} className="input-field" placeholder="Ej: -96.9102" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Dirección Completa</label>
+              <input type="text" name="direccion_completa" value={formData.direccion_completa} onChange={handleChange} className="input-field" placeholder="Calle, número, colonia..." /></div>
+          </div>
         </div>
 
         {/* 9. RESGUARDATARIO */}
@@ -383,7 +398,7 @@ export default function VehiculoNuevo() {
         {/* 11. MANTENIMIENTO */}
         <div className="card">
           <h2 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <WrenchScrewdriverIcon className="h-5 w-5 text-veracruz-600" /> 11. Mantenimiento
+            <WrenchScrewdriverIcon className="h-5 w-5 text-veracruz-600" /> 11. Mantenimiento y Condición
           </h2>
           <div className="grid md:grid-cols-4 gap-4">
             <div><label className="block text-sm font-medium text-gray-700 mb-1">Último Servicio</label>
@@ -392,8 +407,8 @@ export default function VehiculoNuevo() {
               <input type="number" name="kilometraje" value={formData.kilometraje} onChange={handleChange} className="input-field" /></div>
             <div><label className="block text-sm font-medium text-gray-700 mb-1">Consumo (L/100km)</label>
               <input type="number" name="consumo_combustible" value={formData.consumo_combustible} onChange={handleChange} className="input-field" step="0.1" /></div>
-            <div><label className="block text-sm font-medium text-gray-700 mb-1">Proveedor Mant.</label>
-              <input type="text" name="proveedor_mantenimiento" value={formData.proveedor_mantenimiento} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Costo Anual Mant.</label>
+              <input type="number" name="costo_mantenimiento_anual" value={formData.costo_mantenimiento_anual} onChange={handleChange} className="input-field" step="0.01" /></div>
           </div>
           <div className="grid md:grid-cols-4 gap-4 mt-4">
             <div><label className="block text-sm font-medium text-gray-700 mb-1">% Motor</label>
@@ -402,8 +417,48 @@ export default function VehiculoNuevo() {
               <input type="number" name="porcentaje_transmision" value={formData.porcentaje_transmision} onChange={handleChange} className="input-field" min="0" max="100" /></div>
             <div><label className="block text-sm font-medium text-gray-700 mb-1">% Chasis</label>
               <input type="number" name="porcentaje_chasis" value={formData.porcentaje_chasis} onChange={handleChange} className="input-field" min="0" max="100" /></div>
-            <div><label className="block text-sm font-medium text-gray-700 mb-1">Costo Anual</label>
-              <input type="number" name="costo_mantenimiento_anual" value={formData.costo_mantenimiento_anual} onChange={handleChange} className="input-field" step="0.01" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Proveedor Mant.</label>
+              <input type="text" name="proveedor_mantenimiento" value={formData.proveedor_mantenimiento} onChange={handleChange} className="input-field" /></div>
+          </div>
+          <div className="grid md:grid-cols-1 gap-4 mt-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Desglose Mantenimiento (últimos 2 años fiscales)</label>
+              <textarea name="desglose_mantenimiento" value={formData.desglose_mantenimiento} onChange={handleChange} className="input-field" rows={2} placeholder="Descripción de mantenimientos realizados..." /></div>
+          </div>
+          
+          {/* 11.1 Mecánico */}
+          <h3 className="font-medium text-gray-700 mt-6 mb-3 border-t pt-4">🔧 Servicio Mecánico</h3>
+          <div className="grid md:grid-cols-4 gap-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Costo Anual Mecánico</label>
+              <input type="number" name="costo_anual_mecanico" value={formData.costo_anual_mecanico} onChange={handleChange} className="input-field" step="0.01" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Frecuencia (veces/año)</label>
+              <input type="number" name="frecuencia_mecanico" value={formData.frecuencia_mecanico} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Proveedor Mecánico</label>
+              <input type="text" name="proveedor_mecanico" value={formData.proveedor_mecanico} onChange={handleChange} className="input-field" /></div>
+          </div>
+          <div className="grid md:grid-cols-1 gap-4 mt-2">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Desglose Mecánico</label>
+              <textarea name="desglose_mecanico" value={formData.desglose_mecanico} onChange={handleChange} className="input-field" rows={2} placeholder="Detalle de servicios mecánicos..." /></div>
+          </div>
+          
+          {/* 11.2 Eléctrico */}
+          <h3 className="font-medium text-gray-700 mt-6 mb-3 border-t pt-4">⚡ Servicio Eléctrico</h3>
+          <div className="grid md:grid-cols-4 gap-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Costo Anual Eléctrico</label>
+              <input type="number" name="costo_anual_electrico" value={formData.costo_anual_electrico} onChange={handleChange} className="input-field" step="0.01" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Frecuencia (veces/año)</label>
+              <input type="number" name="frecuencia_electrico" value={formData.frecuencia_electrico} onChange={handleChange} className="input-field" /></div>
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Proveedor Eléctrico</label>
+              <input type="text" name="proveedor_electrico" value={formData.proveedor_electrico} onChange={handleChange} className="input-field" /></div>
+          </div>
+          <div className="grid md:grid-cols-1 gap-4 mt-2">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Desglose Eléctrico</label>
+              <textarea name="desglose_electrico" value={formData.desglose_electrico} onChange={handleChange} className="input-field" rows={2} placeholder="Detalle de servicios eléctricos..." /></div>
+          </div>
+          
+          {/* Observaciones Técnicas */}
+          <div className="grid md:grid-cols-1 gap-4 mt-6 border-t pt-4">
+            <div><label className="block text-sm font-medium text-gray-700 mb-1">Observaciones Técnicas</label>
+              <textarea name="observaciones_tecnicas" value={formData.observaciones_tecnicas} onChange={handleChange} className="input-field" rows={2} placeholder="Notas técnicas sobre el estado del vehículo..." /></div>
           </div>
         </div>
 
