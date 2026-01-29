@@ -492,7 +492,7 @@ export default function VehiculoDetalle() {
           </div>
         </div>
       ) : (
-        /* ========== MODO VISTA ========== */
+        /* ========== MODO VISTA - 62 Variables del Padrón Vehicular ========== */
         <div className="space-y-6">
           {/* Acciones rápidas */}
           {puedeEditar && (
@@ -507,153 +507,282 @@ export default function VehiculoDetalle() {
             </div>
           )}
 
-          {/* Grid principal */}
+          {/* 1. IDENTIFICACIÓN */}
           <div className="bg-white rounded-xl border overflow-hidden">
+            <div className="bg-gray-50 px-4 py-2 border-b">
+              <h3 className="text-sm font-semibold text-gray-600">1. Identificación</h3>
+            </div>
             <table className="w-full text-sm">
               <tbody className="divide-y divide-gray-100">
-                <Row label="Marca / Línea" value={`${vehiculo.marca} ${vehiculo.linea || vehiculo.modelo} ${vehiculo.anio || ''}`} />
+                <Row label="N° Inventario" value={vehiculo.numero_inventario} highlight />
+                <Row label="N° Económico" value={vehiculo.numero_economico} />
                 <Row label="Placas" value={vehiculo.placas} highlight />
-                <Row label="No. Económico" value={vehiculo.numero_economico} />
-                <Row label="No. Inventario" value={vehiculo.numero_inventario} />
-                <Row label="No. Serie" value={vehiculo.numero_serie} />
+                <Row label="No. Serie (VIN)" value={vehiculo.numero_serie} />
                 <Row label="No. Motor" value={vehiculo.numero_motor} />
+              </tbody>
+            </table>
+          </div>
+
+          {/* 2. CARACTERÍSTICAS DEL VEHÍCULO */}
+          <div className="bg-white rounded-xl border overflow-hidden">
+            <div className="bg-gray-50 px-4 py-2 border-b">
+              <h3 className="text-sm font-semibold text-gray-600">2. Características del Vehículo</h3>
+            </div>
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-gray-100">
+                <Row label="Marca" value={vehiculo.marca} />
+                <Row label="Línea" value={vehiculo.linea || vehiculo.modelo} />
+                <Row label="Modelo (Año)" value={vehiculo.anio} />
                 <Row label="Color" value={vehiculo.color} />
-                <Row label="Tipo" value={vehiculo.tipo} />
+                <Row label="Tipo de Vehículo" value={vehiculo.tipo} />
                 <Row label="Capacidad Pasajeros" value={vehiculo.capacidad_pasajeros} />
-                <Row label="Combustible" value={vehiculo.tipo_combustible} />
+                <Row label="Tipo Combustible" value={vehiculo.tipo_combustible} />
+                <Row label="Cilindraje" value={vehiculo.cilindraje} />
                 <Row label="Cilindros" value={vehiculo.cilindros} />
                 <Row label="Transmisión" value={vehiculo.transmision} />
+              </tbody>
+            </table>
+          </div>
+
+          {/* 3. ASIGNACIÓN */}
+          <div className="bg-white rounded-xl border overflow-hidden">
+            <div className="bg-gray-50 px-4 py-2 border-b">
+              <h3 className="text-sm font-semibold text-gray-600">3. Asignación</h3>
+            </div>
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-gray-100">
+                <Row label="Dependencia" value={vehiculo.secretaria_siglas ? `${vehiculo.secretaria_siglas} - ${vehiculo.secretaria_nombre}` : '-'} />
+                <Row label="Asignación Actual" value={vehiculo.asignacion_actual} />
+                <Row label="Uso" value={vehiculo.uso} />
+                <Row label="Área Responsable" value={vehiculo.area_responsable} />
+                <Row label="Teléfono del Área" value={vehiculo.telefono_area} />
+                <Row label="Quien Reporta" value={vehiculo.quien_reporta} />
+              </tbody>
+            </table>
+          </div>
+
+          {/* 4. ADQUISICIÓN */}
+          <div className="bg-white rounded-xl border overflow-hidden">
+            <div className="bg-gray-50 px-4 py-2 border-b">
+              <h3 className="text-sm font-semibold text-gray-600">4. Adquisición</h3>
+            </div>
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-gray-100">
+                <Row label="Forma de Adquisición" value={vehiculo.forma_adquisicion} />
                 <Row label="Régimen" value={vehiculo.regimen} />
-                <Row label="Kilometraje" value={vehiculo.kilometraje ? `${Number(vehiculo.kilometraje).toLocaleString()} km` : '-'} />
-                <Row label="Estado Operativo" value={vehiculo.estado_operativo} valueClass={
-                  vehiculo.estado_operativo?.toLowerCase().includes('operando') ? 'text-green-600 font-semibold' :
-                  vehiculo.estado_operativo?.toLowerCase().includes('mal') ? 'text-orange-600 font-semibold' :
-                  vehiculo.estado_operativo?.toLowerCase().includes('baja') ? 'text-red-600 font-semibold' : ''
+                <Row label="Fecha de Adquisición" value={vehiculo.fecha_adquisicion ? new Date(vehiculo.fecha_adquisicion).toLocaleDateString('es-MX') : '-'} />
+                <Row label="Proveedor de la Unidad" value={vehiculo.proveedor_unidad || vehiculo.proveedor_arrendadora} />
+                <Row label="Valor de la Unidad" value={vehiculo.valor_factura ? `$${Number(vehiculo.valor_factura).toLocaleString()}` : '-'} />
+                <Row label="Contrato de Adquisición" value={vehiculo.contrato} />
+                <Row label="Valor del Contrato" value={vehiculo.valor_contrato ? `$${Number(vehiculo.valor_contrato).toLocaleString()}` : '-'} />
+                <Row label="Factura Original" value={vehiculo.factura_original} />
+                <Row label="Valor en Libros" value={vehiculo.valor_libros ? `$${Number(vehiculo.valor_libros).toLocaleString()}` : '-'} />
+                <Row label="Valor de Mercado" value={vehiculo.valor_mercado ? `$${Number(vehiculo.valor_mercado).toLocaleString()}` : '-'} />
+                <Row label="CFDI" value={vehiculo.cfdi} />
+              </tbody>
+            </table>
+          </div>
+
+          {/* 5. DOCUMENTACIÓN / PLACAS */}
+          <div className="bg-white rounded-xl border overflow-hidden">
+            <div className="bg-gray-50 px-4 py-2 border-b">
+              <h3 className="text-sm font-semibold text-gray-600">5. Documentación y Placas</h3>
+            </div>
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-gray-100">
+                <Row label="Tipo de Placas" value={vehiculo.tipo_placas} />
+                <Row label="Fecha Expedición Placas" value={vehiculo.fecha_expedicion_placas} />
+                <Row label="Tarjeta de Circulación" value={vehiculo.tarjeta_circulacion} />
+                <Row label="Vigencia Tarjeta" value={vehiculo.vigencia_tarjeta} />
+                <Row label="Verificación Vehicular" value={vehiculo.verificacion_vehicular} />
+                <Row label="Vigencia Verificación" value={vehiculo.vigencia_verificacion} />
+                <Row label="Acta Entrega-Recepción" value={vehiculo.acta_entrega_recepcion} />
+                <Row label="Resguardo Vehicular" value={vehiculo.resguardo_vehicular} />
+                <Row label="Comprobante Reemplacamiento" value={vehiculo.comprobante_reemplacamiento} />
+                <Row label="Pago Derechos Vehiculares" value={vehiculo.pago_derechos} />
+              </tbody>
+            </table>
+          </div>
+
+          {/* 6. INVENTARIO */}
+          <div className="bg-white rounded-xl border overflow-hidden">
+            <div className="bg-gray-50 px-4 py-2 border-b">
+              <h3 className="text-sm font-semibold text-gray-600">6. Inventario</h3>
+            </div>
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-gray-100">
+                <Row label="Inventario Patrimonial" value={vehiculo.inventario_patrimonial} />
+                <Row label="Fecha Alta en Inventario" value={vehiculo.fecha_alta_inventario} />
+                <Row label="Bitácora de Mantenimiento" value={vehiculo.bitacora_mantenimiento} />
+              </tbody>
+            </table>
+          </div>
+
+          {/* 7. ESTATUS */}
+          <div className="bg-white rounded-xl border overflow-hidden">
+            <div className="bg-gray-50 px-4 py-2 border-b">
+              <h3 className="text-sm font-semibold text-gray-600">7. Estatus</h3>
+            </div>
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-gray-100">
+                <Row label="Estatus Operativo" value={vehiculo.estatus_operativo || vehiculo.estado_operativo} valueClass={
+                  (vehiculo.estatus_operativo || vehiculo.estado_operativo)?.toLowerCase().includes('operando') ? 'text-green-600 font-semibold' :
+                  (vehiculo.estatus_operativo || vehiculo.estado_operativo)?.toLowerCase().includes('mantenimiento') ? 'text-yellow-600 font-semibold' :
+                  (vehiculo.estatus_operativo || vehiculo.estado_operativo)?.toLowerCase().includes('fuera') ? 'text-red-600 font-semibold' : ''
+                } />
+                <Row label="Estatus Administrativo" value={vehiculo.estatus_administrativo} valueClass={
+                  vehiculo.estatus_administrativo === 'Activo' ? 'text-green-600 font-semibold' :
+                  vehiculo.estatus_administrativo === 'Baja' ? 'text-red-600 font-semibold' : 'text-yellow-600 font-semibold'
                 } />
                 <Row label="Condición" value={vehiculo.estatus} valueClass={
                   vehiculo.estatus === 'Bueno' ? 'text-green-600' :
                   vehiculo.estatus === 'Malo' ? 'text-red-600' : 'text-yellow-600'
                 } />
                 <Row label="En Uso" value={vehiculo.en_uso ? 'Sí' : 'No'} />
-                <Row label="Municipio" value={vehiculo.municipio} />
-                <Row label="Ubicación Física" value={vehiculo.ubicacion_fisica} />
-                <Row label="Área Responsable" value={vehiculo.area_responsable} />
-                <Row label="Situación Jurídica" value={vehiculo.situacion_juridica?.replace(/\n/g, ' - ')} />
+                <Row label="Propuesto para Baja" value={vehiculo.propuesto_baja ? 'Sí' : 'No'} valueClass={vehiculo.propuesto_baja ? 'text-red-600 font-semibold' : ''} />
+                {vehiculo.fecha_propuesta_baja && <Row label="Fecha Propuesta Baja" value={vehiculo.fecha_propuesta_baja} />}
+                {vehiculo.motivo_propuesta_baja && <Row label="Motivo Propuesta Baja" value={vehiculo.motivo_propuesta_baja} />}
               </tbody>
             </table>
           </div>
 
-          {/* Seguro y Financiero */}
-          <div className="grid md:grid-cols-2 gap-6">
-            <div className="bg-white rounded-xl border p-5">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Seguro</h3>
-              <table className="w-full text-sm">
-                <tbody className="divide-y divide-gray-100">
-                  <Row label="Estado" value={seguro.label} valueClass={seguro.clase} />
-                  <Row 
-                    label="No. Póliza" 
-                    value={(() => {
-                      // Extraer solo el número de póliza (primera línea antes del salto de línea)
-                      const poliza = vehiculo.poliza_seguro;
-                      if (!poliza || poliza === 'SIN POLIZA' || poliza === 'SIN DATO') return 'Sin póliza';
-                      const partes = poliza.split('\n');
-                      return partes[0].trim();
-                    })()} 
-                    valueClass={
-                      vehiculo.poliza_seguro && vehiculo.poliza_seguro !== 'SIN POLIZA' && vehiculo.poliza_seguro !== 'SIN DATO' 
-                        ? 'font-mono font-semibold text-gray-900' 
-                        : 'text-gray-400'
-                    } 
-                  />
-                  <Row label="Vigencia" value={vehiculo.vigencia_seguro || 'Sin información'} />
-                  <Row 
-                    label="Aseguradora" 
-                    value={(() => {
-                      // Función para normalizar nombre de aseguradora
-                      const normalizarAseguradora = (nombre) => {
-                        if (!nombre) return null;
-                        const upper = nombre.toUpperCase().trim();
-                        // Si contiene variantes de "GENERAL" y "SEGURO", normalizamos
-                        if ((upper.includes('GENERAL') || upper.includes('GENEAL') || upper.includes('GENEL')) && 
-                            (upper.includes('SEGURO') || upper.includes('SERUGOS') || upper.includes('SEGUROSS') || upper.includes('SEGUIRO'))) {
-                          return 'GENERAL DE SEGUROS, S.A.';
-                        }
-                        return upper;
-                      };
-                      
-                      const poliza = vehiculo.poliza_seguro;
-                      if (!poliza) return 'Sin información';
-                      
-                      // Si hay un salto de línea, la aseguradora está en la segunda parte
-                      if (poliza.includes('\n')) {
-                        const partes = poliza.split('\n');
-                        if (partes[1] && partes[1].trim()) {
-                          return normalizarAseguradora(partes[1]);
-                        }
-                      }
-                      
-                      // Buscar texto después del paréntesis
-                      const matchParentesis = poliza.match(/\)\s*([A-Za-záéíóúñÁÉÍÓÚÑ\s,.]+)$/);
-                      if (matchParentesis && matchParentesis[1] && matchParentesis[1].trim().length > 3) {
-                        return normalizarAseguradora(matchParentesis[1]);
-                      }
-                      
-                      return 'Sin información';
-                    })()}
-                    valueClass="font-semibold text-gray-900"
-                  />
-                </tbody>
-              </table>
-              {vehiculo.poliza_seguro && vehiculo.poliza_seguro !== 'SIN POLIZA' && vehiculo.poliza_seguro !== 'SIN DATO' && (
-                <div className="mt-3 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
-                  <span className="font-semibold">Póliza registrada:</span> Este vehículo cuenta con número de póliza asignado.
-                </div>
-              )}
-              {seguro.label === 'Vencido' && (
-                <div className="mt-3 p-3 bg-red-50 rounded-lg text-xs text-red-700">
-                  <span className="font-semibold">Atención:</span> La póliza de seguro está vencida. Se requiere renovación.
-                </div>
-              )}
+          {/* 8. UBICACIÓN */}
+          <div className="bg-white rounded-xl border overflow-hidden">
+            <div className="bg-gray-50 px-4 py-2 border-b">
+              <h3 className="text-sm font-semibold text-gray-600">8. Ubicación</h3>
             </div>
-
-            <div className="bg-white rounded-xl border p-5">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Financiero</h3>
-              <table className="w-full text-sm">
-                <tbody className="divide-y divide-gray-100">
-                  <Row label="Valor en Libros" value={vehiculo.valor_libros ? `$${Number(vehiculo.valor_libros).toLocaleString()}` : '-'} />
-                  <Row label="Fecha Adquisición" value={vehiculo.fecha_adquisicion ? new Date(vehiculo.fecha_adquisicion).toLocaleDateString('es-MX') : '-'} />
-                  <Row label="Proveedor" value={vehiculo.proveedor_arrendadora} />
-                </tbody>
-              </table>
-            </div>
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-gray-100">
+                <Row label="Municipio" value={vehiculo.municipio} />
+                <Row label="Ubicación Física" value={vehiculo.ubicacion_fisica} />
+                <Row label="Ubicación Específica" value={vehiculo.ubicacion_especifica || vehiculo.direccion_ubicacion} />
+                <Row label="Dirección Completa" value={vehiculo.direccion_completa} />
+                {vehiculo.latitud && vehiculo.longitud && (
+                  <Row label="Coordenadas" value={`${vehiculo.latitud}, ${vehiculo.longitud}`} />
+                )}
+              </tbody>
+            </table>
           </div>
 
-          {/* Resguardante */}
-          <div className="bg-white rounded-xl border p-5">
-            <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Resguardante</h3>
+          {/* 9. RESGUARDATARIO */}
+          <div className="bg-white rounded-xl border overflow-hidden">
+            <div className="bg-gray-50 px-4 py-2 border-b">
+              <h3 className="text-sm font-semibold text-gray-600">9. Resguardatario</h3>
+            </div>
             <table className="w-full text-sm">
               <tbody className="divide-y divide-gray-100">
                 <Row label="Nombre" value={vehiculo.resguardante_nombre} />
                 <Row label="Cargo" value={vehiculo.resguardante_cargo} />
                 <Row label="Teléfono" value={vehiculo.resguardante_telefono} />
+                <Row label="Email" value={vehiculo.resguardante_email} />
               </tbody>
             </table>
           </div>
 
-          {/* Observaciones */}
-          {vehiculo.observaciones && (
-            <div className="bg-white rounded-xl border p-5">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Observaciones</h3>
-              <p className="text-sm text-gray-700 whitespace-pre-line">{vehiculo.observaciones}</p>
+          {/* 10. SEGURO */}
+          <div className="bg-white rounded-xl border overflow-hidden">
+            <div className="bg-gray-50 px-4 py-2 border-b">
+              <h3 className="text-sm font-semibold text-gray-600">10. Seguro</h3>
+            </div>
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-gray-100">
+                <Row label="Estado del Seguro" value={seguro.label} valueClass={seguro.clase} />
+                <Row label="Aseguradora" value={vehiculo.aseguradora || vehiculo.seguro} />
+                <Row label="No. Póliza" value={vehiculo.poliza_seguro} />
+                <Row label="Vigencia del Seguro" value={vehiculo.vigencia_seguro} />
+              </tbody>
+            </table>
+            {vehiculo.poliza_seguro && vehiculo.poliza_seguro !== 'SIN POLIZA' && vehiculo.poliza_seguro !== 'SIN DATO' && (
+              <div className="mx-4 mb-4 p-3 bg-blue-50 rounded-lg text-xs text-blue-700">
+                <span className="font-semibold">Póliza registrada:</span> Este vehículo cuenta con número de póliza asignado.
+              </div>
+            )}
+            {seguro.label === 'Vencido' && (
+              <div className="mx-4 mb-4 p-3 bg-red-50 rounded-lg text-xs text-red-700">
+                <span className="font-semibold">Atención:</span> La póliza de seguro está vencida. Se requiere renovación.
+              </div>
+            )}
+          </div>
+
+          {/* 11. MANTENIMIENTO Y CONDICIÓN */}
+          <div className="bg-white rounded-xl border overflow-hidden">
+            <div className="bg-gray-50 px-4 py-2 border-b">
+              <h3 className="text-sm font-semibold text-gray-600">11. Mantenimiento y Condición</h3>
+            </div>
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-gray-100">
+                <Row label="Kilometraje Actual" value={vehiculo.kilometraje ? `${Number(vehiculo.kilometraje).toLocaleString()} km` : '-'} />
+                <Row label="Último Servicio" value={vehiculo.ultimo_servicio || vehiculo.fecha_ultimo_servicio} />
+                <Row label="% Motor" value={vehiculo.porcentaje_motor ? `${vehiculo.porcentaje_motor}%` : '-'} />
+                <Row label="% Transmisión" value={vehiculo.porcentaje_transmision ? `${vehiculo.porcentaje_transmision}%` : '-'} />
+                <Row label="% Chasis" value={vehiculo.porcentaje_chasis ? `${vehiculo.porcentaje_chasis}%` : '-'} />
+                <Row label="Consumo Combustible" value={vehiculo.consumo_combustible ? `${vehiculo.consumo_combustible} L/100km` : '-'} />
+                <Row label="Costo Anual Mantenimiento" value={vehiculo.costo_mantenimiento_anual ? `$${Number(vehiculo.costo_mantenimiento_anual).toLocaleString()}` : '-'} />
+                <Row label="Proveedor Mantenimiento" value={vehiculo.proveedor_mantenimiento} />
+                {vehiculo.desglose_mantenimiento && <Row label="Desglose Mantenimiento" value={vehiculo.desglose_mantenimiento} />}
+                {vehiculo.observaciones_tecnicas && <Row label="Observaciones Técnicas" value={vehiculo.observaciones_tecnicas} />}
+              </tbody>
+            </table>
+          </div>
+
+          {/* 11.1 MECÁNICO */}
+          {(vehiculo.costo_anual_mecanico || vehiculo.frecuencia_mecanico || vehiculo.proveedor_mecanico) && (
+            <div className="bg-white rounded-xl border overflow-hidden">
+              <div className="bg-gray-50 px-4 py-2 border-b">
+                <h3 className="text-sm font-semibold text-gray-600">11.1 Servicio Mecánico</h3>
+              </div>
+              <table className="w-full text-sm">
+                <tbody className="divide-y divide-gray-100">
+                  <Row label="Costo Anual Mecánico" value={vehiculo.costo_anual_mecanico ? `$${Number(vehiculo.costo_anual_mecanico).toLocaleString()}` : '-'} />
+                  <Row label="Frecuencia (veces/año)" value={vehiculo.frecuencia_mecanico} />
+                  <Row label="Proveedor Mecánico" value={vehiculo.proveedor_mecanico} />
+                  {vehiculo.desglose_mecanico && <Row label="Desglose Mecánico" value={vehiculo.desglose_mecanico} />}
+                </tbody>
+              </table>
             </div>
           )}
 
-          {vehiculo.descripcion_detallada && (
-            <div className="bg-white rounded-xl border p-5">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase mb-3">Información Adicional</h3>
-              <p className="text-sm text-gray-700 whitespace-pre-line">{vehiculo.descripcion_detallada}</p>
+          {/* 11.2 ELÉCTRICO */}
+          {(vehiculo.costo_anual_electrico || vehiculo.frecuencia_electrico || vehiculo.proveedor_electrico) && (
+            <div className="bg-white rounded-xl border overflow-hidden">
+              <div className="bg-gray-50 px-4 py-2 border-b">
+                <h3 className="text-sm font-semibold text-gray-600">11.2 Servicio Eléctrico</h3>
+              </div>
+              <table className="w-full text-sm">
+                <tbody className="divide-y divide-gray-100">
+                  <Row label="Costo Anual Eléctrico" value={vehiculo.costo_anual_electrico ? `$${Number(vehiculo.costo_anual_electrico).toLocaleString()}` : '-'} />
+                  <Row label="Frecuencia (veces/año)" value={vehiculo.frecuencia_electrico} />
+                  <Row label="Proveedor Eléctrico" value={vehiculo.proveedor_electrico} />
+                  {vehiculo.desglose_electrico && <Row label="Desglose Eléctrico" value={vehiculo.desglose_electrico} />}
+                </tbody>
+              </table>
             </div>
           )}
+
+          {/* 12. EVIDENCIA Y OBSERVACIONES */}
+          <div className="bg-white rounded-xl border overflow-hidden">
+            <div className="bg-gray-50 px-4 py-2 border-b">
+              <h3 className="text-sm font-semibold text-gray-600">12. Evidencia y Observaciones</h3>
+            </div>
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-gray-100">
+                <Row label="Evidencia Fotográfica" value={vehiculo.evidencia_fotografica} />
+                <Row label="Situación Jurídica" value={vehiculo.situacion_juridica} />
+              </tbody>
+            </table>
+            {vehiculo.observaciones && (
+              <div className="p-4 border-t">
+                <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Observaciones</p>
+                <p className="text-sm text-gray-700 whitespace-pre-line">{vehiculo.observaciones}</p>
+              </div>
+            )}
+            {vehiculo.descripcion_detallada && (
+              <div className="p-4 border-t">
+                <p className="text-xs font-semibold text-gray-500 uppercase mb-2">Información Adicional</p>
+                <p className="text-sm text-gray-700 whitespace-pre-line">{vehiculo.descripcion_detallada}</p>
+              </div>
+            )}
+          </div>
 
           {/* Historial */}
           <div className="bg-white rounded-xl border p-5">
