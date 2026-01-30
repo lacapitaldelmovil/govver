@@ -507,124 +507,90 @@ router.get('/:id', authMiddleware, (req, res) => {
  */
 router.post('/', authMiddleware, requireAdminSecretaria, (req, res) => {
   try {
-    const {
+    const fields = req.body;
+    
+    // Lista de campos permitidos (igual que PUT)
+    const allowedFields = [
       // 1. Identificación
-      numero_inventario, placas, numero_serie, numero_motor, numero_economico,
+      'numero_inventario', 'placas', 'numero_serie', 'numero_motor', 'numero_economico',
       // 2. Características del vehículo
-      marca, linea, modelo, anio, color, tipo, capacidad_pasajeros, tipo_combustible,
-      cilindros, transmision, clase, puertas, ejes, traccion, origen,
-      descripcion, descripcion_detallada,
+      'marca', 'linea', 'modelo', 'anio', 'color', 'tipo', 'capacidad_pasajeros', 'tipo_combustible',
+      'cilindros', 'transmision', 'clase', 'puertas', 'ejes', 'traccion', 'origen',
+      'descripcion', 'descripcion_detallada', 'cilindraje',
       // 3. Asignación
-      secretaria_id, municipio, area_responsable, telefono_area, quien_reporta,
+      'secretaria_id', 'municipio', 'area_responsable', 'telefono_area', 'quien_reporta', 'asignacion_actual',
       // 4. Adquisición
-      forma_adquisicion, fecha_adquisicion, valor_libros, proveedor, numero_factura, regimen, uso,
+      'forma_adquisicion', 'fecha_adquisicion', 'valor_libros', 'proveedor', 'proveedor_unidad', 'numero_factura', 'regimen', 'uso',
+      'valor_contrato', 'cfdi', 'contrato', 'factura_original', 'valor_factura', 'valor_mercado',
       // 5. Documentación
-      tipo_placas, tarjeta_circulacion, vigencia_tarjeta,
+      'tipo_placas', 'fecha_expedicion_placas', 'acta_entrega_recepcion', 'resguardo_vehicular',
+      'tarjeta_circulacion', 'vigencia_tarjeta', 'verificacion_vehicular', 'vigencia_verificacion',
+      'comprobante_reemplacamiento', 'pago_derechos',
       // 6. Inventario
-      refrendado, ultimo_refrendo,
+      'refrendado', 'ultimo_refrendo', 'inventario_patrimonial', 'fecha_alta_inventario', 'bitacora_mantenimiento',
       // 7. Estatus
-      estatus_operativo, estatus_administrativo, estatus, estado_operativo, en_uso, propuesto_baja, fecha_propuesta_baja, motivo_propuesta_baja,
+      'estatus_operativo', 'estatus_administrativo', 'estatus', 'estado_operativo', 'en_uso', 'propuesto_baja', 'fecha_propuesta_baja', 'motivo_propuesta_baja',
       // 8. Ubicación
-      ubicacion_fisica, direccion_ubicacion,
+      'ubicacion_fisica', 'direccion_ubicacion', 'ubicacion_especifica', 'latitud', 'longitud', 'direccion_completa',
       // 9. Resguardatario
-      resguardante_nombre, resguardante_cargo, resguardante_telefono, resguardante_email, fecha_resguardo,
+      'resguardante_nombre', 'resguardante_cargo', 'resguardante_telefono', 'resguardante_email', 'fecha_resguardo',
       // 10. Seguro
-      seguro, aseguradora, poliza_seguro, vigencia_seguro, tipo_cobertura, suma_asegurada,
+      'seguro', 'aseguradora', 'poliza_seguro', 'vigencia_seguro', 'tipo_cobertura', 'suma_asegurada',
       // 11. Mantenimiento
-      kilometraje, fecha_ultimo_servicio, proximo_servicio_km,
+      'kilometraje', 'fecha_ultimo_servicio', 'proximo_servicio_km', 'ultimo_servicio',
+      'porcentaje_motor', 'porcentaje_transmision', 'porcentaje_chasis',
+      'consumo_combustible', 'costo_mantenimiento_anual', 'proveedor_mantenimiento',
+      'desglose_mantenimiento', 'observaciones_tecnicas',
+      // 11.1 Mecánico
+      'costo_anual_mecanico', 'frecuencia_mecanico', 'desglose_mecanico', 'proveedor_mecanico',
+      // 11.2 Eléctrico
+      'costo_anual_electrico', 'frecuencia_electrico', 'desglose_electrico', 'proveedor_electrico',
       // 12. Préstamo / Arrendamiento
-      proveedor_arrendadora, renta_mensual, vigencia_contrato,
-      prestamo_activo, prestamo_destino, prestamo_responsable, prestamo_fecha_inicio, prestamo_fecha_fin,
-      comodato_activo, comodato_institucion, comodato_fecha_inicio, comodato_fecha_fin,
+      'proveedor_arrendadora', 'renta_mensual', 'vigencia_contrato',
+      'prestamo_activo', 'prestamo_destino', 'prestamo_responsable', 'prestamo_fecha_inicio', 'prestamo_fecha_fin',
+      'comodato_activo', 'comodato_institucion', 'comodato_fecha_inicio', 'comodato_fecha_fin',
       // 13. Evidencia
-      foto_url, documento_url,
+      'foto_url', 'documento_url', 'evidencia_fotografica',
       // Extras
-      observaciones, situacion_juridica, clasificacion
-    } = req.body;
+      'observaciones', 'situacion_juridica', 'clasificacion'
+    ];
     
-    // Compatibilidad: mapear estado_operativo antiguo a estatus_operativo
-    let estatusOperativoFinal = estatus_operativo || estado_operativo || 'Operando';
-    let estatusAdminFinal = estatus_administrativo || 'Activo';
+    // Construir listas de columnas y valores dinámicamente
+    const columnas = ['activo'];
+    const placeholders = ['1'];
+    const valores = [];
     
-    // Mapear valores del frontend antiguo si es necesario
-    const estadoMap = {
-      'activo': 'Operando',
-      'propuesto': 'Operando',
-      'en_reparacion': 'En mantenimiento',
-      'siniestrado': 'Fuera de servicio',
-      'baja': 'Fuera de servicio',
-      'ocioso': 'Operando'
-    };
-    if (estadoMap[estatusOperativoFinal]) {
-      estatusOperativoFinal = estadoMap[estatusOperativoFinal];
+    for (const field of allowedFields) {
+      if (fields[field] !== undefined && fields[field] !== '') {
+        columnas.push(field);
+        placeholders.push('?');
+        valores.push(fields[field]);
+      }
     }
     
-    const result = query(`
-      INSERT INTO vehiculos (
-        numero_inventario, placas, numero_serie, numero_motor, numero_economico,
-        marca, linea, modelo, anio, color, tipo, capacidad_pasajeros, tipo_combustible,
-        cilindros, transmision, clase, puertas, ejes, traccion, origen,
-        descripcion, descripcion_detallada,
-        secretaria_id, municipio, area_responsable, telefono_area, quien_reporta,
-        forma_adquisicion, fecha_adquisicion, valor_libros, proveedor, numero_factura, regimen, uso,
-        tipo_placas, tarjeta_circulacion, vigencia_tarjeta,
-        refrendado, ultimo_refrendo,
-        estatus_operativo, estatus_administrativo, estatus, estado_operativo, en_uso, propuesto_baja, fecha_propuesta_baja, motivo_propuesta_baja,
-        ubicacion_fisica, direccion_ubicacion,
-        resguardante_nombre, resguardante_cargo, resguardante_telefono, resguardante_email, fecha_resguardo,
-        seguro, aseguradora, poliza_seguro, vigencia_seguro, tipo_cobertura, suma_asegurada,
-        kilometraje, fecha_ultimo_servicio, proximo_servicio_km,
-        proveedor_arrendadora, renta_mensual, vigencia_contrato,
-        prestamo_activo, prestamo_destino, prestamo_responsable, prestamo_fecha_inicio, prestamo_fecha_fin,
-        comodato_activo, comodato_institucion, comodato_fecha_inicio, comodato_fecha_fin,
-        foto_url, documento_url,
-        observaciones, situacion_juridica, clasificacion,
-        activo
-      ) VALUES (
-        ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?, ?,
-        ?, ?,
-        ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?, ?,
-        ?, ?, ?,
-        ?, ?,
-        ?, ?, ?, ?, ?, ?, ?, ?,
-        ?, ?,
-        ?, ?, ?, ?, ?,
-        ?, ?, ?, ?, ?, ?,
-        ?, ?, ?,
-        ?, ?, ?,
-        ?, ?, ?, ?, ?,
-        ?, ?, ?, ?,
-        ?, ?,
-        ?, ?, ?,
-        1
-      )
-    `, [
-      numero_inventario || null, placas || null, numero_serie || null, numero_motor || null, numero_economico || null,
-      marca || null, linea || null, modelo || null, anio || null, color || null, tipo || null, capacidad_pasajeros || null, tipo_combustible || null,
-      cilindros || null, transmision || null, clase || null, puertas || null, ejes || null, traccion || null, origen || null,
-      descripcion || null, descripcion_detallada || null,
-      secretaria_id || null, municipio || null, area_responsable || null, telefono_area || null, quien_reporta || null,
-      forma_adquisicion || null, fecha_adquisicion || null, valor_libros || null, proveedor || null, numero_factura || null, regimen || null, uso || null,
-      tipo_placas || null, tarjeta_circulacion || null, vigencia_tarjeta || null,
-      refrendado || null, ultimo_refrendo || null,
-      estatusOperativoFinal, estatusAdminFinal, estatus || null, estatusOperativoFinal, en_uso || 1, propuesto_baja || 0, fecha_propuesta_baja || null, motivo_propuesta_baja || null,
-      ubicacion_fisica || null, direccion_ubicacion || null,
-      resguardante_nombre || null, resguardante_cargo || null, resguardante_telefono || null, resguardante_email || null, fecha_resguardo || null,
-      seguro || null, aseguradora || null, poliza_seguro || null, vigencia_seguro || null, tipo_cobertura || null, suma_asegurada || null,
-      kilometraje || 0, fecha_ultimo_servicio || null, proximo_servicio_km || null,
-      proveedor_arrendadora || null, renta_mensual || null, vigencia_contrato || null,
-      prestamo_activo || 0, prestamo_destino || null, prestamo_responsable || null, prestamo_fecha_inicio || null, prestamo_fecha_fin || null,
-      comodato_activo || 0, comodato_institucion || null, comodato_fecha_inicio || null, comodato_fecha_fin || null,
-      foto_url || null, documento_url || null,
-      observaciones || null, situacion_juridica || null, clasificacion || null
-    ]);
+    // Manejar compatibilidad de estado_operativo
+    if (!columnas.includes('estatus_operativo') && !columnas.includes('estado_operativo')) {
+      columnas.push('estatus_operativo');
+      placeholders.push('?');
+      valores.push('Operando');
+    }
+    
+    // Copiar estatus_operativo a estado_operativo para compatibilidad
+    const idxEstatus = columnas.indexOf('estatus_operativo');
+    if (idxEstatus > -1 && !columnas.includes('estado_operativo')) {
+      columnas.push('estado_operativo');
+      placeholders.push('?');
+      valores.push(valores[idxEstatus - 1]); // -1 porque 'activo' es el primero
+    }
+    
+    const sql = `INSERT INTO vehiculos (${columnas.join(', ')}) VALUES (${placeholders.join(', ')})`;
+    
+    const result = query(sql, valores);
     
     res.status(201).json({ 
       message: 'Vehículo creado exitosamente',
-      id: result.lastInsertRowid
+      id: result.lastInsertRowid,
+      vehiculo: { id: result.lastInsertRowid }
     });
   } catch (error) {
     console.error('Error creando vehículo:', error.message);

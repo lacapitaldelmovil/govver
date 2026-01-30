@@ -75,6 +75,10 @@ export default function VehiculoNuevo() {
       const { esta_prestado, prestado_a_secretaria_id, prestamo_fecha_inicio, prestamo_motivo, ...vehiculoData } = formData;
       const datos = Object.fromEntries(Object.entries(vehiculoData).filter(([_, v]) => v !== '' && v !== null && v !== undefined));
       if (datos.secretaria_id) datos.secretaria_id = parseInt(datos.secretaria_id);
+      // Mapear 'modelo' a 'anio' para compatibilidad con backend
+      if (datos.modelo) {
+        datos.anio = parseInt(datos.modelo);
+      }
       const response = await api.post('/vehiculos', datos);
       const vehiculoId = response.data.vehiculo?.id || response.data.id;
       if (esta_prestado && prestado_a_secretaria_id && vehiculoId) {
