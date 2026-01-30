@@ -373,17 +373,60 @@ router.get('/', authMiddleware, (req, res) => {
     
     const result = query(sql, params);
     
-    // Contar total
-    let countSql = 'SELECT COUNT(*) as total FROM vehiculos v WHERE v.activo = 1';
+    // Contar total CON LOS MISMOS FILTROS
+    let countSql = `
+      SELECT COUNT(*) as total 
+      FROM vehiculos v 
+      LEFT JOIN secretarias s ON v.secretaria_id = s.id
+      WHERE v.activo = 1
+    `;
     const countParams = [];
     
-    // Aplicar mismo filtro de secretaría para el contador
-    if (req.user.rol === 'admin_secretaria' && req.user.secretaria_id) {
+    // Aplicar TODOS los mismos filtros para el contador
+    if (req.user.rol === 'admin_secretaria' && req.user.secretaria_id && !todos) {
       countSql += ' AND v.secretaria_id = ?';
       countParams.push(req.user.secretaria_id);
-    } else if (secretaria_id) {
+    } else if (secretaria_id && !todos) {
       countSql += ' AND v.secretaria_id = ?';
       countParams.push(secretaria_id);
+    }
+    
+    if (estado_operativo) {
+      countSql += ' AND v.estado_operativo = ?';
+      countParams.push(estado_operativo);
+    }
+    if (estatus) {
+      countSql += ' AND v.estatus = ?';
+      countParams.push(estatus);
+    }
+    if (clasificacion) {
+      countSql += ' AND v.clasificacion = ?';
+      countParams.push(clasificacion);
+    }
+    if (regimen) {
+      countSql += ' AND v.regimen = ?';
+      countParams.push(regimen);
+    }
+    if (marca) {
+      countSql += ' AND v.marca = ?';
+      countParams.push(marca);
+    }
+    if (tipo) {
+      countSql += ' AND v.tipo = ?';
+      countParams.push(tipo);
+    }
+    if (proveedor) {
+      countSql += ' AND UPPER(v.proveedor_arrendadora) LIKE UPPER(?)';
+      countParams.push(`%${proveedor}%`);
+    }
+    if (municipio) {
+      countSql += ' AND v.municipio = ?';
+      countParams.push(municipio);
+    }
+    if (busqueda) {
+      countSql += ' AND (v.placas LIKE ? OR v.numero_serie LIKE ? OR v.numero_inventario LIKE ? OR v.marca LIKE ? OR v.descripcion LIKE ?)';
+      const term = `%${busqueda}%`;
+      countParams.push(term, term, term, term, term);
     }
     
     const countResult = query(countSql, countParams);
