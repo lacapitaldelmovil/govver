@@ -273,82 +273,132 @@ export default function VehiculosLista() {
             <div className="bg-white border-b px-6 py-3">
               <div className="flex flex-wrap justify-center gap-2">
                 {/* Estado operativo */}
-                <select
-                  value={filtros.estado_operativo}
-                  onChange={(e) => aplicarFiltro('estado_operativo', e.target.value)}
-                  className={`px-3 py-1.5 text-sm rounded-full border transition-all cursor-pointer ${
-                    filtros.estado_operativo 
-                      ? 'bg-veracruz-600 text-white border-veracruz-600' 
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <option value="">Estado</option>
-                  <option value="Operando">Operando</option>
-                  <option value="Disponible">Disponible</option>
-                  <option value="En taller">En taller</option>
-                  <option value="Mal estado">Mal estado</option>
-                  <option value="Baja">Baja</option>
-                </select>
-
-                {/* Condición */}
-                <select
-                  value={filtros.condicion}
-                  onChange={(e) => aplicarFiltro('condicion', e.target.value)}
-                  className={`px-3 py-1.5 text-sm rounded-full border transition-all cursor-pointer ${
-                    filtros.condicion 
-                      ? 'bg-amber-600 text-white border-amber-600' 
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <option value="">Condición</option>
-                  <option value="Bueno">Bueno</option>
-                  <option value="Regular">Regular</option>
-                  <option value="Malo">Malo</option>
-                </select>
-
-                {/* Municipio */}
-                <select
-                  value={filtros.municipio}
-                  onChange={(e) => aplicarFiltro('municipio', e.target.value)}
-                  className={`px-3 py-1.5 text-sm rounded-full border transition-all cursor-pointer ${
-                    filtros.municipio 
-                      ? 'bg-emerald-600 text-white border-emerald-600' 
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <option value="">Municipio</option>
-                  {municipios.map(m => <option key={m} value={m}>{m}</option>)}
-                </select>
-
-                {/* Régimen */}
-                <select
-                  value={filtros.regimen}
-                  onChange={(e) => aplicarFiltro('regimen', e.target.value)}
-                  className={`px-3 py-1.5 text-sm rounded-full border transition-all cursor-pointer ${
-                    filtros.regimen 
-                      ? 'bg-purple-600 text-white border-purple-600' 
-                      : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                  }`}
-                >
-                  <option value="">Régimen</option>
-                  <option value="Propio">Propio</option>
-                  <option value="Comodato">Comodato</option>
-                </select>
-
-                {/* Proveedor */}
-                {proveedoresUnicos.length > 0 && (
+                <div className="relative inline-flex items-center">
                   <select
-                    value={filtros.proveedor}
-                    onChange={(e) => aplicarFiltro('proveedor', e.target.value)}
-                    className={`px-3 py-1.5 text-sm rounded-full border transition-all cursor-pointer ${
-                      filtros.proveedor 
-                        ? 'bg-indigo-600 text-white border-indigo-600' 
+                    value={filtros.estado_operativo}
+                    onChange={(e) => aplicarFiltro('estado_operativo', e.target.value)}
+                    className={`pl-3 pr-8 py-1.5 text-sm rounded-full border transition-all cursor-pointer appearance-none ${
+                      filtros.estado_operativo 
+                        ? 'bg-veracruz-600 text-white border-veracruz-600' 
                         : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
                     }`}
                   >
-                    <option value="">Proveedor</option>
-                    {proveedoresUnicos.map(p => <option key={p} value={p}>{p}</option>)}
+                    <option value="">Estado ▾</option>
+                    <option value="Operando">Operando</option>
+                    <option value="Disponible">Disponible</option>
+                    <option value="En taller">En taller</option>
+                    <option value="Mal estado">Mal estado</option>
+                    <option value="Baja">Baja</option>
                   </select>
+                  {filtros.estado_operativo && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); aplicarFiltro('estado_operativo', ''); }}
+                      className="absolute right-1 p-0.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                    >
+                      <XMarkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Condición */}
+                <div className="relative inline-flex items-center">
+                  <select
+                    value={filtros.condicion}
+                    onChange={(e) => aplicarFiltro('condicion', e.target.value)}
+                    className={`pl-3 pr-8 py-1.5 text-sm rounded-full border transition-all cursor-pointer appearance-none ${
+                      filtros.condicion 
+                        ? 'bg-amber-600 text-white border-amber-600' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <option value="">Condición ▾</option>
+                    <option value="Bueno">Bueno</option>
+                    <option value="Regular">Regular</option>
+                    <option value="Malo">Malo</option>
+                  </select>
+                  {filtros.condicion && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); aplicarFiltro('condicion', ''); }}
+                      className="absolute right-1 p-0.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                    >
+                      <XMarkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Municipio */}
+                <div className="relative inline-flex items-center">
+                  <select
+                    value={filtros.municipio}
+                    onChange={(e) => aplicarFiltro('municipio', e.target.value)}
+                    className={`pl-3 pr-8 py-1.5 text-sm rounded-full border transition-all cursor-pointer appearance-none ${
+                      filtros.municipio 
+                        ? 'bg-emerald-600 text-white border-emerald-600' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <option value="">Municipio ▾</option>
+                    {municipios.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                  {filtros.municipio && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); aplicarFiltro('municipio', ''); }}
+                      className="absolute right-1 p-0.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                    >
+                      <XMarkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Régimen */}
+                <div className="relative inline-flex items-center">
+                  <select
+                    value={filtros.regimen}
+                    onChange={(e) => aplicarFiltro('regimen', e.target.value)}
+                    className={`pl-3 pr-8 py-1.5 text-sm rounded-full border transition-all cursor-pointer appearance-none ${
+                      filtros.regimen 
+                        ? 'bg-purple-600 text-white border-purple-600' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <option value="">Régimen ▾</option>
+                    <option value="Propio">Propio</option>
+                    <option value="Comodato">Comodato</option>
+                  </select>
+                  {filtros.regimen && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); aplicarFiltro('regimen', ''); }}
+                      className="absolute right-1 p-0.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                    >
+                      <XMarkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Proveedor */}
+                {proveedoresUnicos.length > 0 && (
+                  <div className="relative inline-flex items-center">
+                    <select
+                      value={filtros.proveedor}
+                      onChange={(e) => aplicarFiltro('proveedor', e.target.value)}
+                      className={`pl-3 pr-8 py-1.5 text-sm rounded-full border transition-all cursor-pointer appearance-none ${
+                        filtros.proveedor 
+                          ? 'bg-indigo-600 text-white border-indigo-600' 
+                          : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <option value="">Proveedor ▾</option>
+                      {proveedoresUnicos.map(p => <option key={p} value={p}>{p}</option>)}
+                    </select>
+                    {filtros.proveedor && (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); aplicarFiltro('proveedor', ''); }}
+                        className="absolute right-1 p-0.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                      >
+                        <XMarkIcon className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
                 )}
 
                 {/* Limpiar */}
@@ -370,143 +420,233 @@ export default function VehiculosLista() {
             <div className="bg-white border-b px-6 py-3">
               <div className="flex flex-wrap items-center gap-2">
                 {/* Estado */}
-              <select
-                value={filtros.estado_operativo}
-                onChange={(e) => aplicarFiltro('estado_operativo', e.target.value)}
-                className={`px-3 py-1.5 text-sm rounded-full border transition-all cursor-pointer ${
-                  filtros.estado_operativo 
-                    ? 'bg-veracruz-600 text-white border-veracruz-600' 
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <option value="">Estado ▾</option>
-                <option value="Operando">Operando ({stats?.vehiculosPorEstado?.find(e => e.estado === 'Operando')?.cantidad || 0})</option>
-                <option value="Disponible">Disponible ({stats?.vehiculosPorEstado?.find(e => e.estado === 'Disponible')?.cantidad || 0})</option>
-                <option value="En taller">En taller ({stats?.vehiculosPorEstado?.find(e => e.estado === 'En taller')?.cantidad || 0})</option>
-                <option value="Mal estado">Mal estado ({stats?.vehiculosPorEstado?.find(e => e.estado === 'Mal estado')?.cantidad || 0})</option>
-                <option value="Baja">Baja ({stats?.vehiculosPorEstado?.find(e => e.estado === 'Baja')?.cantidad || 0})</option>
-              </select>
+                <div className="relative inline-flex items-center">
+                  <select
+                    value={filtros.estado_operativo}
+                    onChange={(e) => aplicarFiltro('estado_operativo', e.target.value)}
+                    className={`pl-3 pr-8 py-1.5 text-sm rounded-full border transition-all cursor-pointer appearance-none ${
+                      filtros.estado_operativo 
+                        ? 'bg-veracruz-600 text-white border-veracruz-600' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <option value="">Estado ▾</option>
+                    <option value="Operando">Operando ({stats?.vehiculosPorEstado?.find(e => e.estado === 'Operando')?.cantidad || 0})</option>
+                    <option value="Disponible">Disponible ({stats?.vehiculosPorEstado?.find(e => e.estado === 'Disponible')?.cantidad || 0})</option>
+                    <option value="En taller">En taller ({stats?.vehiculosPorEstado?.find(e => e.estado === 'En taller')?.cantidad || 0})</option>
+                    <option value="Mal estado">Mal estado ({stats?.vehiculosPorEstado?.find(e => e.estado === 'Mal estado')?.cantidad || 0})</option>
+                    <option value="Baja">Baja ({stats?.vehiculosPorEstado?.find(e => e.estado === 'Baja')?.cantidad || 0})</option>
+                  </select>
+                  {filtros.estado_operativo && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); aplicarFiltro('estado_operativo', ''); }}
+                      className="absolute right-1 p-0.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                    >
+                      <XMarkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
 
-              {/* Régimen */}
-              <select
-                value={filtros.regimen}
-                onChange={(e) => aplicarFiltro('regimen', e.target.value)}
-                className={`px-3 py-1.5 text-sm rounded-full border transition-all cursor-pointer ${
-                  filtros.regimen 
-                    ? 'bg-purple-600 text-white border-purple-600' 
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <option value="">Régimen ▾</option>
-                <option value="Propio">Propio ({stats?.vehiculosPorRegimen?.find(r => r.regimen === 'Propio')?.cantidad || 0})</option>
-                <option value="Arrendado">Arrendado ({stats?.vehiculosPorRegimen?.find(r => r.regimen === 'Arrendado')?.cantidad || 0})</option>
-                <option value="Comodato">Comodato ({stats?.vehiculosPorRegimen?.find(r => r.regimen === 'Comodato')?.cantidad || 0})</option>
-              </select>
+                {/* Régimen */}
+                <div className="relative inline-flex items-center">
+                  <select
+                    value={filtros.regimen}
+                    onChange={(e) => aplicarFiltro('regimen', e.target.value)}
+                    className={`pl-3 pr-8 py-1.5 text-sm rounded-full border transition-all cursor-pointer appearance-none ${
+                      filtros.regimen 
+                        ? 'bg-purple-600 text-white border-purple-600' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <option value="">Régimen ▾</option>
+                    <option value="Propio">Propio ({stats?.vehiculosPorRegimen?.find(r => r.regimen === 'Propio')?.cantidad || 0})</option>
+                    <option value="Arrendado">Arrendado ({stats?.vehiculosPorRegimen?.find(r => r.regimen === 'Arrendado')?.cantidad || 0})</option>
+                    <option value="Comodato">Comodato ({stats?.vehiculosPorRegimen?.find(r => r.regimen === 'Comodato')?.cantidad || 0})</option>
+                  </select>
+                  {filtros.regimen && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); aplicarFiltro('regimen', ''); }}
+                      className="absolute right-1 p-0.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                    >
+                      <XMarkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
 
-              {/* Condición */}
-              <select
-                value={filtros.condicion}
-                onChange={(e) => aplicarFiltro('condicion', e.target.value)}
-                className={`px-3 py-1.5 text-sm rounded-full border transition-all cursor-pointer ${
-                  filtros.condicion 
-                    ? 'bg-amber-600 text-white border-amber-600' 
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <option value="">Condición ▾</option>
-                <option value="Bueno">Bueno</option>
-                <option value="Regular">Regular</option>
-                <option value="Malo">Malo</option>
-              </select>
+                {/* Condición */}
+                <div className="relative inline-flex items-center">
+                  <select
+                    value={filtros.condicion}
+                    onChange={(e) => aplicarFiltro('condicion', e.target.value)}
+                    className={`pl-3 pr-8 py-1.5 text-sm rounded-full border transition-all cursor-pointer appearance-none ${
+                      filtros.condicion 
+                        ? 'bg-amber-600 text-white border-amber-600' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <option value="">Condición ▾</option>
+                    <option value="Bueno">Bueno</option>
+                    <option value="Regular">Regular</option>
+                    <option value="Malo">Malo</option>
+                  </select>
+                  {filtros.condicion && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); aplicarFiltro('condicion', ''); }}
+                      className="absolute right-1 p-0.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                    >
+                      <XMarkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
 
-              {/* Clasificación */}
-              <select
-                value={filtros.clasificacion}
-                onChange={(e) => aplicarFiltro('clasificacion', e.target.value)}
-                className={`px-3 py-1.5 text-sm rounded-full border transition-all cursor-pointer ${
-                  filtros.clasificacion 
-                    ? 'bg-teal-600 text-white border-teal-600' 
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <option value="">Clasificación ▾</option>
-                <option value="operativo">Operativos</option>
-                <option value="donado">Donados</option>
-                <option value="determinacion">Determinación</option>
-                <option value="comodato_externo">Comodato Ext.</option>
-              </select>
+                {/* Clasificación */}
+                <div className="relative inline-flex items-center">
+                  <select
+                    value={filtros.clasificacion}
+                    onChange={(e) => aplicarFiltro('clasificacion', e.target.value)}
+                    className={`pl-3 pr-8 py-1.5 text-sm rounded-full border transition-all cursor-pointer appearance-none ${
+                      filtros.clasificacion 
+                        ? 'bg-teal-600 text-white border-teal-600' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <option value="">Clasificación ▾</option>
+                    <option value="operativo">Operativos</option>
+                    <option value="donado">Donados</option>
+                    <option value="determinacion">Determinación</option>
+                    <option value="comodato_externo">Comodato Ext.</option>
+                  </select>
+                  {filtros.clasificacion && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); aplicarFiltro('clasificacion', ''); }}
+                      className="absolute right-1 p-0.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                    >
+                      <XMarkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
 
-              {/* Dependencia */}
-              <select
-                value={filtros.secretaria_id}
-                onChange={(e) => aplicarFiltro('secretaria_id', e.target.value)}
-                className={`px-3 py-1.5 text-sm rounded-full border transition-all cursor-pointer max-w-[200px] ${
-                  filtros.secretaria_id 
-                    ? 'bg-blue-600 text-white border-blue-600' 
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <option value="">Dependencia ▾</option>
-                {secretarias.map((sec) => (
-                  <option key={sec.id} value={sec.id}>{sec.siglas}</option>
-                ))}
-              </select>
+                {/* Dependencia */}
+                <div className="relative inline-flex items-center">
+                  <select
+                    value={filtros.secretaria_id}
+                    onChange={(e) => aplicarFiltro('secretaria_id', e.target.value)}
+                    className={`pl-3 pr-8 py-1.5 text-sm rounded-full border transition-all cursor-pointer appearance-none max-w-[200px] ${
+                      filtros.secretaria_id 
+                        ? 'bg-blue-600 text-white border-blue-600' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <option value="">Dependencia ▾</option>
+                    {secretarias.map((sec) => (
+                      <option key={sec.id} value={sec.id}>{sec.siglas}</option>
+                    ))}
+                  </select>
+                  {filtros.secretaria_id && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); aplicarFiltro('secretaria_id', ''); }}
+                      className="absolute right-1 p-0.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                    >
+                      <XMarkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
 
-              {/* Marca */}
-              <select
-                value={filtros.marca}
-                onChange={(e) => aplicarFiltro('marca', e.target.value)}
-                className={`px-3 py-1.5 text-sm rounded-full border transition-all cursor-pointer ${
-                  filtros.marca 
-                    ? 'bg-gray-700 text-white border-gray-700' 
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <option value="">Marca ▾</option>
-                {marcasUnicas.map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
+                {/* Marca */}
+                <div className="relative inline-flex items-center">
+                  <select
+                    value={filtros.marca}
+                    onChange={(e) => aplicarFiltro('marca', e.target.value)}
+                    className={`pl-3 pr-8 py-1.5 text-sm rounded-full border transition-all cursor-pointer appearance-none ${
+                      filtros.marca 
+                        ? 'bg-gray-700 text-white border-gray-700' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <option value="">Marca ▾</option>
+                    {marcasUnicas.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                  {filtros.marca && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); aplicarFiltro('marca', ''); }}
+                      className="absolute right-1 p-0.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                    >
+                      <XMarkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
 
-              {/* Tipo de Vehículo */}
-              <select
-                value={filtros.tipo}
-                onChange={(e) => aplicarFiltro('tipo', e.target.value)}
-                className={`px-3 py-1.5 text-sm rounded-full border transition-all cursor-pointer ${
-                  filtros.tipo 
-                    ? 'bg-cyan-600 text-white border-cyan-600' 
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <option value="">Tipo ▾</option>
-                {tiposUnicos.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
+                {/* Tipo de Vehículo */}
+                <div className="relative inline-flex items-center">
+                  <select
+                    value={filtros.tipo}
+                    onChange={(e) => aplicarFiltro('tipo', e.target.value)}
+                    className={`pl-3 pr-8 py-1.5 text-sm rounded-full border transition-all cursor-pointer appearance-none ${
+                      filtros.tipo 
+                        ? 'bg-cyan-600 text-white border-cyan-600' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <option value="">Tipo ▾</option>
+                    {tiposUnicos.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                  {filtros.tipo && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); aplicarFiltro('tipo', ''); }}
+                      className="absolute right-1 p-0.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                    >
+                      <XMarkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
 
-              {/* Proveedor */}
-              <select
-                value={filtros.proveedor}
-                onChange={(e) => aplicarFiltro('proveedor', e.target.value)}
-                className={`px-3 py-1.5 text-sm rounded-full border transition-all cursor-pointer ${
-                  filtros.proveedor 
-                    ? 'bg-indigo-600 text-white border-indigo-600' 
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <option value="">Proveedor ▾</option>
-                {proveedoresUnicos.map(p => <option key={p} value={p}>{p}</option>)}
-              </select>
+                {/* Proveedor */}
+                <div className="relative inline-flex items-center">
+                  <select
+                    value={filtros.proveedor}
+                    onChange={(e) => aplicarFiltro('proveedor', e.target.value)}
+                    className={`pl-3 pr-8 py-1.5 text-sm rounded-full border transition-all cursor-pointer appearance-none ${
+                      filtros.proveedor 
+                        ? 'bg-indigo-600 text-white border-indigo-600' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <option value="">Proveedor ▾</option>
+                    {proveedoresUnicos.map(p => <option key={p} value={p}>{p}</option>)}
+                  </select>
+                  {filtros.proveedor && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); aplicarFiltro('proveedor', ''); }}
+                      className="absolute right-1 p-0.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                    >
+                      <XMarkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
 
-              {/* Municipio */}
-              <select
-                value={filtros.municipio}
-                onChange={(e) => aplicarFiltro('municipio', e.target.value)}
-                className={`px-3 py-1.5 text-sm rounded-full border transition-all cursor-pointer ${
-                  filtros.municipio 
-                    ? 'bg-emerald-600 text-white border-emerald-600' 
-                    : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-                }`}
-              >
-                <option value="">Municipio ▾</option>
-                {municipios.map(m => <option key={m} value={m}>{m}</option>)}
-              </select>
+                {/* Municipio */}
+                <div className="relative inline-flex items-center">
+                  <select
+                    value={filtros.municipio}
+                    onChange={(e) => aplicarFiltro('municipio', e.target.value)}
+                    className={`pl-3 pr-8 py-1.5 text-sm rounded-full border transition-all cursor-pointer appearance-none ${
+                      filtros.municipio 
+                        ? 'bg-emerald-600 text-white border-emerald-600' 
+                        : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <option value="">Municipio ▾</option>
+                    {municipios.map(m => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                  {filtros.municipio && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); aplicarFiltro('municipio', ''); }}
+                      className="absolute right-1 p-0.5 rounded-full bg-white/20 hover:bg-white/40 text-white"
+                    >
+                      <XMarkIcon className="h-3.5 w-3.5" />
+                    </button>
+                  )}
+                </div>
 
               {/* Limpiar filtros */}
               {hayFiltrosActivos && (
