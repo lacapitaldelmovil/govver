@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ChevronDownIcon, XMarkIcon, CheckIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, XMarkIcon, CheckIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 
 export default function FiltroSelect({ 
   value, 
@@ -8,10 +8,13 @@ export default function FiltroSelect({
   placeholder = 'Filtrar...', 
   color = 'veracruz', // veracruz, amber, emerald, purple, indigo, blue, gray, cyan, teal
   showCount = false,
+  searchable = false,
   className = ''
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const containerRef = useRef(null);
+  const searchInputRef = useRef(null);
 
   // Colores por estado
   const colorClasses = {
@@ -33,11 +36,29 @@ export default function FiltroSelect({
     const handleClickOutside = (event) => {
       if (containerRef.current && !containerRef.current.contains(event.target)) {
         setIsOpen(false);
+        setSearchTerm('');
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Enfocar el input de búsqueda cuando se abre el dropdown
+  useEffect(() => {
+    if (isOpen && searchable && searchInputRef.current) {
+      setTimeout(() => searchInputRef.current?.focus(), 50);
+    }
+    if (!isOpen) {
+      setSearchTerm('');
+    }
+  }, [isOpen, searchable]);
+
+  // Filtrar opciones según el término de búsqueda
+  const filteredOptions = searchable && searchTerm
+    ? options.filter(opt => 
+        opt.label.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : options;
 
   const selectedOption = options.find(opt => opt.value === value);
   const hasValue = value !== '' && value !== null && value !== undefined;
@@ -45,12 +66,14 @@ export default function FiltroSelect({
   const handleSelect = (optValue) => {
     onChange(optValue);
     setIsOpen(false);
+    setSearchTerm('');
   };
 
   const handleClear = (e) => {
     e.stopPropagation();
     onChange('');
     setIsOpen(false);
+    setSearchTerm('');
   };
 
   return (
@@ -83,7 +106,25 @@ export default function FiltroSelect({
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute z-50 mt-2 min-w-[180px] max-w-[280px] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="absolute z-50 mt-2 min-w-[200px] max-w-[300px] bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden animate-in fade-in slide-in-from-top-1 duration-150">
+          {/* Campo de búsqueda */}
+          {searchable && (
+            <div className="p-2 border-b border-gray-100">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar..."
+                  className="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-veracruz-500 focus:ring-1 focus:ring-veracruz-500 outline-none"
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            </div>
+          )}
+          
           <div className="max-h-64 overflow-y-auto py-1">
             {/* Opción para limpiar */}
             {hasValue && (
@@ -96,32 +137,38 @@ export default function FiltroSelect({
               </button>
             )}
             
-            {options.map((opt) => (
-              <button
-                key={opt.value}
-                onClick={() => handleSelect(opt.value)}
-                className={`
-                  w-full px-4 py-2.5 text-left text-sm flex items-center justify-between gap-2
-                  transition-colors duration-100
-                  ${opt.value === value 
-                    ? `${colors.hover} font-medium` 
-                    : 'hover:bg-gray-50'
-                  }
-                `}
-              >
-                <span className="truncate">{opt.label}</span>
-                <div className="flex items-center gap-2">
-                  {showCount && opt.count !== undefined && (
-                    <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
-                      {opt.count}
-                    </span>
-                  )}
-                  {opt.value === value && (
-                    <CheckIcon className="h-4 w-4 text-veracruz-600 flex-shrink-0" />
-                  )}
-                </div>
-              </button>
-            ))}
+            {filteredOptions.length === 0 ? (
+              <div className="px-4 py-3 text-sm text-gray-500 text-center">
+                No se encontraron resultados
+              </div>
+            ) : (
+              filteredOptions.map((opt) => (
+                <button
+                  key={opt.value}
+                  onClick={() => handleSelect(opt.value)}
+                  className={`
+                    w-full px-4 py-2.5 text-left text-sm flex items-center justify-between gap-2
+                    transition-colors duration-100
+                    ${opt.value === value 
+                      ? `${colors.hover} font-medium` 
+                      : 'hover:bg-gray-50'
+                    }
+                  `}
+                >
+                  <span className="truncate">{opt.label}</span>
+                  <div className="flex items-center gap-2">
+                    {showCount && opt.count !== undefined && (
+                      <span className="text-xs text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                        {opt.count}
+                      </span>
+                    )}
+                    {opt.value === value && (
+                      <CheckIcon className="h-4 w-4 text-veracruz-600 flex-shrink-0" />
+                    )}
+                  </div>
+                </button>
+              ))
+            )}
           </div>
         </div>
       )}

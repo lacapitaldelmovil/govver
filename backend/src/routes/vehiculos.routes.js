@@ -5,16 +5,48 @@
 const express = require('express');
 const multer = require('multer');
 const xlsx = require('xlsx');
+const path = require('path');
+const fs = require('fs');
 const { query } = require('../database/connection');
 const { authMiddleware, requireAdminSecretaria } = require('../middleware/auth');
 
 const router = express.Router();
 
-// Configurar multer para subida de archivos
+// Configurar multer para subida de archivos Excel (memoria)
 const storage = multer.memoryStorage();
 const upload = multer({ 
   storage,
   limits: { fileSize: 10 * 1024 * 1024 }
+});
+
+// Configurar multer para subida de imágenes (disco)
+const uploadsDir = path.join(__dirname, '../../uploads/vehiculos');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+const imageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, `vehiculo-${uniqueSuffix}${ext}`);
+  }
+});
+
+const uploadImage = multer({
+  storage: imageStorage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB max
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Solo se permiten imágenes (JPEG, PNG, WebP, GIF)'), false);
+    }
+  }
 });
 
 /**
@@ -677,6 +709,54 @@ router.put('/:id', authMiddleware, requireAdminSecretaria, (req, res) => {
   } catch (error) {
     console.error('Error actualizando vehículo:', error);
     res.status(500).json({ error: 'Error al actualizar vehículo' });
+  }
+});
+
+/**
+ * POST /api/vehiculos/upload-foto - Subir foto de vehículo
+ */
+router.post('/upload-foto', authMiddleware, uploadImage.single('foto'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No se proporcionó ninguna imagen' });
+    }
+    
+    const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+    const fotoUrl = `${baseUrl}/uploads/vehiculos/${req.file.filename}`;
+    
+    res.json({ 
+      success: true,
+      url: fotoUrl,
+      filename: req.file.filename,
+      message: 'Imagen subida correctamente'
+    });
+  } catch (error) {
+    console.error('Error subiendo foto:', error);
+    res.status(500).json({ error: 'Error al subir la imagen' });
+  }
+});
+
+/**
+ * POST /api/vehiculos/upload-fotos - Subir múltiples fotos de vehículo
+ */
+router.post('/upload-fotos', authMiddleware, uploadImage.array('fotos', 10), (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({ error: 'No se proporcionaron imágenes' });
+    }
+    
+    const baseUrl = process.env.API_URL || `${req.protocol}://${req.get('host')}`;
+    const urls = req.files.map(file => `${baseUrl}/uploads/vehiculos/${file.filename}`);
+    
+    res.json({ 
+      success: true,
+      urls: urls,
+      count: req.files.length,
+      message: `${req.files.length} imagen(es) subida(s) correctamente`
+    });
+  } catch (error) {
+    console.error('Error subiendo fotos:', error);
+    res.status(500).json({ error: 'Error al subir las imágenes' });
   }
 });
 
