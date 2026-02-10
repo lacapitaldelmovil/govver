@@ -3,13 +3,166 @@ import { Link } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { 
-  EyeIcon, 
+import {
+  EyeIcon,
   BuildingOfficeIcon,
   ArrowUturnLeftIcon,
   ArrowsRightLeftIcon,
-  MapPinIcon
+  MapPinIcon,
+  MagnifyingGlassIcon,
+  ChevronDownIcon,
+  TruckIcon,
+  CurrencyDollarIcon,
+  CheckCircleIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline';
+
+/* ==================== COMPONENTES AUXILIARES ==================== */
+
+function StatCard({ icon, label, value, color, small }) {
+  const colors = {
+    blue:   'from-blue-500 to-blue-600 shadow-blue-200',
+    purple: 'from-purple-500 to-purple-600 shadow-purple-200',
+    green:  'from-green-500 to-green-600 shadow-green-200',
+    amber:  'from-amber-500 to-amber-600 shadow-amber-200',
+  };
+  const textColors = { blue: 'text-blue-700', purple: 'text-purple-700', green: 'text-green-700', amber: 'text-amber-700' };
+
+  return (
+    <div className="bg-white rounded-xl border shadow-sm p-4 flex items-center gap-3">
+      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${colors[color]} shadow-lg flex items-center justify-center flex-shrink-0`}>
+        <span className="text-white">{icon}</span>
+      </div>
+      <div className="min-w-0">
+        <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider truncate">{label}</p>
+        <p className={`${small ? 'text-lg' : 'text-2xl'} font-bold ${textColors[color]} leading-tight`}>{value}</p>
+      </div>
+    </div>
+  );
+}
+
+function EmptyState({ icon: Icon, title, subtitle }) {
+  return (
+    <div className="bg-white rounded-xl border shadow-sm p-12 text-center">
+      <Icon className="h-12 w-12 text-gray-200 mx-auto mb-3" />
+      <h3 className="text-base font-semibold text-gray-700 mb-1">{title}</h3>
+      <p className="text-sm text-gray-400">{subtitle}</p>
+    </div>
+  );
+}
+
+function GrupoVehiculos({ titulo, subtitulo, vehiculos, color, esAdmin, abrirModalDevolver, defaultOpen, gruposAbiertos, toggleGrupo, showPrestadoA }) {
+  const isOpen = gruposAbiertos[titulo] !== undefined ? gruposAbiertos[titulo] : defaultOpen;
+  const totalValor = vehiculos.reduce((sum, v) => sum + (v.valor_libros || 0), 0);
+  const operando = vehiculos.filter(v => v.estado_operativo === 'Operando').length;
+
+  const cc = {
+    blue:   { bg: 'bg-blue-50', text: 'text-blue-700', badge: 'bg-blue-100 text-blue-700', border: 'border-blue-200', dot: 'bg-blue-500' },
+    purple: { bg: 'bg-purple-50', text: 'text-purple-700', badge: 'bg-purple-100 text-purple-700', border: 'border-purple-200', dot: 'bg-purple-500' },
+    green:  { bg: 'bg-green-50', text: 'text-green-700', badge: 'bg-green-100 text-green-700', border: 'border-green-200', dot: 'bg-green-500' },
+  }[color] || { bg: 'bg-blue-50', text: 'text-blue-700', badge: 'bg-blue-100 text-blue-700', border: 'border-blue-200', dot: 'bg-blue-500' };
+
+  return (
+    <div className="bg-white rounded-xl border shadow-sm overflow-hidden">
+      {/* Header clickable */}
+      <button
+        onClick={() => toggleGrupo(titulo)}
+        className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-all hover:bg-gray-50 group ${isOpen ? `${cc.bg} border-b ${cc.border}` : ''}`}
+      >
+        <div className={`w-2 h-2 rounded-full ${cc.dot} flex-shrink-0`} />
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs text-gray-400 font-medium">{subtitulo}:</span>
+            <span className={`font-bold text-sm ${cc.text}`}>{titulo}</span>
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${cc.badge}`}>
+              {vehiculos.length} {vehiculos.length === 1 ? 'vehículo' : 'vehículos'}
+            </span>
+          </div>
+          <div className="flex items-center gap-3 mt-0.5 text-[11px] text-gray-400">
+            <span>✅ {operando} operando</span>
+            {totalValor > 0 && <span>💰 ${totalValor.toLocaleString()}</span>}
+          </div>
+        </div>
+        <ChevronDownIcon className={`h-4 w-4 text-gray-400 transition-transform duration-200 group-hover:text-gray-600 flex-shrink-0 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {/* Tabla */}
+      {isOpen && (
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50/80 border-b">
+                <th className="px-4 py-2 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Vehículo</th>
+                <th className="px-4 py-2 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Placas</th>
+                {showPrestadoA && <th className="px-4 py-2 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider hidden md:table-cell">Prestado a</th>}
+                <th className="px-4 py-2 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Estado</th>
+                <th className="px-4 py-2 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Km</th>
+                <th className="px-4 py-2 text-left text-[10px] font-semibold text-gray-400 uppercase tracking-wider hidden lg:table-cell">Valor</th>
+                <th className="px-4 py-2 text-right text-[10px] font-semibold text-gray-400 uppercase tracking-wider">Acciones</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {vehiculos.map((v) => (
+                <tr key={v.id} className="hover:bg-gray-50/60 transition-colors">
+                  <td className="px-4 py-2.5">
+                    <Link to={`/vehiculos/${v.id}`} className="group block">
+                      <p className="font-semibold text-gray-900 group-hover:text-veracruz-700 text-sm">{v.marca} {v.linea || v.modelo}</p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-xs text-gray-400">{v.anio}</span>
+                        {v.color && <span className="text-xs text-gray-400">• {v.color}</span>}
+                        {v.tipo && <span className="text-[10px] bg-gray-100 text-gray-500 px-1 py-0.5 rounded">{v.tipo}</span>}
+                      </div>
+                    </Link>
+                  </td>
+                  <td className="px-4 py-2.5">
+                    <span className="font-mono text-sm font-medium text-gray-800">{v.placas}</span>
+                  </td>
+                  {showPrestadoA && (
+                    <td className="px-4 py-2.5 hidden md:table-cell">
+                      <span className="text-xs font-medium text-purple-700 bg-purple-50 px-2 py-0.5 rounded">
+                        {v.municipio || v.ubicacion_fisica || '-'}
+                      </span>
+                    </td>
+                  )}
+                  <td className="px-4 py-2.5">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                      v.estado_operativo === 'Operando' ? 'bg-green-100 text-green-700' :
+                      v.estado_operativo === 'En taller' ? 'bg-yellow-100 text-yellow-700' :
+                      v.estado_operativo === 'Mal estado' ? 'bg-red-100 text-red-700' :
+                      'bg-gray-100 text-gray-600'
+                    }`}>{v.estado_operativo}</span>
+                  </td>
+                  <td className="px-4 py-2.5 hidden lg:table-cell">
+                    <span className="text-xs text-gray-500">{v.kilometraje ? `${v.kilometraje.toLocaleString()} km` : '-'}</span>
+                  </td>
+                  <td className="px-4 py-2.5 hidden lg:table-cell">
+                    <span className="text-xs text-green-700 font-medium">{v.valor_libros ? `$${Number(v.valor_libros).toLocaleString()}` : '-'}</span>
+                  </td>
+                  <td className="px-4 py-2.5 text-right">
+                    <div className="flex items-center justify-end gap-1.5">
+                      {esAdmin && abrirModalDevolver && (
+                        <button onClick={() => abrirModalDevolver(v)}
+                          className="text-[10px] font-semibold px-2 py-1 bg-orange-50 text-orange-600 border border-orange-200 rounded-lg hover:bg-orange-100 transition-colors inline-flex items-center gap-1">
+                          <ArrowUturnLeftIcon className="h-3 w-3" /> Devolver
+                        </button>
+                      )}
+                      <Link to={`/vehiculos/${v.id}`}
+                        className="text-[10px] font-semibold px-2 py-1 bg-veracruz-50 text-veracruz-700 border border-veracruz-200 rounded-lg hover:bg-veracruz-100 transition-colors inline-flex items-center gap-1">
+                        <EyeIcon className="h-3 w-3" /> Ver
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ==================== COMPONENTE PRINCIPAL ==================== */
 
 export default function PrestamosLista() {
   const { user } = useAuthStore();
@@ -18,25 +171,25 @@ export default function PrestamosLista() {
   const [showDevolverModal, setShowDevolverModal] = useState(false);
   const [vehiculoDevolver, setVehiculoDevolver] = useState(null);
   const [observaciones, setObservaciones] = useState('');
-  const [vistaActual, setVistaActual] = useState('municipios'); // 'municipios' o 'secretarias'
+  const [vistaActual, setVistaActual] = useState('municipios');
+  const [busqueda, setBusqueda] = useState('');
+  const [gruposAbiertos, setGruposAbiertos] = useState({});
 
   const esAdmin = ['admin', 'gobernacion'].includes(user?.rol);
 
-  useEffect(() => {
-    cargarPrestamos();
-  }, []);
+  useEffect(() => { cargarPrestamos(); }, []);
 
   const cargarPrestamos = async () => {
     try {
       setLoading(true);
-      const url = esAdmin 
+      const url = esAdmin
         ? '/vehiculos?limit=1000&regimen=Comodato&todas=true'
         : '/vehiculos?limit=1000&regimen=Comodato';
       const res = await api.get(url);
       setVehiculos(res.data.vehiculos || res.data.data || []);
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Error al cargar prestamos');
+      toast.error('Error al cargar préstamos');
     } finally {
       setLoading(false);
     }
@@ -56,42 +209,36 @@ export default function PrestamosLista() {
         municipio: null,
         ubicacion_fisica: vehiculoDevolver.secretaria_siglas || 'Oficinas centrales'
       });
-      toast.success('Orden de devolucion enviada');
+      toast.success('Orden de devolución enviada');
       setShowDevolverModal(false);
       cargarPrestamos();
-    } catch (error) {
-      toast.error('Error al ordenar devolucion');
-    }
+    } catch { toast.error('Error al ordenar devolución'); }
   };
 
-  const agrupadoPorSecretaria = vehiculos.reduce((acc, v) => {
+  const toggleGrupo = (key) => setGruposAbiertos(p => ({ ...p, [key]: !p[key] }));
+
+  /* --- Filtro de búsqueda --- */
+  const vehiculosFiltrados = busqueda
+    ? vehiculos.filter(v =>
+        (v.marca||'').toLowerCase().includes(busqueda.toLowerCase()) ||
+        (v.linea||v.modelo||'').toLowerCase().includes(busqueda.toLowerCase()) ||
+        (v.placas||'').toLowerCase().includes(busqueda.toLowerCase()) ||
+        (v.municipio||'').toLowerCase().includes(busqueda.toLowerCase()) ||
+        (v.secretaria_siglas||'').toLowerCase().includes(busqueda.toLowerCase())
+      )
+    : vehiculos;
+
+  /* --- Agrupaciones --- */
+  const agrupadoPorSecretaria = vehiculosFiltrados.reduce((acc, v) => {
     const sec = v.secretaria_siglas || v.secretaria_nombre || 'Sin asignar';
     if (!acc[sec]) acc[sec] = [];
     acc[sec].push(v);
     return acc;
   }, {});
 
-  const agrupadoPorDestino = vehiculos.reduce((acc, v) => {
-    const destino = v.municipio || v.ubicacion_fisica || 'Sin especificar';
-    if (!acc[destino]) acc[destino] = [];
-    acc[destino].push(v);
-    return acc;
-  }, {});
+  const vehiculosADependencias = vehiculosFiltrados.filter(v => v.clasificacion === 'comodato_externo');
+  const vehiculosAMunicipios = vehiculosFiltrados.filter(v => v.clasificacion !== 'comodato_externo');
 
-  // Separar: comodato_externo = prestados a otras dependencias/secretarías
-  // El resto = prestados a municipios
-  const vehiculosADependencias = vehiculos.filter(v => v.clasificacion === 'comodato_externo');
-  const vehiculosAMunicipios = vehiculos.filter(v => v.clasificacion !== 'comodato_externo');
-
-  // Agrupar vehículos a dependencias por su destino (municipio o ubicacion_fisica)
-  const agrupadoPorDependencia = vehiculosADependencias.reduce((acc, v) => {
-    const destino = v.municipio || v.ubicacion_fisica || 'Otra Dependencia';
-    if (!acc[destino]) acc[destino] = [];
-    acc[destino].push(v);
-    return acc;
-  }, {});
-
-  // Agrupar vehículos a municipios
   const agrupadoPorMunicipio = vehiculosAMunicipios.reduce((acc, v) => {
     const destino = v.municipio || v.ubicacion_fisica || 'Sin especificar';
     if (!acc[destino]) acc[destino] = [];
@@ -99,275 +246,176 @@ export default function PrestamosLista() {
     return acc;
   }, {});
 
-  const destinosMunicipios = Object.entries(agrupadoPorMunicipio)
-    .sort((a, b) => a[0].localeCompare(b[0]));
+  const agrupadoPorDependencia = vehiculosADependencias.reduce((acc, v) => {
+    const destino = v.municipio || v.ubicacion_fisica || 'Otra Dependencia';
+    if (!acc[destino]) acc[destino] = [];
+    acc[destino].push(v);
+    return acc;
+  }, {});
 
-  const destinosSecretarias = Object.entries(agrupadoPorDependencia)
-    .sort((a, b) => a[0].localeCompare(b[0]));
+  const destinosMunicipios = Object.entries(agrupadoPorMunicipio).sort((a, b) => a[0].localeCompare(b[0]));
+  const destinosSecretarias = Object.entries(agrupadoPorDependencia).sort((a, b) => a[0].localeCompare(b[0]));
 
-  const vehiculosMunicipios = vehiculosAMunicipios.length;
-  const vehiculosSecretarias = vehiculosADependencias.length;
+  const totalOperando = vehiculos.filter(v => v.estado_operativo === 'Operando').length;
+  const totalValor = vehiculos.reduce((acc, v) => acc + (v.valor_libros || 0), 0);
+  const totalDestinos = esAdmin
+    ? Object.keys(agrupadoPorSecretaria).length
+    : Object.keys(agrupadoPorMunicipio).length + Object.keys(agrupadoPorDependencia).length;
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-veracruz-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-veracruz-500" />
       </div>
     );
   }
 
   return (
-    <div className="p-6">
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <ArrowsRightLeftIcon className="h-8 w-8 text-blue-600" />
-          <h1 className="text-3xl font-bold text-gray-900">
-            {esAdmin ? 'Gestion de Prestamos - Gobierno' : 'Vehiculos Prestados'}
-          </h1>
-        </div>
-        <p className="text-gray-600">
-          {esAdmin 
-            ? 'Todos los vehiculos en prestamo o comodato entre dependencias'
-            : 'Vehiculos de tu secretaria en prestamo o comodato'
-          }
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white rounded-xl shadow p-6">
-          <p className="text-gray-600 text-sm">Total en Prestamo</p>
-          <p className="text-3xl font-bold text-blue-600">{vehiculos.length}</p>
-        </div>
-        <div className="bg-white rounded-xl shadow p-6">
-          <p className="text-gray-600 text-sm">{esAdmin ? 'Secretarias' : 'Destinos'}</p>
-          <p className="text-3xl font-bold text-purple-600">
-            {esAdmin ? Object.keys(agrupadoPorSecretaria).length : Object.keys(agrupadoPorDestino).length}
-          </p>
-        </div>
-        <div className="bg-white rounded-xl shadow p-6">
-          <p className="text-gray-600 text-sm">Operando</p>
-          <p className="text-3xl font-bold text-green-600">
-            {vehiculos.filter(v => v.estado_operativo === 'Operando').length}
-          </p>
-        </div>
-        <div className="bg-white rounded-xl shadow p-6">
-          <p className="text-gray-600 text-sm">Valor Total</p>
-          <p className="text-2xl font-bold text-amber-600">
-            ${vehiculos.reduce((acc, v) => acc + (v.valor_libros || 0), 0).toLocaleString()}
-          </p>
-        </div>
-      </div>
-
-      {/* Toggle Municipios / Secretarías - Solo para vista de secretarías */}
-      {!esAdmin && (
-        <div className="bg-white rounded-xl shadow p-4 mb-6">
-          <div className="flex items-center justify-center gap-2">
-            <span className="text-sm text-gray-600 mr-2">Agrupar por:</span>
-            <button
-              onClick={() => setVistaActual('municipios')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                vistaActual === 'municipios'
-                  ? 'bg-blue-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              <MapPinIcon className="h-5 w-5" />
-              Municipios
-              <span className={`text-xs px-2 py-0.5 rounded-full ${vistaActual === 'municipios' ? 'bg-blue-500' : 'bg-gray-200'}`}>
-                {vehiculosMunicipios}
-              </span>
-            </button>
-            <button
-              onClick={() => setVistaActual('secretarias')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
-                vistaActual === 'secretarias'
-                  ? 'bg-purple-600 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              <BuildingOfficeIcon className="h-5 w-5" />
-              Secretarías
-              <span className={`text-xs px-2 py-0.5 rounded-full ${vistaActual === 'secretarias' ? 'bg-purple-500' : 'bg-gray-200'}`}>
-                {vehiculosSecretarias}
-              </span>
-            </button>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+      {/* ===== HEADER ===== */}
+      <div>
+        <div className="flex items-center gap-3 mb-1">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-200">
+            <ArrowsRightLeftIcon className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">
+              {esAdmin ? 'Gestión de Préstamos' : 'Vehículos Prestados'}
+            </h1>
+            <p className="text-sm text-gray-500">
+              {esAdmin
+                ? 'Todos los vehículos en préstamo o comodato entre dependencias'
+                : 'Vehículos de tu secretaría en préstamo o comodato'}
+            </p>
           </div>
         </div>
-      )}
+      </div>
 
-      {esAdmin && (
-        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 mb-8 rounded-r-lg">
-          <div className="flex items-start">
-            <BuildingOfficeIcon className="h-6 w-6 text-blue-500 mr-3 mt-0.5" />
-            <div>
-              <h3 className="text-blue-800 font-semibold">Panel de Control de Prestamos</h3>
-              <p className="text-blue-700 text-sm mt-1">
-                Puede ver todos los vehiculos prestados, identificar propietarios y ordenar devoluciones.
-              </p>
+      {/* ===== STATS ===== */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard icon={<TruckIcon className="h-5 w-5" />} label="Total en Préstamo" value={vehiculos.length} color="blue" />
+        <StatCard icon={<MapPinIcon className="h-5 w-5" />} label={esAdmin ? 'Secretarías' : 'Destinos'} value={totalDestinos} color="purple" />
+        <StatCard icon={<CheckCircleIcon className="h-5 w-5" />} label="Operando" value={totalOperando} color="green" />
+        <StatCard icon={<CurrencyDollarIcon className="h-5 w-5" />} label="Valor Total" value={`$${totalValor.toLocaleString()}`} color="amber" small />
+      </div>
+
+      {/* ===== SEARCH + TOGGLE ===== */}
+      <div className="bg-white rounded-xl border shadow-sm p-4">
+        <div className="flex flex-col sm:flex-row items-center gap-3">
+          {/* Búsqueda */}
+          <div className="relative flex-1 w-full">
+            <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Buscar por placa, marca, municipio, secretaría..."
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              className="w-full pl-9 pr-8 py-2 border border-gray-200 rounded-lg text-sm focus:border-veracruz-500 focus:ring-1 focus:ring-veracruz-500"
+            />
+            {busqueda && (
+              <button onClick={() => setBusqueda('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <XMarkIcon className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Toggle — solo para secretarías */}
+          {!esAdmin && (
+            <div className="flex items-center bg-gray-100 rounded-lg p-0.5 flex-shrink-0">
+              <button
+                onClick={() => setVistaActual('municipios')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  vistaActual === 'municipios' ? 'bg-white text-blue-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <MapPinIcon className="h-4 w-4" /> Municipios
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${vistaActual === 'municipios' ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-500'}`}>{vehiculosAMunicipios.length}</span>
+              </button>
+              <button
+                onClick={() => setVistaActual('secretarias')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-all ${
+                  vistaActual === 'secretarias' ? 'bg-white text-purple-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <BuildingOfficeIcon className="h-4 w-4" /> Secretarías
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${vistaActual === 'secretarias' ? 'bg-purple-100 text-purple-700' : 'bg-gray-200 text-gray-500'}`}>{vehiculosADependencias.length}</span>
+              </button>
             </div>
-          </div>
+          )}
+        </div>
+        {busqueda && (
+          <p className="text-xs text-gray-400 mt-2 pl-1">{vehiculosFiltrados.length} vehículos encontrados</p>
+        )}
+      </div>
+
+      {/* ===== ADMIN BANNER ===== */}
+      {esAdmin && (
+        <div className="flex items-center gap-3 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl px-4 py-3">
+          <BuildingOfficeIcon className="h-5 w-5 text-blue-500 flex-shrink-0" />
+          <p className="text-sm text-blue-700">
+            <span className="font-semibold">Panel de Control</span> — Vista global de préstamos. Puede ordenar devoluciones.
+          </p>
         </div>
       )}
 
+      {/* ===== LISTA AGRUPADA ===== */}
       {esAdmin ? (
         Object.entries(agrupadoPorSecretaria)
           .sort((a, b) => b[1].length - a[1].length)
-          .map(([secretaria, vehiculosGrupo]) => (
-          <div key={secretaria} className="bg-white rounded-xl shadow mb-6">
-            <div className="px-6 py-4 border-b bg-gradient-to-r from-green-50 to-blue-50 rounded-t-xl">
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
-                  <BuildingOfficeIcon className="h-5 w-5 text-green-600" />
-                  Prestados por: <span className="text-green-700">{secretaria}</span>
-                </h2>
-                <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                  {vehiculosGrupo.length} vehiculos
-                </span>
-              </div>
-            </div>
-            <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50 sticky top-0 z-10">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Vehiculo</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Placas</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Propietario</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Prestado a</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Estado</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase bg-gray-50">Valor</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase bg-gray-50">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {vehiculosGrupo.map((vehiculo) => (
-                    <tr key={vehiculo.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{vehiculo.marca} {vehiculo.modelo}</div>
-                        <div className="text-sm text-gray-500">{vehiculo.tipo} - {vehiculo.anio}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap font-mono font-semibold">{vehiculo.placas}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">{vehiculo.secretaria_siglas || 'N/A'}</span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-sm">{vehiculo.municipio || vehiculo.ubicacion_fisica || 'No especificado'}</span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${vehiculo.estado_operativo === 'Operando' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                          {vehiculo.estado_operativo}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">${(vehiculo.valor_libros || 0).toLocaleString()}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right space-x-2">
-                        <button onClick={() => abrirModalDevolver(vehiculo)} className="text-orange-600 bg-orange-50 px-2 py-1 rounded inline-flex items-center gap-1">
-                          <ArrowUturnLeftIcon className="h-4 w-4" />Devolver
-                        </button>
-                        <Link to={'/vehiculos/' + vehiculo.id} className="text-veracruz-600 inline-flex items-center gap-1">
-                          <EyeIcon className="h-4 w-4" />Ver
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ))
+          .map(([secretaria, grupo]) => (
+            <GrupoVehiculos key={secretaria} titulo={secretaria} subtitulo="Prestados por"
+              vehiculos={grupo} color="green" esAdmin={esAdmin} abrirModalDevolver={abrirModalDevolver}
+              defaultOpen={grupo.length <= 10} gruposAbiertos={gruposAbiertos} toggleGrupo={toggleGrupo} showPrestadoA />
+          ))
       ) : (
-        (vistaActual === 'municipios' ? destinosMunicipios : destinosSecretarias).map(([destino, vehiculosGrupo]) => (
-          <div key={destino} className="bg-white rounded-xl shadow mb-6">
-            <div className={`px-6 py-4 border-b rounded-t-xl ${
-              vistaActual === 'municipios' 
-                ? 'bg-gradient-to-r from-blue-50 to-cyan-50' 
-                : 'bg-gradient-to-r from-purple-50 to-pink-50'
-            }`}>
-              <div className="flex items-center gap-2">
-                {vistaActual === 'municipios' 
-                  ? <MapPinIcon className="h-5 w-5 text-blue-600" />
-                  : <BuildingOfficeIcon className="h-5 w-5 text-purple-600" />
-                }
-                <h2 className="text-lg font-semibold text-gray-800">
-                  Prestado a: <span className={vistaActual === 'municipios' ? 'text-blue-700' : 'text-purple-700'}>{destino}</span>
-                </h2>
-                <span className={`ml-2 text-xs px-2 py-1 rounded-full ${
-                  vistaActual === 'municipios' ? 'bg-blue-100 text-blue-700' : 'bg-purple-100 text-purple-700'
-                }`}>
-                  {vehiculosGrupo.length} vehículo{vehiculosGrupo.length !== 1 ? 's' : ''}
-                </span>
-              </div>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Vehiculo</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Placas</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Estado</th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {vehiculosGrupo.map((vehiculo) => (
-                    <tr key={vehiculo.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4">{vehiculo.marca} {vehiculo.modelo}</td>
-                      <td className="px-6 py-4 font-mono">{vehiculo.placas}</td>
-                      <td className="px-6 py-4">{vehiculo.estado_operativo}</td>
-                      <td className="px-6 py-4 text-right">
-                        <Link to={'/vehiculos/' + vehiculo.id} className="text-veracruz-600">Ver</Link>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+        (vistaActual === 'municipios' ? destinosMunicipios : destinosSecretarias).map(([destino, grupo]) => (
+          <GrupoVehiculos key={destino} titulo={destino} subtitulo="Prestado a"
+            vehiculos={grupo} color={vistaActual === 'municipios' ? 'blue' : 'purple'}
+            esAdmin={false} defaultOpen={grupo.length <= 8}
+            gruposAbiertos={gruposAbiertos} toggleGrupo={toggleGrupo} />
         ))
       )}
 
-      {/* Mensaje cuando no hay vehículos en la vista seleccionada */}
-      {!esAdmin && vehiculos.length > 0 && (vistaActual === 'municipios' ? destinosMunicipios : destinosSecretarias).length === 0 && (
-        <div className="bg-white rounded-xl shadow p-12 text-center">
-          {vistaActual === 'municipios' ? (
-            <>
-              <MapPinIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Sin préstamos a municipios</h3>
-              <p className="text-gray-500">No hay vehículos prestados a municipios</p>
-            </>
-          ) : (
-            <>
-              <BuildingOfficeIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Sin préstamos a secretarías</h3>
-              <p className="text-gray-500">No hay vehículos prestados a otras secretarías</p>
-            </>
-          )}
-        </div>
+      {/* ===== EMPTY STATES ===== */}
+      {!esAdmin && vehiculosFiltrados.length > 0 && (vistaActual === 'municipios' ? destinosMunicipios : destinosSecretarias).length === 0 && (
+        <EmptyState
+          icon={vistaActual === 'municipios' ? MapPinIcon : BuildingOfficeIcon}
+          title={`Sin préstamos a ${vistaActual === 'municipios' ? 'municipios' : 'secretarías'}`}
+          subtitle={`No hay vehículos prestados a ${vistaActual}`}
+        />
+      )}
+      {vehiculosFiltrados.length === 0 && !busqueda && (
+        <EmptyState icon={ArrowsRightLeftIcon} title="Sin vehículos prestados" subtitle="No hay vehículos en préstamo o comodato" />
+      )}
+      {vehiculosFiltrados.length === 0 && busqueda && (
+        <EmptyState icon={MagnifyingGlassIcon} title="Sin resultados" subtitle={`No se encontraron vehículos con "${busqueda}"`} />
       )}
 
-      {vehiculos.length === 0 && (
-        <div className="bg-white rounded-xl shadow p-12 text-center">
-          <ArrowsRightLeftIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Sin vehiculos prestados</h3>
-          <p className="text-gray-500">No hay vehiculos en prestamo o comodato</p>
-        </div>
-      )}
-
+      {/* ===== MODAL DEVOLVER ===== */}
       {showDevolverModal && vehiculoDevolver && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl p-6 w-full max-w-md mx-4">
-            <h2 className="text-xl font-bold mb-4">Ordenar Devolucion</h2>
-            <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <p className="font-medium">{vehiculoDevolver.marca} {vehiculoDevolver.modelo}</p>
-              <p className="text-sm text-gray-600">Placas: {vehiculoDevolver.placas}</p>
-              <p className="text-sm text-gray-600">Prestado a: {vehiculoDevolver.municipio || vehiculoDevolver.ubicacion_fisica}</p>
-              <p className="text-sm text-gray-600">Propietario: {vehiculoDevolver.secretaria_siglas}</p>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+            <div className="px-6 py-4 border-b bg-orange-50 rounded-t-2xl">
+              <h2 className="text-lg font-bold text-orange-800 flex items-center gap-2">
+                <ArrowUturnLeftIcon className="h-5 w-5" /> Ordenar Devolución
+              </h2>
             </div>
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
-              <textarea value={observaciones} onChange={(e) => setObservaciones(e.target.value)} className="w-full px-3 py-2 border rounded-lg" rows={3} placeholder="Motivo..." />
+            <div className="p-6 space-y-4">
+              <div className="bg-gray-50 rounded-xl p-4 space-y-1">
+                <p className="font-semibold text-gray-900">{vehiculoDevolver.marca} {vehiculoDevolver.linea || vehiculoDevolver.modelo}</p>
+                <p className="text-sm text-gray-500">Placas: <span className="font-mono font-medium">{vehiculoDevolver.placas}</span></p>
+                <p className="text-sm text-gray-500">Prestado a: <span className="font-medium text-purple-700">{vehiculoDevolver.municipio || vehiculoDevolver.ubicacion_fisica}</span></p>
+                <p className="text-sm text-gray-500">Propietario: <span className="font-medium text-green-700">{vehiculoDevolver.secretaria_siglas}</span></p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                <textarea value={observaciones} onChange={(e) => setObservaciones(e.target.value)}
+                  className="w-full px-3 py-2 border rounded-xl text-sm focus:border-veracruz-500 focus:ring-1 focus:ring-veracruz-500" rows={3} placeholder="Motivo de la devolución..." />
+              </div>
             </div>
-            <div className="flex gap-3">
-              <button onClick={() => setShowDevolverModal(false)} className="flex-1 px-4 py-2 border rounded-lg">Cancelar</button>
-              <button onClick={ordenarDevolucion} className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg">Ordenar</button>
+            <div className="px-6 py-4 border-t flex gap-3">
+              <button onClick={() => setShowDevolverModal(false)} className="flex-1 px-4 py-2 border rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50">Cancelar</button>
+              <button onClick={ordenarDevolucion} className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-xl text-sm font-semibold hover:bg-orange-700">Ordenar Devolución</button>
             </div>
           </div>
         </div>

@@ -23,6 +23,8 @@ const movimientosRoutes = require('./routes/movimientos.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const reportesRoutes = require('./routes/reportes.routes');
 const proveedoresRoutes = require('./routes/proveedores.routes');
+const asignacionesRoutes = require('./routes/asignaciones.routes');
+const bitacoraRoutes = require('./routes/bitacora.routes');
 
 // Importar middleware
 const { errorHandler } = require('./middleware/errorHandler');
@@ -91,6 +93,8 @@ app.use('/api/movimientos', movimientosRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reportes', reportesRoutes);
 app.use('/api/proveedores', proveedoresRoutes);
+app.use('/api/asignaciones', asignacionesRoutes);
+app.use('/api/bitacora', bitacoraRoutes);
 
 // ============================================
 // SERVIR FRONTEND EN PRODUCCIÓN

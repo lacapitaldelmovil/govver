@@ -421,57 +421,84 @@ export default function VehiculoNuevo() {
     { value: '5', label: 'V8 / V12', icon: Cog6ToothIcon },
     { value: '999', label: 'Otro', icon: DocumentTextIcon },
   ];
-  const opcionesTipoVehiculo = [
-    { value: '1', label: 'Automóvil sedán', icon: TruckIcon },
-    { value: '2', label: 'Automóvil hatchback', icon: TruckIcon },
-    { value: '3', label: 'Automóvil coupé', icon: TruckIcon },
-    { value: '4', label: 'Automóvil convertible', icon: TruckIcon },
-    { value: '5', label: 'Automóvil turismo', icon: TruckIcon },
-    { value: '6', label: 'Camioneta SUV', icon: TruckIcon },
-    { value: '7', label: 'Camioneta crossover', icon: TruckIcon },
-    { value: '8', label: 'Camioneta pick up cabina sencilla', icon: TruckIcon },
-    { value: '9', label: 'Camioneta pick up cabina doble', icon: TruckIcon },
-    { value: '10', label: 'Van de pasajeros', icon: TruckIcon },
-    { value: '11', label: 'Van de carga / furgoneta', icon: TruckIcon },
-    { value: '12', label: 'Minivan', icon: TruckIcon },
-    { value: '13', label: 'Microbús', icon: TruckIcon },
-    { value: '14', label: 'Autobús', icon: TruckIcon },
-    { value: '15', label: 'Autobús turístico', icon: TruckIcon },
-    { value: '16', label: 'Motocicleta', icon: TruckIcon },
-    { value: '17', label: 'Motocicleta equipada', icon: TruckIcon },
-    { value: '18', label: 'Motoneta', icon: TruckIcon },
-    { value: '19', label: 'Triciclo motorizado', icon: TruckIcon },
-    { value: '20', label: 'Camión ligero', icon: TruckIcon },
-    { value: '21', label: 'Camión mediano', icon: TruckIcon },
-    { value: '22', label: 'Camión pesado', icon: TruckIcon },
-    { value: '23', label: 'Camión con caja seca', icon: TruckIcon },
-    { value: '24', label: 'Camión con redilas', icon: TruckIcon },
-    { value: '25', label: 'Camión plataforma', icon: TruckIcon },
-    { value: '26', label: 'Camión refrigerado', icon: TruckIcon },
-    { value: '27', label: 'Camión cisterna', icon: TruckIcon },
-    { value: '28', label: 'Camión de volteo', icon: TruckIcon },
-    { value: '29', label: 'Remolque', icon: TruckIcon },
-    { value: '30', label: 'Semirremolque', icon: TruckIcon },
-    { value: '31', label: 'Remolque agrícola', icon: TruckIcon },
-    { value: '32', label: 'Grúa', icon: TruckIcon },
-    { value: '33', label: 'Grúa de rescate', icon: TruckIcon },
-    { value: '34', label: 'Tractor', icon: TruckIcon },
-    { value: '35', label: 'Tractor agrícola', icon: TruckIcon },
-    { value: '36', label: 'Vehículo todo terreno (ATV/UTV)', icon: TruckIcon },
-    { value: '37', label: 'Ambulancia', icon: TruckIcon },
-    { value: '38', label: 'Ambulancia de traslado', icon: TruckIcon },
-    { value: '39', label: 'Ambulancia de terapia intensiva', icon: TruckIcon },
-    { value: '40', label: 'Unidad médica móvil', icon: TruckIcon },
-    { value: '41', label: 'Unidad de vacunación móvil', icon: TruckIcon },
-    { value: '42', label: 'Embarcación', icon: TruckIcon },
-    { value: '43', label: 'Lancha', icon: TruckIcon },
-    { value: '44', label: 'Moto acuática', icon: TruckIcon },
-    { value: '45', label: 'Barco', icon: TruckIcon },
-    { value: '46', label: 'Remolque acuático', icon: TruckIcon },
-    { value: '47', label: 'Aeronave', icon: TruckIcon },
-    { value: '48', label: 'Avión', icon: TruckIcon },
-    { value: '49', label: 'Helicóptero', icon: TruckIcon },
-    { value: '999', label: 'Otro', icon: DocumentTextIcon },
+  const opcionesTipoVehiculoAgrupadas = [
+    { label: '🚗 Automóviles', options: [
+      { value: 'sedan', label: 'Automóvil sedán' },
+      { value: 'sedan', label: 'Automóvil hatchback' },
+      { value: 'sedan', label: 'Automóvil coupé' },
+      { value: 'sedan', label: 'Automóvil convertible' },
+      { value: 'sedan', label: 'Automóvil turismo' },
+    ]},
+    { label: '🚙 SUV / Camioneta', options: [
+      { value: 'suv', label: 'Camioneta SUV' },
+      { value: 'suv', label: 'Camioneta crossover' },
+      { value: 'camioneta', label: 'Camioneta' },
+    ]},
+    { label: '🛻 Pick Up', options: [
+      { value: 'pickup', label: 'Pick up cabina sencilla' },
+      { value: 'pickup', label: 'Pick up cabina doble' },
+    ]},
+    { label: '🚐 Van', options: [
+      { value: 'van', label: 'Van de pasajeros' },
+      { value: 'van', label: 'Van de carga / furgoneta' },
+      { value: 'van', label: 'Minivan' },
+    ]},
+    { label: '🚌 Autobús', options: [
+      { value: 'autobus', label: 'Microbús' },
+      { value: 'autobus', label: 'Autobús' },
+      { value: 'autobus', label: 'Autobús turístico' },
+    ]},
+    { label: '🏍️ Motocicleta', options: [
+      { value: 'motocicleta', label: 'Motocicleta' },
+      { value: 'motocicleta', label: 'Motocicleta equipada' },
+      { value: 'motocicleta', label: 'Motoneta' },
+      { value: 'motocicleta', label: 'Triciclo motorizado' },
+    ]},
+    { label: '🚛 Camión', options: [
+      { value: 'camion', label: 'Camión ligero' },
+      { value: 'camion', label: 'Camión mediano' },
+      { value: 'camion', label: 'Camión pesado' },
+      { value: 'camion', label: 'Camión con caja seca' },
+      { value: 'camion', label: 'Camión con redilas' },
+      { value: 'camion', label: 'Camión plataforma' },
+      { value: 'camion', label: 'Camión refrigerado' },
+      { value: 'camion', label: 'Camión cisterna' },
+      { value: 'camion', label: 'Camión de volteo' },
+    ]},
+    { label: '🚚 Remolque', options: [
+      { value: 'remolque', label: 'Remolque' },
+      { value: 'remolque', label: 'Semirremolque' },
+      { value: 'remolque', label: 'Remolque agrícola' },
+    ]},
+    { label: '🏗️ Grúa / Tractor', options: [
+      { value: 'grua', label: 'Grúa' },
+      { value: 'grua', label: 'Grúa de rescate' },
+      { value: 'tractor', label: 'Tractor' },
+      { value: 'tractor', label: 'Tractor agrícola' },
+      { value: 'todoterreno', label: 'Vehículo todo terreno (ATV/UTV)' },
+    ]},
+    { label: '🚑 Emergencia / Médica', options: [
+      { value: 'emergencia', label: 'Ambulancia' },
+      { value: 'emergencia', label: 'Ambulancia de traslado' },
+      { value: 'emergencia', label: 'Ambulancia de terapia intensiva' },
+      { value: 'emergencia', label: 'Unidad médica móvil' },
+      { value: 'emergencia', label: 'Unidad de vacunación móvil' },
+    ]},
+    { label: '🚤 Embarcaciones', options: [
+      { value: 'embarcacion', label: 'Embarcación' },
+      { value: 'embarcacion', label: 'Lancha' },
+      { value: 'embarcacion', label: 'Moto acuática' },
+      { value: 'embarcacion', label: 'Barco' },
+      { value: 'remolque', label: 'Remolque acuático' },
+    ]},
+    { label: '✈️ Aéreo', options: [
+      { value: 'aeronave', label: 'Aeronave' },
+      { value: 'aeronave', label: 'Avión' },
+      { value: 'helicoptero', label: 'Helicóptero' },
+    ]},
+    { label: '📋 Otro', options: [
+      { value: 'otro', label: 'Otro' },
+    ]},
   ];
 
   return (
@@ -523,7 +550,7 @@ export default function VehiculoNuevo() {
           </div>
           <div className="grid md:grid-cols-4 gap-4 mt-4">
             <div><label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Vehículo *</label>
-              <SelectModerno name="tipo" value={formData.tipo} onChange={handleChange} icon={TruckIcon} options={opcionesTipoVehiculo} /></div>
+              <SelectModerno name="tipo" value={formData.tipo} onChange={handleChange} icon={TruckIcon} groupedOptions={opcionesTipoVehiculoAgrupadas} /></div>
             <div><label className="block text-sm font-medium text-gray-700 mb-1">Cilindraje</label>
               <SelectModerno name="cilindraje" value={formData.cilindraje} onChange={handleChange} icon={Cog6ToothIcon} placeholder="..." options={opcionesCilindrada} /></div>
             <div><label className="block text-sm font-medium text-gray-700 mb-1">Capacidad</label>

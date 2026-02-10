@@ -124,9 +124,9 @@ export default function SelectModerno({
                     <div className="px-3 py-2 text-xs font-bold text-gray-500 uppercase tracking-wider bg-gray-50 sticky top-0">
                       {group.label}
                     </div>
-                    {filteredOpts.map((opt) => (
+                    {filteredOpts.map((opt, optIdx) => (
                       <button
-                        key={opt.value}
+                        key={`${idx}-${optIdx}`}
                         type="button"
                         onClick={() => handleSelect(opt.value)}
                         className={`

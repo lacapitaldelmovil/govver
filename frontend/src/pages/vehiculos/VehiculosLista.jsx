@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
-import { MagnifyingGlassIcon, FunnelIcon, XMarkIcon, TruckIcon } from '@heroicons/react/24/outline';
+import {
+  MagnifyingGlassIcon, FunnelIcon, XMarkIcon, TruckIcon,
+  ArrowRightIcon, ArrowLeftIcon, UserIcon, MapPinIcon,
+  CheckCircleIcon, XCircleIcon, ClockIcon,
+  Squares2X2Icon, ListBulletIcon
+} from '@heroicons/react/24/outline';
 import FiltroSelect from '../../components/ui/FiltroSelect';
 
 export default function VehiculosLista() {
   const { user } = useAuthStore();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [vehiculos, setVehiculos] = useState([]);
@@ -15,6 +21,7 @@ export default function VehiculosLista() {
   const [page, setPage] = useState(1);
   const [secretarias, setSecretarias] = useState([]);
   const [busqueda, setBusqueda] = useState(searchParams.get('busqueda') || '');
+  const [vistaLista, setVistaLista] = useState(false);
   
   // Filtros
   const [filtros, setFiltros] = useState({
@@ -34,6 +41,85 @@ export default function VehiculosLista() {
 
   // Estadísticas rápidas
   const [stats, setStats] = useState(null);
+
+  // --- Asignaciones: modal de salida / entrada ---
+  const puedeAsignar = ['admin', 'gobernacion', 'admin_secretaria'].includes(user?.rol);
+  const [modalSalida, setModalSalida] = useState(null); // vehículo para registrar salida
+  const [modalEntrada, setModalEntrada] = useState(null); // vehículo para registrar entrada
+  const [salidaForm, setSalidaForm] = useState({
+    conductor_nombre: '', conductor_cargo: '', conductor_telefono: '',
+    fecha_salida: '', hora_salida: '', km_salida: '',
+    combustible_salida: '', destino: '', motivo: '', observaciones_salida: ''
+  });
+  const [entradaForm, setEntradaForm] = useState({
+    fecha_entrada: '', hora_entrada: '', km_entrada: '',
+    combustible_entrada: '', estado_devolucion: 'Bueno', observaciones_entrada: ''
+  });
+  const [enviandoAsg, setEnviandoAsg] = useState(false);
+
+  const abrirSalida = (v) => {
+    setModalSalida(v);
+    setSalidaForm({
+      conductor_nombre: '', conductor_cargo: '', conductor_telefono: '',
+      fecha_salida: new Date().toISOString().split('T')[0],
+      hora_salida: new Date().toTimeString().slice(0, 5),
+      km_salida: v.kilometraje || '',
+      combustible_salida: '', destino: '', motivo: '', observaciones_salida: ''
+    });
+  };
+
+  const abrirEntrada = (v) => {
+    setModalEntrada(v);
+    setEntradaForm({
+      fecha_entrada: new Date().toISOString().split('T')[0],
+      hora_entrada: new Date().toTimeString().slice(0, 5),
+      km_entrada: '', combustible_entrada: '',
+      estado_devolucion: 'Bueno', observaciones_entrada: ''
+    });
+  };
+
+  const registrarSalida = async () => {
+    if (!salidaForm.conductor_nombre || !salidaForm.motivo) {
+      toast.error('Nombre del conductor y motivo son obligatorios');
+      return;
+    }
+    setEnviandoAsg(true);
+    try {
+      const payload = {
+        vehiculo_id: modalSalida.id,
+        ...salidaForm,
+        km_salida: salidaForm.km_salida ? parseInt(salidaForm.km_salida) : null
+      };
+      const res = await api.post('/asignaciones', payload);
+      toast.success(res.data.message || 'Salida registrada');
+      toast(`📋 Folio: ${res.data.folio}`, { icon: '✅', duration: 5000 });
+      setModalSalida(null);
+      cargarVehiculos();
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Error al registrar salida');
+    }
+    setEnviandoAsg(false);
+  };
+
+  const registrarEntrada = async () => {
+    if (!entradaForm.fecha_entrada) {
+      toast.error('La fecha de entrada es obligatoria');
+      return;
+    }
+    setEnviandoAsg(true);
+    try {
+      const res = await api.put(`/asignaciones/${modalEntrada.asignacion_id}/devolver`, entradaForm);
+      toast.success(res.data.message || 'Entrada registrada');
+      if (res.data.km_recorridos) {
+        toast(`📏 Km recorridos: ${res.data.km_recorridos.toLocaleString()} km`, { icon: '🚗' });
+      }
+      setModalEntrada(null);
+      cargarVehiculos();
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Error al registrar entrada');
+    }
+    setEnviandoAsg(false);
+  };
 
   useEffect(() => {
     cargarSecretarias();
@@ -229,6 +315,20 @@ export default function VehiculosLista() {
                       className="pl-9 pr-4 py-2 w-full sm:w-64 border border-gray-200 rounded-lg text-sm focus:border-veracruz-500 focus:ring-1 focus:ring-veracruz-500"
                     />
                   </div>
+
+                  {/* Toggle vista */}
+                  <div className="flex items-center bg-gray-100 rounded-lg p-0.5">
+                    <button onClick={() => setVistaLista(false)}
+                      className={`p-1.5 rounded-md transition-all ${!vistaLista ? 'bg-white shadow-sm text-veracruz-700' : 'text-gray-400 hover:text-gray-600'}`}
+                      title="Vista tarjetas">
+                      <Squares2X2Icon className="h-4 w-4" />
+                    </button>
+                    <button onClick={() => setVistaLista(true)}
+                      className={`p-1.5 rounded-md transition-all ${vistaLista ? 'bg-white shadow-sm text-veracruz-700' : 'text-gray-400 hover:text-gray-600'}`}
+                      title="Vista lista">
+                      <ListBulletIcon className="h-4 w-4" />
+                    </button>
+                  </div>
                   
                   <Link 
                     to="/vehiculos/nuevo"
@@ -252,6 +352,21 @@ export default function VehiculosLista() {
                       className="w-full pl-11 pr-4 py-3 border border-gray-300 rounded-xl text-base focus:border-veracruz-500 focus:ring-2 focus:ring-veracruz-200 shadow-sm"
                     />
                   </div>
+
+                  {/* Toggle vista */}
+                  <div className="flex items-center bg-gray-100 rounded-xl p-0.5">
+                    <button onClick={() => setVistaLista(false)}
+                      className={`p-2 rounded-lg transition-all ${!vistaLista ? 'bg-white shadow-sm text-veracruz-700' : 'text-gray-400 hover:text-gray-600'}`}
+                      title="Vista tarjetas">
+                      <Squares2X2Icon className="h-5 w-5" />
+                    </button>
+                    <button onClick={() => setVistaLista(true)}
+                      className={`p-2 rounded-lg transition-all ${vistaLista ? 'bg-white shadow-sm text-veracruz-700' : 'text-gray-400 hover:text-gray-600'}`}
+                      title="Vista lista">
+                      <ListBulletIcon className="h-5 w-5" />
+                    </button>
+                  </div>
+
                   {puedeAgregarVehiculos && (
                     <Link 
                       to="/vehiculos/nuevo"
@@ -499,19 +614,138 @@ export default function VehiculosLista() {
               <h3 className="text-xl font-semibold text-gray-700">No se encontraron vehículos</h3>
               <p className="text-gray-500 mt-2">Intenta cambiar los filtros de búsqueda</p>
             </div>
+          ) : vistaLista ? (
+            /* ==================== VISTA LISTA / TABLA ==================== */
+            <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 border-b text-left">
+                      <th className="px-3 py-2.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Vehículo</th>
+                      <th className="px-3 py-2.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Placas</th>
+                      <th className="px-3 py-2.5 font-semibold text-gray-500 text-xs uppercase tracking-wider hidden lg:table-cell">Serie</th>
+                      <th className="px-3 py-2.5 font-semibold text-gray-500 text-xs uppercase tracking-wider">Estado</th>
+                      <th className="px-3 py-2.5 font-semibold text-gray-500 text-xs uppercase tracking-wider hidden md:table-cell">Régimen</th>
+                      <th className="px-3 py-2.5 font-semibold text-gray-500 text-xs uppercase tracking-wider hidden md:table-cell">Dependencia</th>
+                      <th className="px-3 py-2.5 font-semibold text-gray-500 text-xs uppercase tracking-wider hidden lg:table-cell">Municipio</th>
+                      <th className="px-3 py-2.5 font-semibold text-gray-500 text-xs uppercase tracking-wider hidden xl:table-cell">Km</th>
+                      <th className="px-3 py-2.5 font-semibold text-gray-500 text-xs uppercase tracking-wider hidden xl:table-cell">Valor</th>
+                      {puedeAsignar && <th className="px-3 py-2.5 font-semibold text-gray-500 text-xs uppercase tracking-wider w-40">Acción</th>}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {vehiculos.map((v) => {
+                      const seguro = getEstadoSeguro(v.vigencia_seguro);
+                      const sitEsp = getSituacionEspecial(v.situacion_juridica);
+                      return (
+                        <tr key={v.id} className={`hover:bg-gray-50/70 transition-colors ${v.asignacion_id ? 'bg-amber-50/30' : ''}`}>
+                          <td className="px-3 py-2.5">
+                            <Link to={`/vehiculos/${v.id}`} className="block group">
+                              <div className="flex items-center gap-2">
+                                {v.asignacion_id && <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" title="En uso" />}
+                                <div className="min-w-0">
+                                  <p className="font-semibold text-gray-900 group-hover:text-veracruz-700 truncate text-sm">{v.marca} {v.linea || v.modelo}</p>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="text-xs text-gray-400">{v.anio}</span>
+                                    {v.color && <span className="text-xs text-gray-400">• {v.color}</span>}
+                                    {v.tipo && <span className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded">{v.tipo}</span>}
+                                  </div>
+                                </div>
+                              </div>
+                              {v.asignacion_id && (
+                                <p className="text-[10px] text-amber-600 mt-0.5 truncate">🚗 {v.asignacion_conductor}{v.asignacion_destino ? ` → ${v.asignacion_destino}` : ''}</p>
+                              )}
+                              {sitEsp && <span className="text-[10px] text-red-600 font-bold">{sitEsp.icono} {sitEsp.texto}</span>}
+                            </Link>
+                          </td>
+                          <td className="px-3 py-2.5">
+                            <Link to={`/vehiculos/${v.id}`} className="font-mono text-sm font-medium text-gray-800">{v.placas}</Link>
+                          </td>
+                          <td className="px-3 py-2.5 hidden lg:table-cell">
+                            <span className="font-mono text-xs text-gray-400">{v.numero_serie?.substring(0, 17) || '-'}</span>
+                          </td>
+                          <td className="px-3 py-2.5">
+                            <div className="flex flex-col gap-1">
+                              <span className={`inline-block text-center px-2 py-0.5 rounded text-[10px] font-semibold w-fit ${
+                                v.estado_operativo === 'Operando' ? 'bg-green-100 text-green-700' :
+                                v.estado_operativo === 'En taller' ? 'bg-yellow-100 text-yellow-700' :
+                                v.estado_operativo === 'Mal estado' ? 'bg-red-100 text-red-700' :
+                                'bg-gray-100 text-gray-600'
+                              }`}>{v.estado_operativo}</span>
+                              {v.estatus && (
+                                <span className={`text-[10px] ${
+                                  v.estatus === 'Bueno' ? 'text-green-600' :
+                                  v.estatus === 'Regular' ? 'text-yellow-600' :
+                                  v.estatus === 'Malo' ? 'text-red-600' : 'text-gray-500'
+                                }`}>{v.estatus}</span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-3 py-2.5 hidden md:table-cell">
+                            <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                              v.regimen === 'Propio' ? 'bg-blue-50 text-blue-600' :
+                              v.regimen === 'Arrendado' ? 'bg-purple-50 text-purple-600' :
+                              'bg-orange-50 text-orange-600'
+                            }`}>{v.regimen || '-'}</span>
+                          </td>
+                          <td className="px-3 py-2.5 hidden md:table-cell">
+                            <span className="text-xs text-gray-600 font-medium">{v.secretaria_siglas || '-'}</span>
+                          </td>
+                          <td className="px-3 py-2.5 hidden lg:table-cell">
+                            <span className="text-xs text-gray-500">{v.municipio || '-'}</span>
+                          </td>
+                          <td className="px-3 py-2.5 hidden xl:table-cell">
+                            <span className="text-xs font-medium text-gray-700">{v.kilometraje ? `${v.kilometraje.toLocaleString()}` : '-'}</span>
+                          </td>
+                          <td className="px-3 py-2.5 hidden xl:table-cell">
+                            <span className="text-xs text-green-700 font-medium">{v.valor_libros ? `$${Number(v.valor_libros).toLocaleString()}` : '-'}</span>
+                          </td>
+                          {puedeAsignar && (
+                            <td className="px-3 py-2.5">
+                              {v.asignacion_id ? (
+                                <button onClick={() => abrirEntrada(v)}
+                                  className="flex items-center gap-1 px-2.5 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-[10px] font-semibold transition-colors w-full justify-center">
+                                  <ArrowLeftIcon className="h-3 w-3" /> Entrada
+                                </button>
+                              ) : (
+                                <button onClick={() => abrirSalida(v)}
+                                  className="flex items-center gap-1 px-2.5 py-1.5 bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700 text-[10px] font-semibold transition-colors w-full justify-center">
+                                  <ArrowRightIcon className="h-3 w-3" /> Salida
+                                </button>
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           ) : (
+            /* ==================== VISTA TARJETAS ==================== */
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {vehiculos.map((v) => (
-                <Link
+                <div
                   key={v.id}
-                  to={`/vehiculos/${v.id}`}
-                  className={`bg-white rounded-xl shadow-md hover:shadow-xl transition-all p-4 border-l-4 ${
+                  className={`bg-white rounded-xl shadow-md hover:shadow-xl transition-all border-l-4 flex flex-col ${
+                    v.asignacion_id ? 'border-amber-500' :
                     v.clasificacion === 'donado' ? 'border-orange-500' :
                     v.clasificacion === 'determinacion' ? 'border-red-500' :
                     v.clasificacion === 'comodato_externo' ? 'border-blue-500' :
                     'border-dorado-500'
                   }`}
                 >
+                  <Link to={`/vehiculos/${v.id}`} className="p-4 flex-1">
+                  {/* Badge asignación activa */}
+                  {v.asignacion_id && (
+                    <div className="mb-2 flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5">
+                      <span className="text-amber-600 text-xs font-bold">🚗 EN USO</span>
+                      <span className="text-xs text-gray-600">— {v.asignacion_conductor}</span>
+                      {v.asignacion_destino && <span className="text-xs text-gray-400 ml-auto">{v.asignacion_destino}</span>}
+                    </div>
+                  )}
+
                   {/* Badge de clasificación especial */}
                   {v.clasificacion && v.clasificacion !== 'operativo' && (
                     <div className={`mb-2 text-xs font-bold px-2 py-1 rounded inline-block ${
@@ -619,7 +853,31 @@ export default function VehiculosLista() {
                       </div>
                     )}
                   </div>
-                </Link>
+                  </Link>
+
+                  {/* Botón de asignación en la tarjeta */}
+                  {puedeAsignar && (
+                    <div className="border-t px-4 py-2.5 bg-gray-50/80 rounded-b-xl">
+                      {v.asignacion_id ? (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); abrirEntrada(v); }}
+                          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-xs font-semibold transition-colors"
+                        >
+                          <ArrowLeftIcon className="h-3.5 w-3.5" />
+                          Registrar Entrada — {v.asignacion_conductor}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); abrirSalida(v); }}
+                          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700 text-xs font-semibold transition-colors"
+                        >
+                          <ArrowRightIcon className="h-3.5 w-3.5" />
+                          Registrar Salida
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           )}
@@ -649,6 +907,174 @@ export default function VehiculosLista() {
           </div>
         </div>
       </div>
+
+      {/* ==================== MODAL REGISTRAR SALIDA ==================== */}
+      {modalSalida && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b bg-veracruz-50 rounded-t-2xl">
+              <h3 className="text-lg font-bold text-veracruz-800 flex items-center gap-2">
+                <ArrowRightIcon className="h-5 w-5" /> Registrar Salida
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                {modalSalida.marca} {modalSalida.linea || modalSalida.modelo} — {modalSalida.placas}
+              </p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Conductor *</label>
+                <input type="text" value={salidaForm.conductor_nombre}
+                  onChange={e => setSalidaForm(f => ({ ...f, conductor_nombre: e.target.value }))}
+                  placeholder="Nombre completo" className="w-full border rounded-lg px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Cargo</label>
+                <input type="text" value={salidaForm.conductor_cargo}
+                  onChange={e => setSalidaForm(f => ({ ...f, conductor_cargo: e.target.value }))}
+                  placeholder="Cargo del conductor" className="w-full border rounded-lg px-3 py-2 text-sm" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Fecha salida *</label>
+                  <input type="date" value={salidaForm.fecha_salida}
+                    onChange={e => setSalidaForm(f => ({ ...f, fecha_salida: e.target.value }))}
+                    className="w-full border rounded-lg px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Hora salida *</label>
+                  <input type="time" value={salidaForm.hora_salida}
+                    onChange={e => setSalidaForm(f => ({ ...f, hora_salida: e.target.value }))}
+                    className="w-full border rounded-lg px-3 py-2 text-sm" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Km salida *</label>
+                  <input type="number" value={salidaForm.km_salida}
+                    onChange={e => setSalidaForm(f => ({ ...f, km_salida: e.target.value }))}
+                    placeholder="Kilometraje actual" className="w-full border rounded-lg px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Combustible salida</label>
+                  <select value={salidaForm.combustible_salida}
+                    onChange={e => setSalidaForm(f => ({ ...f, combustible_salida: e.target.value }))}
+                    className="w-full border rounded-lg px-3 py-2 text-sm">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Lleno">Lleno</option>
+                    <option value="3/4">3/4</option>
+                    <option value="1/2">1/2</option>
+                    <option value="1/4">1/4</option>
+                    <option value="Vacío">Vacío</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Destino *</label>
+                <input type="text" value={salidaForm.destino}
+                  onChange={e => setSalidaForm(f => ({ ...f, destino: e.target.value }))}
+                  placeholder="Destino del viaje" className="w-full border rounded-lg px-3 py-2 text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Motivo</label>
+                <textarea value={salidaForm.motivo}
+                  onChange={e => setSalidaForm(f => ({ ...f, motivo: e.target.value }))}
+                  placeholder="Motivo del viaje" rows={2} className="w-full border rounded-lg px-3 py-2 text-sm" />
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t flex justify-end gap-3">
+              <button onClick={() => setModalSalida(null)} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">
+                Cancelar
+              </button>
+              <button onClick={registrarSalida} disabled={enviandoAsg}
+                className="px-6 py-2 bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700 text-sm font-semibold disabled:opacity-50">
+                {enviandoAsg ? 'Registrando...' : 'Registrar Salida'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ==================== MODAL REGISTRAR ENTRADA ==================== */}
+      {modalEntrada && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-4 border-b bg-green-50 rounded-t-2xl">
+              <h3 className="text-lg font-bold text-green-800 flex items-center gap-2">
+                <ArrowLeftIcon className="h-5 w-5" /> Registrar Entrada (Devolución)
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                {modalEntrada.marca} {modalEntrada.linea || modalEntrada.modelo} — {modalEntrada.placas}
+              </p>
+              <p className="text-xs text-amber-600 mt-1">
+                Folio: {modalEntrada.asignacion_folio} — Conductor: {modalEntrada.asignacion_conductor}
+              </p>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Fecha entrada *</label>
+                  <input type="date" value={entradaForm.fecha_entrada}
+                    onChange={e => setEntradaForm(f => ({ ...f, fecha_entrada: e.target.value }))}
+                    className="w-full border rounded-lg px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Hora entrada *</label>
+                  <input type="time" value={entradaForm.hora_entrada}
+                    onChange={e => setEntradaForm(f => ({ ...f, hora_entrada: e.target.value }))}
+                    className="w-full border rounded-lg px-3 py-2 text-sm" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Km entrada *</label>
+                  <input type="number" value={entradaForm.km_entrada}
+                    onChange={e => setEntradaForm(f => ({ ...f, km_entrada: e.target.value }))}
+                    placeholder="Kilometraje al devolver" className="w-full border rounded-lg px-3 py-2 text-sm" />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Combustible entrada</label>
+                  <select value={entradaForm.combustible_entrada}
+                    onChange={e => setEntradaForm(f => ({ ...f, combustible_entrada: e.target.value }))}
+                    className="w-full border rounded-lg px-3 py-2 text-sm">
+                    <option value="">— Seleccionar —</option>
+                    <option value="Lleno">Lleno</option>
+                    <option value="3/4">3/4</option>
+                    <option value="1/2">1/2</option>
+                    <option value="1/4">1/4</option>
+                    <option value="Vacío">Vacío</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Estado de devolución</label>
+                <select value={entradaForm.estado_devolucion}
+                  onChange={e => setEntradaForm(f => ({ ...f, estado_devolucion: e.target.value }))}
+                  className="w-full border rounded-lg px-3 py-2 text-sm">
+                  <option value="bueno">Bueno</option>
+                  <option value="regular">Regular</option>
+                  <option value="con_danos">Con daños</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                <textarea value={entradaForm.observaciones}
+                  onChange={e => setEntradaForm(f => ({ ...f, observaciones: e.target.value }))}
+                  placeholder="Observaciones sobre el estado del vehículo" rows={3}
+                  className="w-full border rounded-lg px-3 py-2 text-sm" />
+              </div>
+            </div>
+            <div className="px-6 py-4 border-t flex justify-end gap-3">
+              <button onClick={() => setModalEntrada(null)} className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800">
+                Cancelar
+              </button>
+              <button onClick={registrarEntrada} disabled={enviandoAsg}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-semibold disabled:opacity-50">
+                {enviandoAsg ? 'Registrando...' : 'Registrar Entrada'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -11,7 +11,7 @@ async function migrate() {
   await initDatabase();
 
   // Eliminar tablas existentes para recrear con nueva estructura
-  const tables = ['registros_uso', 'asignaciones_conductor', 'registro_accesos', 
+  const tables = ['cargas_combustible', 'incidencias', 'registros_uso', 'asignaciones_conductor', 'asignaciones', 'registro_accesos', 
                   'mantenimientos', 'movimientos', 'solicitudes', 'vehiculos', 
                   'usuarios', 'secretarias'];
   
@@ -329,6 +329,106 @@ async function migrate() {
     )
   `);
   console.log('✅ Tabla registro_accesos creada');
+
+  // Tabla de Asignaciones (salida/entrada de vehículos a personas)
+  query(`
+    CREATE TABLE IF NOT EXISTS asignaciones (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      folio TEXT NOT NULL UNIQUE,
+      vehiculo_id INTEGER NOT NULL REFERENCES vehiculos(id),
+      secretaria_id INTEGER REFERENCES secretarias(id),
+
+      -- Persona a quien se asigna
+      conductor_nombre TEXT NOT NULL,
+      conductor_cargo TEXT,
+      conductor_telefono TEXT,
+      conductor_email TEXT,
+      conductor_licencia TEXT,
+
+      -- Salida
+      fecha_salida TEXT NOT NULL,
+      hora_salida TEXT,
+      km_salida INTEGER,
+      combustible_salida TEXT,
+      destino TEXT,
+      motivo TEXT NOT NULL,
+
+      -- Entrada / Devolución
+      fecha_entrada TEXT,
+      hora_entrada TEXT,
+      km_entrada INTEGER,
+      combustible_entrada TEXT,
+      estado_devolucion TEXT,
+
+      -- Estado general
+      estado TEXT DEFAULT 'en_uso' CHECK(estado IN ('en_uso', 'devuelto', 'cancelado')),
+      observaciones_salida TEXT,
+      observaciones_entrada TEXT,
+
+      -- Quién registró
+      usuario_registro_id INTEGER REFERENCES usuarios(id),
+      usuario_devolucion_id INTEGER REFERENCES usuarios(id),
+
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+  console.log('✅ Tabla asignaciones creada');
+
+  // Tabla de Cargas de Combustible
+  query(`
+    CREATE TABLE IF NOT EXISTS cargas_combustible (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      vehiculo_id INTEGER NOT NULL REFERENCES vehiculos(id),
+      fecha TEXT NOT NULL,
+      hora TEXT,
+      litros REAL NOT NULL,
+      costo_total REAL,
+      precio_litro REAL,
+      tipo_combustible TEXT DEFAULT 'gasolina' CHECK(tipo_combustible IN ('gasolina_regular','gasolina_premium','diesel','gas_lp','electrico')),
+      km_actual INTEGER,
+      rendimiento_km_litro REAL,
+      estacion TEXT,
+      numero_bomba TEXT,
+      conductor_nombre TEXT,
+      cfdi TEXT,
+      metodo_pago TEXT,
+      observaciones TEXT,
+      usuario_registro_id INTEGER REFERENCES usuarios(id),
+      created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+  console.log('✅ Tabla cargas_combustible creada');
+
+  // Tabla de Incidencias / Siniestros
+  query(`
+    CREATE TABLE IF NOT EXISTS incidencias (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      folio TEXT UNIQUE,
+      vehiculo_id INTEGER NOT NULL REFERENCES vehiculos(id),
+      fecha TEXT NOT NULL,
+      hora TEXT,
+      tipo TEXT NOT NULL CHECK(tipo IN ('choque','robo','vandalismo','falla_mecanica','ponchadura','inundacion','incendio','volcadura','atropello','otro')),
+      gravedad TEXT DEFAULT 'leve' CHECK(gravedad IN ('leve','moderado','grave','perdida_total')),
+      descripcion TEXT NOT NULL,
+      ubicacion TEXT,
+      conductor_nombre TEXT,
+      conductor_licencia TEXT,
+      terceros_involucrados TEXT,
+      numero_siniestro_aseguradora TEXT,
+      folio_ministerio_publico TEXT,
+      costo_estimado_danos REAL,
+      fotos TEXT,
+      estado TEXT DEFAULT 'reportado' CHECK(estado IN ('reportado','en_proceso','resuelto','cerrado')),
+      resolucion TEXT,
+      fecha_resolucion TEXT,
+      observaciones TEXT,
+      usuario_registro_id INTEGER REFERENCES usuarios(id),
+      created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+  console.log('✅ Tabla incidencias creada');
 
   console.log('\n🎉 Migración completada exitosamente');
 }

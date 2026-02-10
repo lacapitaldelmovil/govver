@@ -331,6 +331,112 @@ router.get('/municipios', authMiddleware, (req, res) => {
 });
 
 /**
+ * GET /api/vehiculos/disponibles-por-secretaria - Vehículos disponibles agrupados por secretaría
+ * Para que las secretarías puedan ver qué vehículos tienen disponibles las OTRAS secretarías
+ * NOTA: Esta ruta debe estar ANTES de /:id para que no se confunda
+ */
+router.get('/disponibles-por-secretaria', authMiddleware, (req, res) => {
+  try {
+    const { tipo, marca, busqueda, secretaria_id: filtroSecretariaId } = req.query;
+    const miSecretariaId = req.user.secretaria_id;
+    
+    let sql = `
+      SELECT v.id, v.marca, v.linea, v.modelo, v.anio, v.color, v.tipo, v.placas,
+        v.numero_economico, v.numero_serie, v.numero_inventario,
+        v.capacidad_pasajeros, v.tipo_combustible, v.cilindros, v.transmision,
+        v.kilometraje, v.estatus, v.estado_operativo, v.regimen,
+        v.descripcion,
+        s.id as secretaria_id, s.nombre as secretaria_nombre, s.siglas as secretaria_siglas
+      FROM vehiculos v
+      INNER JOIN secretarias s ON v.secretaria_id = s.id
+      WHERE v.activo = 1
+        AND v.estado_operativo IN ('Disponible', 'Operando')
+        AND s.activa = 1
+    `;
+    const params = [];
+    
+    // Excluir la secretaría del usuario que consulta (para que vea solo las OTRAS)
+    if (miSecretariaId) {
+      sql += ' AND v.secretaria_id != ?';
+      params.push(miSecretariaId);
+    }
+    
+    // Filtrar por una secretaría específica
+    if (filtroSecretariaId) {
+      sql += ' AND v.secretaria_id = ?';
+      params.push(filtroSecretariaId);
+    }
+    
+    if (tipo) {
+      sql += ' AND UPPER(v.tipo) = UPPER(?)';
+      params.push(tipo);
+    }
+    if (marca) {
+      sql += ' AND UPPER(v.marca) = UPPER(?)';
+      params.push(marca);
+    }
+    if (busqueda) {
+      sql += ' AND (v.placas LIKE ? OR v.marca LIKE ? OR v.modelo LIKE ? OR v.linea LIKE ? OR v.descripcion LIKE ?)';
+      const term = `%${busqueda}%`;
+      params.push(term, term, term, term, term);
+    }
+    
+    sql += ' ORDER BY s.siglas ASC, v.marca ASC, v.modelo ASC';
+    
+    const result = query(sql, params);
+    
+    // Agrupar por secretaría
+    const porSecretaria = {};
+    const secretarias = [];
+    
+    for (const v of result.rows) {
+      const key = v.secretaria_id;
+      if (!porSecretaria[key]) {
+        porSecretaria[key] = {
+          secretaria_id: v.secretaria_id,
+          secretaria_nombre: v.secretaria_nombre,
+          secretaria_siglas: v.secretaria_siglas,
+          vehiculos: []
+        };
+        secretarias.push(porSecretaria[key]);
+      }
+      porSecretaria[key].vehiculos.push(v);
+    }
+    
+    // Obtener también las marcas y tipos únicos para filtros
+    const marcasResult = query(`
+      SELECT DISTINCT v.marca FROM vehiculos v 
+      INNER JOIN secretarias s ON v.secretaria_id = s.id
+      WHERE v.activo = 1 AND v.estado_operativo IN ('Disponible', 'Operando') AND s.activa = 1
+      ${miSecretariaId ? 'AND v.secretaria_id != ?' : ''}
+      ORDER BY v.marca
+    `, miSecretariaId ? [miSecretariaId] : []);
+    
+    const tiposResult = query(`
+      SELECT DISTINCT v.tipo FROM vehiculos v 
+      INNER JOIN secretarias s ON v.secretaria_id = s.id
+      WHERE v.activo = 1 AND v.estado_operativo IN ('Disponible', 'Operando') AND s.activa = 1
+      AND v.tipo IS NOT NULL AND v.tipo != ''
+      ${miSecretariaId ? 'AND v.secretaria_id != ?' : ''}
+      ORDER BY v.tipo
+    `, miSecretariaId ? [miSecretariaId] : []);
+    
+    res.json({
+      secretarias,
+      total_vehiculos: result.rows.length,
+      total_secretarias: secretarias.length,
+      filtros: {
+        marcas: marcasResult.rows.map(r => r.marca).filter(Boolean),
+        tipos: tiposResult.rows.map(r => r.tipo).filter(Boolean)
+      }
+    });
+  } catch (error) {
+    console.error('Error obteniendo vehículos disponibles por secretaría:', error);
+    res.status(500).json({ error: 'Error al obtener vehículos disponibles' });
+  }
+});
+
+/**
  * GET /api/vehiculos - Listar vehículos con filtros
  */
 router.get('/', authMiddleware, (req, res) => {
@@ -341,9 +447,19 @@ router.get('/', authMiddleware, (req, res) => {
     } = req.query;
     
     let sql = `
-      SELECT v.*, s.nombre as secretaria_nombre, s.siglas as secretaria_siglas
+      SELECT v.*, s.nombre as secretaria_nombre, s.siglas as secretaria_siglas,
+        a_act.id as asignacion_id, a_act.folio as asignacion_folio,
+        a_act.conductor_nombre as asignacion_conductor,
+        a_act.conductor_cargo as asignacion_cargo,
+        a_act.fecha_salida as asignacion_fecha_salida,
+        a_act.hora_salida as asignacion_hora_salida,
+        a_act.km_salida as asignacion_km_salida,
+        a_act.destino as asignacion_destino,
+        a_act.motivo as asignacion_motivo,
+        a_act.estado as asignacion_estado
       FROM vehiculos v
       LEFT JOIN secretarias s ON v.secretaria_id = s.id
+      LEFT JOIN asignaciones a_act ON a_act.vehiculo_id = v.id AND a_act.estado = 'en_uso'
       WHERE v.activo = 1
     `;
     const params = [];
@@ -491,6 +607,32 @@ router.get('/:id', authMiddleware, (req, res) => {
       return res.status(404).json({ error: 'Vehículo no encontrado' });
     }
 
+    // Obtener asignación activa (en_uso)
+    let asignacionActiva = null;
+    try {
+      const asgResult = query(`
+        SELECT a.*, u.nombre as registrado_por_nombre
+        FROM asignaciones a
+        LEFT JOIN usuarios u ON a.usuario_registro_id = u.id
+        WHERE a.vehiculo_id = ? AND a.estado = 'en_uso'
+        ORDER BY a.created_at DESC LIMIT 1
+      `, [req.params.id]);
+      if (asgResult.rows.length > 0) asignacionActiva = asgResult.rows[0];
+    } catch (e) { /* tabla puede no existir */ }
+
+    // Historial de asignaciones recientes
+    let asignaciones = [];
+    try {
+      const asgHist = query(`
+        SELECT a.*, u.nombre as registrado_por_nombre
+        FROM asignaciones a
+        LEFT JOIN usuarios u ON a.usuario_registro_id = u.id
+        WHERE a.vehiculo_id = ?
+        ORDER BY a.created_at DESC LIMIT 20
+      `, [req.params.id]);
+      asignaciones = asgHist.rows;
+    } catch (e) { /* tabla puede no existir */ }
+
     // Obtener movimientos del vehículo (con manejo de errores por si no existe la tabla)
     let movimientos = { rows: [] };
     try {
@@ -525,6 +667,8 @@ router.get('/:id', authMiddleware, (req, res) => {
     
     res.json({
       vehiculo: result.rows[0],
+      asignacion_activa: asignacionActiva,
+      asignaciones: asignaciones,
       movimientos: movimientos.rows,
       mantenimientos: mantenimientos.rows
     });

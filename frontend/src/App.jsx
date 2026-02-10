@@ -38,6 +38,10 @@ import ProveedoresLista from './pages/admin/ProveedoresLista';
 // Reportes
 import Reportes from './pages/reportes/Reportes';
 
+// Asignaciones
+import AsignacionesLista from './pages/asignaciones/AsignacionesLista';
+import NuevaAsignacion from './pages/asignaciones/NuevaAsignacion';
+
 // Componente de ruta protegida
 function ProtectedRoute({ children, allowedRoles = [] }) {
   const { isAuthenticated, user } = useAuthStore();
@@ -186,6 +190,24 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['admin', 'gobernacion', 'admin_secretaria']}>
                 <NuevaSolicitud />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Asignaciones - Control de Salida/Entrada (dentro de Vehículos) */}
+          <Route 
+            path="/vehiculos/asignaciones" 
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'gobernacion', 'admin_secretaria']}>
+                <AsignacionesLista />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/vehiculos/asignaciones/nueva" 
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'gobernacion', 'admin_secretaria']}>
+                <NuevaAsignacion />
               </ProtectedRoute>
             } 
           />
