@@ -54,10 +54,10 @@ export default function MainLayout() {
       });
     }
 
-    // Panel Secretaría
-    if (['admin', 'gobernacion', 'admin_secretaria'].includes(user?.rol)) {
+    // Panel Secretaría - solo para admin_secretaria (admin/gobernacion tienen su propio dashboard)
+    if (user?.rol === 'admin_secretaria') {
       baseNav.push({
-        name: user?.rol === 'admin_secretaria' ? 'Mi Secretaría' : 'Secretarías',
+        name: 'Mi Secretaría',
         href: '/secretaria',
         icon: BuildingOfficeIcon
       });
