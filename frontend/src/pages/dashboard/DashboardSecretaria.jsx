@@ -1,481 +1,549 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuthStore } from '../../store/authStore';
-import { TruckIcon } from '@heroicons/react/24/outline';
+import {
+  TruckIcon, DocumentTextIcon, ArrowsRightLeftIcon,
+  ExclamationTriangleIcon, ShieldCheckIcon,
+  ChartBarIcon, PlusIcon, ClockIcon,
+  CheckCircleIcon, XCircleIcon, MapPinIcon,
+  BuildingOfficeIcon, CurrencyDollarIcon, EyeIcon,
+  ChevronRightIcon
+} from '@heroicons/react/24/outline';
 
 export default function DashboardSecretaria() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const [vehiculos, setVehiculos] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [busqueda, setBusqueda] = useState('');
-  const [filtroEstado, setFiltroEstado] = useState('');
-  const [filtroSeguro, setFiltroSeguro] = useState('');
-  const [filtroProveedor, setFiltroProveedor] = useState('');
-  const [paginaActual, setPaginaActual] = useState(1);
-  const vehiculosPorPagina = 10;
-
-  // Leer parámetro de proveedor de la URL al cargar
-  useEffect(() => {
-    const proveedorParam = searchParams.get('proveedor');
-    if (proveedorParam) {
-      setFiltroProveedor(proveedorParam);
-    }
-  }, [searchParams]);
+  const [stats, setStats] = useState(null);
+  const [seguros, setSeguros] = useState(null);
+  const [solicitudes, setSolicitudes] = useState([]);
+  const [asignaciones, setAsignaciones] = useState([]);
+  const [vehiculosOciosos, setVehiculosOciosos] = useState([]);
 
   useEffect(() => {
-    cargarVehiculos();
+    cargarDatos();
   }, []);
 
-  const cargarVehiculos = async () => {
+  const cargarDatos = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await api.get('/vehiculos');
-      setVehiculos(response.data.vehiculos || response.data || []);
+      const [statsRes, segurosRes, solRes, asgRes, ociosRes] = await Promise.allSettled([
+        api.get('/dashboard/stats'),
+        api.get('/dashboard/alertas-seguros'),
+        api.get('/solicitudes?limit=5'),
+        api.get('/asignaciones/activas'),
+        api.get('/dashboard/vehiculos-ociosos'),
+      ]);
+
+      if (statsRes.status === 'fulfilled') setStats(statsRes.value.data);
+      if (segurosRes.status === 'fulfilled') setSeguros(segurosRes.value.data);
+      if (solRes.status === 'fulfilled') {
+        const data = solRes.value.data;
+        setSolicitudes(Array.isArray(data) ? data : data.solicitudes || []);
+      }
+      if (asgRes.status === 'fulfilled') setAsignaciones(asgRes.value.data || []);
+      if (ociosRes.status === 'fulfilled') setVehiculosOciosos(ociosRes.value.data || []);
     } catch (error) {
-      console.error('Error al cargar vehículos:', error);
+      console.error('Error cargando dashboard:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Calcular estadísticas de estado
-  // Los propuestos para baja se excluyen de los otros contadores para evitar duplicados
-  const propuestosBaja = vehiculos.filter(v => v.propuesto_baja === 1 || v.propuesto_baja === true);
-  const noPropuestos = vehiculos.filter(v => v.propuesto_baja !== 1 && v.propuesto_baja !== true);
-  
-  // Pendientes ante SAT/Hacienda (tienen DIF-DET en número de inventario)
-  const pendientesSAT = vehiculos.filter(v => v.numero_inventario?.includes('DIF-DET'));
-  
-  const estadisticas = {
-    total: vehiculos.length,
-    operando: noPropuestos.filter(v => v.estado_operativo?.toLowerCase().includes('operando')).length,
-    disponible: noPropuestos.filter(v => v.estado_operativo?.toLowerCase().includes('disponible')).length,
-    taller: noPropuestos.filter(v => v.estado_operativo?.toLowerCase().includes('taller')).length,
-    malEstado: noPropuestos.filter(v => v.estado_operativo?.toLowerCase().includes('mal estado')).length,
-    baja: noPropuestos.filter(v => v.estado_operativo?.toLowerCase().includes('baja')).length,
-    propuestosBaja: propuestosBaja.length,
-    pendientesSAT: pendientesSAT.length,
+  const getEstadoColor = (estado) => {
+    const map = {
+      'Operando': 'text-green-700 bg-green-100',
+      'Disponible': 'text-blue-700 bg-blue-100',
+      'En taller': 'text-yellow-700 bg-yellow-100',
+      'Mal estado': 'text-orange-700 bg-orange-100',
+      'Baja': 'text-red-700 bg-red-100',
+    };
+    return map[estado] || 'text-gray-700 bg-gray-100';
   };
 
-  // Calcular estadísticas de seguro
-  const hoy = new Date();
-  const en30Dias = new Date();
-  en30Dias.setDate(hoy.getDate() + 30);
-
-  // Mapeo de meses en español
-  const mesesES = {
-    'enero': 0, 'febrero': 1, 'marzo': 2, 'abril': 3, 'mayo': 4, 'junio': 5,
-    'julio': 6, 'agosto': 7, 'septiembre': 8, 'octubre': 9, 'noviembre': 10, 'diciembre': 11
+  const getSolEstadoStyle = (estado) => {
+    const map = {
+      'pendiente': { bg: 'bg-amber-100 text-amber-800', icon: ClockIcon, label: 'Pendiente' },
+      'aprobada': { bg: 'bg-green-100 text-green-800', icon: CheckCircleIcon, label: 'Aprobada' },
+      'rechazada': { bg: 'bg-red-100 text-red-800', icon: XCircleIcon, label: 'Rechazada' },
+      'completada': { bg: 'bg-blue-100 text-blue-800', icon: CheckCircleIcon, label: 'Completada' },
+      'cancelada': { bg: 'bg-gray-100 text-gray-600', icon: XCircleIcon, label: 'Cancelada' },
+    };
+    return map[estado] || map['pendiente'];
   };
 
-  const parseDate = (dateStr) => {
-    if (!dateStr) return null;
-    const clean = dateStr.toString().trim();
-    
-    // Formato DD/MM/YYYY
-    if (clean.includes('/')) {
-      const parts = clean.split('/');
-      if (parts.length === 3) {
-        const [day, month, year] = parts;
-        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
-      }
-    }
-    
-    // Formato ISO YYYY-MM-DD
-    if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) {
-      return new Date(clean);
-    }
-    
-    // Formato español: "31 DE AGOSTO 2026" o "31 DE AGOSTO DE 2026"
-    const matchES = clean.match(/^(\d{1,2})\s+DE\s+(\w+)\s+(?:DE\s+)?(\d{4})$/i);
-    if (matchES) {
-      const dia = parseInt(matchES[1]);
-      const mesNombre = matchES[2].toLowerCase();
-      const anio = parseInt(matchES[3]);
-      const mes = mesesES[mesNombre];
-      if (mes !== undefined) {
-        return new Date(anio, mes, dia);
-      }
-    }
-    
-    const date = new Date(clean);
-    return isNaN(date.getTime()) ? null : date;
-  };
-
-  const categorizarSeguro = (v) => {
-    if (!v.vigencia_seguro || v.vigencia_seguro === 'N/A' || v.vigencia_seguro === 'NO APLICA' || v.vigencia_seguro === 'SIN DATO') {
-      return 'noAplica';
-    }
-    const fechaVigencia = parseDate(v.vigencia_seguro);
-    if (!fechaVigencia) return 'noAplica';
-    if (fechaVigencia < hoy) return 'vencido';
-    if (fechaVigencia <= en30Dias) return 'porVencer';
-    return 'vigente';
-  };
-
-  const seguros = {
-    vencidos: vehiculos.filter(v => categorizarSeguro(v) === 'vencido').length,
-    porVencer: vehiculos.filter(v => categorizarSeguro(v) === 'porVencer').length,
-    vigentes: vehiculos.filter(v => categorizarSeguro(v) === 'vigente').length,
-    noAplica: vehiculos.filter(v => categorizarSeguro(v) === 'noAplica').length,
-  };
-
-  // Obtener proveedores únicos
-  const proveedoresUnicos = [...new Set(vehiculos.map(v => v.proveedor_arrendadora).filter(Boolean))].sort();
-
-  // Filtrar vehículos
-  const vehiculosFiltrados = vehiculos.filter(v => {
-    const matchBusqueda = !busqueda || 
-      v.marca?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      v.modelo?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      v.placas?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      v.numero_economico?.toLowerCase().includes(busqueda.toLowerCase());
-
-    // Manejar filtros especiales
-    let matchEstado = true;
-    if (filtroEstado === 'propuesto_baja') {
-      matchEstado = v.propuesto_baja === 1 || v.propuesto_baja === true;
-    } else if (filtroEstado === 'pendiente_sat') {
-      matchEstado = v.numero_inventario?.includes('DIF-DET');
-    } else if (filtroEstado) {
-      matchEstado = v.estado_operativo?.toLowerCase().includes(filtroEstado.toLowerCase());
-    }
-
-    let matchSeguro = true;
-    if (filtroSeguro) {
-      const categoria = categorizarSeguro(v);
-      matchSeguro = categoria === filtroSeguro;
-    }
-
-    // Filtro por proveedor
-    const matchProveedor = !filtroProveedor || v.proveedor_arrendadora === filtroProveedor;
-
-    return matchBusqueda && matchEstado && matchSeguro && matchProveedor;
-  });
-
-  // Paginación
-  const totalPaginas = Math.ceil(vehiculosFiltrados.length / vehiculosPorPagina);
-  const vehiculosPaginados = vehiculosFiltrados.slice(
-    (paginaActual - 1) * vehiculosPorPagina,
-    paginaActual * vehiculosPorPagina
-  );
-
-  const limpiarFiltros = () => {
-    setFiltroEstado('');
-    setFiltroSeguro('');
-    setFiltroProveedor('');
-    setBusqueda('');
-    setPaginaActual(1);
-  };
-
-  const aplicarFiltroEstado = (estado) => {
-    setFiltroEstado(prev => prev === estado ? '' : estado);
-    setFiltroSeguro('');
-    setPaginaActual(1);
-  };
-
-  const aplicarFiltroSeguro = (tipo) => {
-    setFiltroSeguro(prev => prev === tipo ? '' : tipo);
-    setFiltroEstado('');
-    setPaginaActual(1);
+  const formatFechaCorta = (fecha) => {
+    if (!fecha) return '-';
+    const d = new Date(fecha);
+    return d.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-700"></div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-veracruz-500 mx-auto mb-4"></div>
+          <p className="text-gray-500 text-sm">Cargando panel de control...</p>
+        </div>
       </div>
     );
   }
 
+  const estadosData = stats?.vehiculosPorEstado || [];
+  const regimenData = stats?.vehiculosPorRegimen || [];
+  const totalVehiculos = stats?.totalVehiculos || 0;
+  const segurosStats = seguros?.stats || {};
+
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6">
-      {/* Cards de Estado */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
-        <button
-          onClick={() => aplicarFiltroEstado('')}
-          className={`p-4 rounded-xl text-center transition-all ${
-            filtroEstado === '' && !filtroSeguro
-              ? 'bg-gray-800 text-white shadow-lg scale-105'
-              : 'bg-white text-gray-700 hover:bg-gray-50 shadow'
-          }`}
-        >
-          <div className="text-3xl font-bold">{estadisticas.total}</div>
-          <div className="text-sm">Total</div>
-        </button>
+    <div className="max-w-7xl mx-auto px-4 py-5 space-y-6">
 
-        <button
-          onClick={() => aplicarFiltroEstado('operando')}
-          className={`p-4 rounded-xl text-center transition-all ${
-            filtroEstado === 'operando'
-              ? 'bg-green-600 text-white shadow-lg scale-105'
-              : 'bg-white text-gray-700 hover:bg-green-50 shadow'
-          }`}
-        >
-          <div className="text-3xl font-bold">{estadisticas.operando}</div>
-          <div className="text-sm">Operando</div>
-        </button>
-
-        <button
-          onClick={() => aplicarFiltroEstado('disponible')}
-          className={`p-4 rounded-xl text-center transition-all ${
-            filtroEstado === 'disponible'
-              ? 'bg-blue-600 text-white shadow-lg scale-105'
-              : 'bg-white text-gray-700 hover:bg-blue-50 shadow'
-          }`}
-        >
-          <div className="text-3xl font-bold">{estadisticas.disponible}</div>
-          <div className="text-sm">Disponible</div>
-        </button>
-
-        <button
-          onClick={() => aplicarFiltroEstado('taller')}
-          className={`p-4 rounded-xl text-center transition-all ${
-            filtroEstado === 'taller'
-              ? 'bg-yellow-600 text-white shadow-lg scale-105'
-              : 'bg-white text-gray-700 hover:bg-yellow-50 shadow'
-          }`}
-        >
-          <div className="text-3xl font-bold">{estadisticas.taller}</div>
-          <div className="text-sm">Taller</div>
-        </button>
-
-        <button
-          onClick={() => aplicarFiltroEstado('mal estado')}
-          className={`p-4 rounded-xl text-center transition-all ${
-            filtroEstado === 'mal estado'
-              ? 'bg-orange-600 text-white shadow-lg scale-105'
-              : 'bg-white text-gray-700 hover:bg-orange-50 shadow'
-          }`}
-        >
-          <div className="text-3xl font-bold">{estadisticas.malEstado}</div>
-          <div className="text-sm">Mal Estado</div>
-        </button>
-
-        <button
-          onClick={() => aplicarFiltroEstado('baja')}
-          className={`p-4 rounded-xl text-center transition-all ${
-            filtroEstado === 'baja'
-              ? 'bg-red-600 text-white shadow-lg scale-105'
-              : 'bg-white text-gray-700 hover:bg-red-50 shadow'
-          }`}
-        >
-          <div className="text-3xl font-bold">{estadisticas.baja}</div>
-          <div className="text-sm">Baja</div>
-          {estadisticas.pendientesSAT > 0 && (
-            <div className="text-xs text-amber-600 font-medium mt-1">({estadisticas.pendientesSAT} pend. Hacienda)</div>
-          )}
-        </button>
-
-        <button
-          onClick={() => aplicarFiltroEstado('propuesto_baja')}
-          className={`p-4 rounded-xl text-center transition-all ${
-            filtroEstado === 'propuesto_baja'
-              ? 'bg-purple-600 text-white shadow-lg scale-105'
-              : 'bg-white text-gray-700 hover:bg-purple-50 shadow'
-          }`}
-        >
-          <div className="text-3xl font-bold">{estadisticas.propuestosBaja}</div>
-          <div className="text-sm">Dict. Baja</div>
-        </button>
-      </div>
-
-      {/* Filtros Especiales: Dictaminados Baja y Seguro */}
-      <div className="flex flex-wrap justify-center gap-3 mb-8">
-        <button
-          onClick={() => aplicarFiltroSeguro('vencido')}
-          className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-            filtroSeguro === 'vencido'
-              ? 'bg-red-600 text-white shadow-lg'
-              : 'bg-red-100 text-red-700 hover:bg-red-200'
-          }`}
-        >
-          Vencidos ({seguros.vencidos})
-        </button>
-
-        <button
-          onClick={() => aplicarFiltroSeguro('porVencer')}
-          className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-            filtroSeguro === 'porVencer'
-              ? 'bg-yellow-600 text-white shadow-lg'
-              : 'bg-yellow-100 text-yellow-700 hover:bg-yellow-200'
-          }`}
-        >
-          Por Vencer ({seguros.porVencer})
-        </button>
-
-        <button
-          onClick={() => aplicarFiltroSeguro('vigente')}
-          className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-            filtroSeguro === 'vigente'
-              ? 'bg-green-600 text-white shadow-lg'
-              : 'bg-green-100 text-green-700 hover:bg-green-200'
-          }`}
-        >
-          Vigentes ({seguros.vigentes})
-        </button>
-
-        <button
-          onClick={() => aplicarFiltroSeguro('noAplica')}
-          className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
-            filtroSeguro === 'noAplica'
-              ? 'bg-gray-600 text-white shadow-lg'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-          }`}
-        >
-          No Aplica ({seguros.noAplica})
-        </button>
-      </div>
-
-      {/* Buscador y Filtros adicionales */}
-      <div className="max-w-4xl mx-auto mb-8 space-y-4">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Buscar por marca, modelo, placa o número económico..."
-            value={busqueda}
-            onChange={(e) => {
-              setBusqueda(e.target.value);
-              setPaginaActual(1);
-            }}
-            className="w-full px-6 py-4 text-lg rounded-2xl border-2 border-gray-200 focus:border-red-500 focus:ring-4 focus:ring-red-100 transition-all shadow-sm"
-          />
-          <svg className="absolute right-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+      {/* ═══════════════ HEADER ═══════════════ */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <BuildingOfficeIcon className="h-7 w-7 text-veracruz-600" />
+            {user?.secretaria_nombre || 'Mi Secretaría'}
+          </h1>
+          <p className="text-sm text-gray-500 mt-0.5">Panel de control vehicular</p>
         </div>
-        
-        {/* Filtro por Proveedor */}
-        <div className="flex justify-center">
-          <select
-            value={filtroProveedor}
-            onChange={(e) => {
-              setFiltroProveedor(e.target.value);
-              setPaginaActual(1);
-            }}
-            className={`px-4 py-2 rounded-full border-2 transition-all cursor-pointer ${
-              filtroProveedor
-                ? 'bg-indigo-600 text-white border-indigo-600'
-                : 'bg-white text-gray-700 border-gray-200 hover:border-gray-300'
-            }`}
-          >
-            <option value="">Todos los Proveedores</option>
-            {proveedoresUnicos.map(p => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
+        <div className="flex items-center gap-2">
+          <Link to="/solicitudes/nueva"
+            className="flex items-center gap-2 px-4 py-2.5 bg-veracruz-600 text-white rounded-xl hover:bg-veracruz-700 transition-colors text-sm font-semibold shadow-sm">
+            <PlusIcon className="h-4 w-4" />
+            Nueva Solicitud
+          </Link>
+          <Link to="/vehiculos/nuevo"
+            className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors text-sm font-medium shadow-sm">
+            <TruckIcon className="h-4 w-4" />
+            Agregar Vehículo
+          </Link>
         </div>
       </div>
 
-      {/* Filtro activo indicator */}
-      {(filtroEstado || filtroSeguro || filtroProveedor || busqueda) && (
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <span className="text-sm text-gray-500">
-            Mostrando {vehiculosFiltrados.length} de {vehiculos.length} vehículos
-            {filtroProveedor && ` • Proveedor: ${filtroProveedor}`}
-          </span>
-          <button
-            onClick={limpiarFiltros}
-            className="text-red-600 hover:text-red-800 text-sm font-medium"
-          >
-            Limpiar filtros
-          </button>
-        </div>
-      )}
+      {/* ═══════════════ INDICADORES PRINCIPALES ═══════════════ */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {/* Total Vehículos */}
+        <Link to="/vehiculos"
+          className="group bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md hover:border-veracruz-200 transition-all">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Vehículos</p>
+              <p className="text-3xl font-bold text-gray-900 mt-1">{totalVehiculos}</p>
+            </div>
+            <div className="p-2.5 bg-veracruz-50 rounded-xl group-hover:bg-veracruz-100 transition-colors">
+              <TruckIcon className="h-6 w-6 text-veracruz-600" />
+            </div>
+          </div>
+          <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
+            {estadosData.find(e => e.estado === 'Operando') && (
+              <span className="px-2 py-0.5 bg-green-50 text-green-700 rounded-full font-medium">
+                {estadosData.find(e => e.estado === 'Operando')?.cantidad || 0} operando
+              </span>
+            )}
+          </div>
+        </Link>
 
-      {/* Tabla de Vehículos */}
-      <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-        <table className="min-w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Vehículo</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Placa</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">No. Económico</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Estado</th>
-              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">Seguro</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {vehiculosPaginados.map((vehiculo) => (
-              <tr
-                key={vehiculo.id}
-                onClick={() => navigate(`/vehiculos/${vehiculo.id}`)}
-                className="hover:bg-gray-50 cursor-pointer transition-colors"
-              >
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <TruckIcon className="h-6 w-6 text-gray-400" />
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {vehiculo.marca} {vehiculo.modelo}
+        {/* Asignaciones Activas */}
+        <Link to="/vehiculos/asignaciones"
+          className="group bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md hover:border-amber-200 transition-all">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">En Uso</p>
+              <p className="text-3xl font-bold text-gray-900 mt-1">{asignaciones.length}</p>
+            </div>
+            <div className="p-2.5 bg-amber-50 rounded-xl group-hover:bg-amber-100 transition-colors">
+              <ArrowsRightLeftIcon className="h-6 w-6 text-amber-600" />
+            </div>
+          </div>
+          <div className="mt-3 text-xs text-gray-500">
+            Vehículos con salida activa
+          </div>
+        </Link>
+
+        {/* Solicitudes Pendientes */}
+        <Link to="/solicitudes"
+          className="group bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md hover:border-blue-200 transition-all">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Solicitudes</p>
+              <p className="text-3xl font-bold text-gray-900 mt-1">{stats?.solicitudesPendientes || 0}</p>
+            </div>
+            <div className="p-2.5 bg-blue-50 rounded-xl group-hover:bg-blue-100 transition-colors">
+              <DocumentTextIcon className="h-6 w-6 text-blue-600" />
+            </div>
+          </div>
+          <div className="mt-3 text-xs text-gray-500">
+            {stats?.solicitudesPendientes > 0 ? (
+              <span className="text-amber-600 font-medium">Pendientes de revisión</span>
+            ) : (
+              'Sin solicitudes pendientes'
+            )}
+          </div>
+        </Link>
+
+        {/* Alertas Seguros */}
+        <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Seguros</p>
+              <p className="text-3xl font-bold text-gray-900 mt-1">{segurosStats.vencidos || 0}</p>
+            </div>
+            <div className={`p-2.5 rounded-xl ${segurosStats.vencidos > 0 ? 'bg-red-50' : 'bg-green-50'}`}>
+              <ShieldCheckIcon className={`h-6 w-6 ${segurosStats.vencidos > 0 ? 'text-red-600' : 'text-green-600'}`} />
+            </div>
+          </div>
+          <div className="mt-3 flex items-center gap-2 text-xs">
+            {segurosStats.vencidos > 0 ? (
+              <span className="text-red-600 font-medium">Vencidos — Atención</span>
+            ) : (
+              <span className="text-green-600 font-medium">Todo en orden</span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════════ DISTRIBUCIÓN Y SEGUROS ═══════════════ */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        {/* Distribución por Estado */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+            <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Estado de la Flota</h2>
+            <Link to="/vehiculos" className="text-xs text-veracruz-600 hover:text-veracruz-800 font-medium flex items-center gap-1">
+              Ver todo <ChevronRightIcon className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="p-5">
+            {/* Barra visual horizontal */}
+            {totalVehiculos > 0 && (
+              <div className="flex rounded-full overflow-hidden h-4 mb-4">
+                {estadosData.map((e, idx) => {
+                  const pct = (e.cantidad / totalVehiculos) * 100;
+                  if (pct < 1) return null;
+                  const colors = {
+                    'Operando': 'bg-green-500', 'Disponible': 'bg-blue-500',
+                    'En taller': 'bg-yellow-500', 'Mal estado': 'bg-orange-500',
+                    'Baja': 'bg-red-500',
+                  };
+                  return (
+                    <div key={idx} className={`${colors[e.estado] || 'bg-gray-400'} transition-all`}
+                      style={{ width: `${pct}%` }} title={`${e.estado}: ${e.cantidad}`} />
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Lista detallada */}
+            <div className="space-y-2.5">
+              {estadosData.map((e, idx) => {
+                const pct = totalVehiculos > 0 ? ((e.cantidad / totalVehiculos) * 100).toFixed(1) : 0;
+                return (
+                  <button key={idx} onClick={() => navigate(`/vehiculos?estado_operativo=${encodeURIComponent(e.estado)}`)}
+                    className="w-full flex items-center justify-between py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors group text-left">
+                    <div className="flex items-center gap-3">
+                      <span className={`px-2.5 py-1 rounded-lg text-xs font-bold ${getEstadoColor(e.estado)}`}>
+                        {e.estado}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-bold text-gray-800">{e.cantidad}</span>
+                      <span className="text-xs text-gray-400 w-12 text-right">{pct}%</span>
+                      <ChevronRightIcon className="h-3.5 w-3.5 text-gray-300 group-hover:text-veracruz-500 transition-colors" />
+                    </div>
+                  </button>
+                );
+              })}
+              {stats?.propuestosBaja > 0 && (
+                <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-purple-50/50">
+                  <span className="px-2.5 py-1 rounded-lg text-xs font-bold text-purple-700 bg-purple-100">Dict. Baja</span>
+                  <span className="text-sm font-bold text-purple-800">{stats.propuestosBaja}</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Seguros */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+            <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Seguros Vehiculares</h2>
+            <ShieldCheckIcon className="h-5 w-5 text-gray-300" />
+          </div>
+          <div className="p-5 space-y-3">
+            {/* Barra de seguros */}
+            {segurosStats.total > 0 && (
+              <div className="flex rounded-full overflow-hidden h-4 mb-4">
+                {[
+                  { key: 'vigentes', color: 'bg-green-500' },
+                  { key: 'por_vencer', color: 'bg-amber-400' },
+                  { key: 'vencidos', color: 'bg-red-500' },
+                  { key: 'sin_seguro', color: 'bg-gray-300' },
+                  { key: 'en_tramite', color: 'bg-blue-400' },
+                  { key: 'no_aplica', color: 'bg-gray-200' },
+                ].map(({ key, color }) => {
+                  const val = segurosStats[key] || 0;
+                  const pct = (val / segurosStats.total) * 100;
+                  if (pct < 1) return null;
+                  return <div key={key} className={`${color}`} style={{ width: `${pct}%` }} />;
+                })}
+              </div>
+            )}
+
+            {/* Grid de categorías */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-green-50 border border-green-100">
+                <div className="w-3 h-3 rounded-full bg-green-500 flex-shrink-0"></div>
+                <div>
+                  <p className="text-lg font-bold text-green-800">{segurosStats.vigentes || 0}</p>
+                  <p className="text-[10px] text-green-600 font-medium uppercase">Vigentes</p>
+                </div>
+              </div>
+              <div className={`flex items-center gap-3 p-3 rounded-xl border ${
+                segurosStats.vencidos > 0 ? 'bg-red-50 border-red-200' : 'bg-gray-50 border-gray-100'
+              }`}>
+                <div className="w-3 h-3 rounded-full bg-red-500 flex-shrink-0"></div>
+                <div>
+                  <p className="text-lg font-bold text-red-800">{segurosStats.vencidos || 0}</p>
+                  <p className="text-[10px] text-red-600 font-medium uppercase">Vencidos</p>
+                </div>
+              </div>
+              <div className={`flex items-center gap-3 p-3 rounded-xl border ${
+                segurosStats.por_vencer > 0 ? 'bg-amber-50 border-amber-200' : 'bg-gray-50 border-gray-100'
+              }`}>
+                <div className="w-3 h-3 rounded-full bg-amber-400 flex-shrink-0"></div>
+                <div>
+                  <p className="text-lg font-bold text-amber-800">{segurosStats.por_vencer || 0}</p>
+                  <p className="text-[10px] text-amber-600 font-medium uppercase">Por Vencer</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 border border-gray-100">
+                <div className="w-3 h-3 rounded-full bg-gray-400 flex-shrink-0"></div>
+                <div>
+                  <p className="text-lg font-bold text-gray-700">{(segurosStats.sin_seguro || 0) + (segurosStats.no_aplica || 0)}</p>
+                  <p className="text-[10px] text-gray-500 font-medium uppercase">Sin seguro / N/A</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════════ RÉGIMEN Y ACCESOS RÁPIDOS ═══════════════ */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+        {/* Distribución por Régimen */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-50">
+            <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Por Régimen</h2>
+          </div>
+          <div className="p-5 space-y-3">
+            {regimenData.map((r, idx) => {
+              const pct = totalVehiculos > 0 ? ((r.cantidad / totalVehiculos) * 100).toFixed(0) : 0;
+              const colors = {
+                'Propio': { bg: 'bg-blue-100', text: 'text-blue-700', bar: 'bg-blue-500' },
+                'Arrendado': { bg: 'bg-purple-100', text: 'text-purple-700', bar: 'bg-purple-500' },
+                'Comodato': { bg: 'bg-orange-100', text: 'text-orange-700', bar: 'bg-orange-500' },
+              };
+              const c = colors[r.regimen] || { bg: 'bg-gray-100', text: 'text-gray-700', bar: 'bg-gray-500' };
+              return (
+                <div key={idx} className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className={`px-2 py-0.5 rounded text-xs font-bold ${c.bg} ${c.text}`}>{r.regimen}</span>
+                    <span className="text-sm font-bold text-gray-800">{r.cantidad} <span className="text-xs text-gray-400 font-normal">({pct}%)</span></span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-2">
+                    <div className={`h-2 rounded-full ${c.bar} transition-all`} style={{ width: `${pct}%` }}></div>
+                  </div>
+                </div>
+              );
+            })}
+            {stats?.vehiculosArrendados > 0 && (
+              <div className="mt-3 pt-3 border-t border-gray-100 flex items-center gap-2 text-xs text-gray-500">
+                <CurrencyDollarIcon className="h-4 w-4 text-purple-400" />
+                <span>{stats.vehiculosArrendados} vehículos arrendados en tu flota</span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Accesos Rápidos */}
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-50">
+            <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Accesos Rápidos</h2>
+          </div>
+          <div className="p-5 grid grid-cols-2 sm:grid-cols-3 gap-3">
+            {[
+              { label: 'Catálogo Vehículos', href: '/vehiculos', icon: TruckIcon, color: 'veracruz', desc: 'Ver todos los vehículos' },
+              { label: 'Nueva Solicitud', href: '/solicitudes/nueva', icon: PlusIcon, color: 'blue', desc: 'Solicitar vehículo' },
+              { label: 'Mis Solicitudes', href: '/solicitudes', icon: DocumentTextIcon, color: 'amber', desc: 'Historial de solicitudes' },
+              { label: 'Préstamos', href: '/prestamos', icon: ArrowsRightLeftIcon, color: 'indigo', desc: 'Vehículos prestados' },
+              { label: 'Reportes', href: '/reportes', icon: ChartBarIcon, color: 'emerald', desc: 'Informes y estadísticas' },
+              { label: 'Municipios', href: '/municipios', icon: MapPinIcon, color: 'teal', desc: 'Distribución geográfica' },
+            ].map((item) => {
+              const colorMap = {
+                veracruz: 'bg-veracruz-50 text-veracruz-700 group-hover:bg-veracruz-100',
+                blue: 'bg-blue-50 text-blue-700 group-hover:bg-blue-100',
+                amber: 'bg-amber-50 text-amber-700 group-hover:bg-amber-100',
+                indigo: 'bg-indigo-50 text-indigo-700 group-hover:bg-indigo-100',
+                emerald: 'bg-emerald-50 text-emerald-700 group-hover:bg-emerald-100',
+                teal: 'bg-teal-50 text-teal-700 group-hover:bg-teal-100',
+              };
+              return (
+                <Link key={item.label} to={item.href}
+                  className="group flex items-start gap-3 p-4 rounded-xl border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all">
+                  <div className={`p-2 rounded-lg transition-colors ${colorMap[item.color]}`}>
+                    <item.icon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-gray-800 group-hover:text-gray-900">{item.label}</p>
+                    <p className="text-[10px] text-gray-400 mt-0.5">{item.desc}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* ═══════════════ ASIGNACIONES ACTIVAS Y SOLICITUDES ═══════════════ */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+        {/* Asignaciones Activas (vehículos en uso) */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+            <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+              Vehículos en Uso
+            </h2>
+            <Link to="/vehiculos/asignaciones" className="text-xs text-veracruz-600 hover:text-veracruz-800 font-medium flex items-center gap-1">
+              Ver todo <ChevronRightIcon className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="divide-y divide-gray-50 max-h-80 overflow-y-auto">
+            {asignaciones.length === 0 ? (
+              <div className="p-8 text-center">
+                <ArrowsRightLeftIcon className="h-10 w-10 text-gray-200 mx-auto mb-2" />
+                <p className="text-sm text-gray-400">No hay vehículos en uso</p>
+                <p className="text-[10px] text-gray-300 mt-1">Todos los vehículos están disponibles</p>
+              </div>
+            ) : (
+              asignaciones.slice(0, 6).map((a) => (
+                <div key={a.id} className="px-5 py-3 hover:bg-gray-50/50 transition-colors">
+                  <div className="flex items-center justify-between">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-semibold text-gray-800 truncate">
+                        🚗 {a.vehiculo_marca || a.marca} {a.vehiculo_linea || a.linea || a.vehiculo_modelo || a.modelo}
+                      </p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-xs text-gray-500">{a.conductor_nombre}</span>
+                        {a.destino && (
+                          <span className="text-[10px] text-gray-400">→ {a.destino}</span>
+                        )}
                       </div>
-                      <div className="text-sm text-gray-500">{vehiculo.anio || vehiculo.año || ''}</div>
+                    </div>
+                    <div className="text-right flex-shrink-0 ml-3">
+                      <span className="text-[10px] font-mono text-gray-400">{a.folio}</span>
+                      <p className="text-[10px] text-amber-600 font-medium mt-0.5">
+                        {formatFechaCorta(a.fecha_salida)}
+                      </p>
                     </div>
                   </div>
-                </td>
-                <td className="px-6 py-4 text-gray-600">{vehiculo.placas || '-'}</td>
-                <td className="px-6 py-4 text-gray-600">{vehiculo.numero_economico || '-'}</td>
-                <td className="px-6 py-4">
-                  <span className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
-                    vehiculo.estado_operativo?.toLowerCase().includes('operando')
-                      ? 'bg-green-100 text-green-700'
-                      : vehiculo.estado_operativo?.toLowerCase().includes('disponible')
-                      ? 'bg-blue-100 text-blue-700'
-                      : vehiculo.estado_operativo?.toLowerCase().includes('taller')
-                      ? 'bg-yellow-100 text-yellow-700'
-                      : vehiculo.estado_operativo?.toLowerCase().includes('mal estado')
-                      ? 'bg-orange-100 text-orange-700'
-                      : vehiculo.estado_operativo?.toLowerCase().includes('baja')
-                      ? 'bg-red-100 text-red-700'
-                      : 'bg-gray-100 text-gray-700'
-                  }`}>
-                    {vehiculo.estado_operativo || 'Sin estado'}
-                  </span>
-                </td>
-                <td className="px-6 py-4">
-                  {(() => {
-                    const cat = categorizarSeguro(vehiculo);
-                    if (cat === 'vencido') return <span className="text-red-600 font-medium">Vencido</span>;
-                    if (cat === 'porVencer') return <span className="text-yellow-600 font-medium">Por vencer</span>;
-                    if (cat === 'vigente') return <span className="text-green-600 font-medium">Vigente</span>;
-                    return <span className="text-gray-400">N/A</span>;
-                  })()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {vehiculosPaginados.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
-            No se encontraron vehículos
+                </div>
+              ))
+            )}
           </div>
-        )}
+        </div>
+
+        {/* Últimas Solicitudes */}
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+            <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wider">Últimas Solicitudes</h2>
+            <Link to="/solicitudes" className="text-xs text-veracruz-600 hover:text-veracruz-800 font-medium flex items-center gap-1">
+              Ver todo <ChevronRightIcon className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="divide-y divide-gray-50 max-h-80 overflow-y-auto">
+            {solicitudes.length === 0 ? (
+              <div className="p-8 text-center">
+                <DocumentTextIcon className="h-10 w-10 text-gray-200 mx-auto mb-2" />
+                <p className="text-sm text-gray-400">No hay solicitudes recientes</p>
+                <Link to="/solicitudes/nueva" className="inline-flex items-center gap-1 text-xs text-veracruz-600 hover:text-veracruz-800 mt-2 font-medium">
+                  <PlusIcon className="h-3.5 w-3.5" /> Crear primera solicitud
+                </Link>
+              </div>
+            ) : (
+              solicitudes.slice(0, 6).map((sol) => {
+                const estilo = getSolEstadoStyle(sol.estado);
+                const EstIcon = estilo.icon;
+                return (
+                  <div key={sol.id} className="px-5 py-3 hover:bg-gray-50/50 transition-colors">
+                    <div className="flex items-center justify-between">
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-gray-800 truncate">
+                          {sol.tipo_solicitud === 'prestamo' ? '🔄' : sol.tipo_solicitud === 'baja' ? '📛' : '📋'} {sol.folio || `SOL-${sol.id}`}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate mt-0.5">{sol.motivo || sol.tipo_solicitud}</p>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0 ml-3">
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${estilo.bg}`}>
+                          <EstIcon className="h-3 w-3" />
+                          {estilo.label}
+                        </span>
+                        <span className="text-[10px] text-gray-400">{formatFechaCorta(sol.created_at)}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Paginación */}
-      {totalPaginas > 1 && (
-        <div className="flex justify-center items-center gap-2 mt-6">
-          <button
-            onClick={() => setPaginaActual(p => Math.max(1, p - 1))}
-            disabled={paginaActual === 1}
-            className="px-4 py-2 rounded-lg bg-white shadow hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Anterior
-          </button>
-          <span className="px-4 py-2 text-gray-600">
-            Página {paginaActual} de {totalPaginas}
-          </span>
-          <button
-            onClick={() => setPaginaActual(p => Math.min(totalPaginas, p + 1))}
-            disabled={paginaActual === totalPaginas}
-            className="px-4 py-2 rounded-lg bg-white shadow hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Siguiente
-          </button>
+      {/* ═══════════════ VEHÍCULOS EN MAL ESTADO ═══════════════ */}
+      {vehiculosOciosos.length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-gray-50 flex items-center justify-between">
+            <h2 className="text-sm font-bold text-gray-800 uppercase tracking-wider flex items-center gap-2">
+              <ExclamationTriangleIcon className="h-4 w-4 text-orange-500" />
+              Vehículos en Mal Estado
+            </h2>
+            <Link to="/vehiculos?estado_operativo=Mal+estado" className="text-xs text-veracruz-600 hover:text-veracruz-800 font-medium flex items-center gap-1">
+              Ver todos <ChevronRightIcon className="h-3 w-3" />
+            </Link>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50 text-left">
+                  <th className="px-5 py-2.5 text-xs font-semibold text-gray-500 uppercase">Vehículo</th>
+                  <th className="px-5 py-2.5 text-xs font-semibold text-gray-500 uppercase">Placas</th>
+                  <th className="px-5 py-2.5 text-xs font-semibold text-gray-500 uppercase hidden sm:table-cell">Dependencia</th>
+                  <th className="px-5 py-2.5 text-xs font-semibold text-gray-500 uppercase hidden md:table-cell">Municipio</th>
+                  <th className="px-5 py-2.5 text-xs font-semibold text-gray-500 uppercase w-20"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {vehiculosOciosos.slice(0, 5).map((v) => (
+                  <tr key={v.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="px-5 py-3">
+                      <p className="font-medium text-gray-800">{v.marca} {v.linea || v.modelo}</p>
+                      <p className="text-xs text-gray-400">{v.anio}</p>
+                    </td>
+                    <td className="px-5 py-3 font-mono text-gray-600">{v.placas || '-'}</td>
+                    <td className="px-5 py-3 text-gray-600 hidden sm:table-cell">{v.secretaria_siglas || '-'}</td>
+                    <td className="px-5 py-3 text-gray-500 text-xs hidden md:table-cell">{v.municipio || '-'}</td>
+                    <td className="px-5 py-3">
+                      <Link to={`/vehiculos/${v.id}`} className="text-veracruz-600 hover:text-veracruz-800">
+                        <EyeIcon className="h-4 w-4" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </div>

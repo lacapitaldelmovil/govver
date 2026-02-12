@@ -41,6 +41,7 @@ export default function VehiculosLista() {
 
   // Estadísticas rápidas
   const [stats, setStats] = useState(null);
+  const [segurosStats, setSegurosStats] = useState(null);
 
   // --- Asignaciones: modal de salida / entrada ---
   const puedeAsignar = ['admin', 'gobernacion', 'admin_secretaria'].includes(user?.rol);
@@ -165,8 +166,12 @@ export default function VehiculosLista() {
 
   const cargarStats = async () => {
     try {
-      const res = await api.get('/dashboard/stats');
-      setStats(res.data);
+      const [statsRes, segurosRes] = await Promise.all([
+        api.get('/dashboard/stats'),
+        api.get('/dashboard/alertas-seguros')
+      ]);
+      setStats(statsRes.data);
+      setSegurosStats(segurosRes.data?.stats || null);
     } catch (error) {
       console.error('Error:', error);
     }
@@ -603,6 +608,77 @@ export default function VehiculosLista() {
 
           {/* Área de scroll para el contenido */}
           <div className="flex-1 overflow-y-auto p-6">
+
+          {/* === Stat Cards: resumen de flota === */}
+          {stats && (
+            <div className="mb-5">
+              <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                {[
+                  { label: 'Total', value: stats.totalVehiculos, filter: '', color: 'gray', activeBg: 'bg-gray-800', hoverBg: 'hover:bg-gray-50' },
+                  { label: 'Operando', value: stats.vehiculosPorEstado?.find(e => e.estado === 'Operando')?.cantidad || 0, filter: 'Operando', color: 'green', activeBg: 'bg-green-600', hoverBg: 'hover:bg-green-50' },
+                  { label: 'Disponible', value: stats.vehiculosPorEstado?.find(e => e.estado === 'Disponible')?.cantidad || 0, filter: 'Disponible', color: 'blue', activeBg: 'bg-blue-600', hoverBg: 'hover:bg-blue-50' },
+                  { label: 'Taller', value: stats.vehiculosEnTaller || 0, filter: 'En taller', color: 'yellow', activeBg: 'bg-yellow-600', hoverBg: 'hover:bg-yellow-50' },
+                  { label: 'Mal Estado', value: stats.vehiculosPorEstado?.find(e => e.estado === 'Mal estado')?.cantidad || 0, filter: 'Mal estado', color: 'orange', activeBg: 'bg-orange-600', hoverBg: 'hover:bg-orange-50' },
+                  { label: 'Baja', value: stats.vehiculosPorEstado?.find(e => e.estado === 'Baja')?.cantidad || 0, filter: 'Baja', color: 'red', activeBg: 'bg-red-600', hoverBg: 'hover:bg-red-50' },
+                  { label: 'Dict. Baja', value: stats.propuestosBaja || 0, filter: '__propuesto_baja', color: 'purple', activeBg: 'bg-purple-600', hoverBg: 'hover:bg-purple-50' },
+                ].map((card) => {
+                  const isActive = card.filter === '' 
+                    ? !filtros.estado_operativo 
+                    : filtros.estado_operativo === card.filter;
+                  return (
+                    <button
+                      key={card.label}
+                      onClick={() => {
+                        if (card.filter === '__propuesto_baja') {
+                          aplicarFiltro('estado_operativo', '');
+                        } else {
+                          aplicarFiltro('estado_operativo', card.filter === filtros.estado_operativo ? '' : card.filter);
+                        }
+                      }}
+                      className={`p-2.5 sm:p-3 rounded-xl text-center transition-all ${
+                        isActive 
+                          ? `${card.activeBg} text-white shadow-lg ring-2 ring-offset-1 ring-${card.color}-400` 
+                          : `bg-white text-gray-700 ${card.hoverBg} shadow-sm border border-gray-100`
+                      }`}
+                    >
+                      <div className="text-xl sm:text-2xl font-bold leading-none">{card.value}</div>
+                      <div className="text-[10px] sm:text-xs mt-1 font-medium opacity-80">{card.label}</div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Seguros summary pills */}
+              {segurosStats && (
+                <div className="flex flex-wrap justify-center gap-2 mt-3">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                    Seg. Vencidos: {segurosStats.vencidos}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                    Por Vencer: {segurosStats.por_vencer}
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                    Vigentes: {segurosStats.vigentes}
+                  </span>
+                  {segurosStats.sin_seguro > 0 && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                      <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                      Sin Seguro: {segurosStats.sin_seguro}
+                    </span>
+                  )}
+                  {segurosStats.en_tramite > 0 && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-600">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+                      En Trámite: {segurosStats.en_tramite}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
           {/* Grid de Vehículos */}
           {loading ? (
             <div className="flex items-center justify-center py-12">
