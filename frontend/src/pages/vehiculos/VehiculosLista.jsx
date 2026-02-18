@@ -7,7 +7,8 @@ import {
   MagnifyingGlassIcon, FunnelIcon, XMarkIcon, TruckIcon,
   ArrowRightIcon, ArrowLeftIcon, UserIcon, MapPinIcon,
   CheckCircleIcon, XCircleIcon, ClockIcon,
-  Squares2X2Icon, ListBulletIcon
+  Squares2X2Icon, ListBulletIcon,
+  ExclamationTriangleIcon, EyeIcon
 } from '@heroicons/react/24/outline';
 import FiltroSelect from '../../components/ui/FiltroSelect';
 
@@ -22,6 +23,16 @@ export default function VehiculosLista() {
   const [secretarias, setSecretarias] = useState([]);
   const [busqueda, setBusqueda] = useState(searchParams.get('busqueda') || '');
   const [vistaLista, setVistaLista] = useState(false);
+  
+  // Tab activo: 'catalogo' o 'determinacion'
+  const [tabActivo, setTabActivo] = useState(searchParams.get('tab') || 'catalogo');
+  
+  // Datos de determinación
+  const [detVehiculos, setDetVehiculos] = useState([]);
+  const [detPropuestos, setDetPropuestos] = useState([]);
+  const [detLoading, setDetLoading] = useState(false);
+  const [detFiltro, setDetFiltro] = useState('todos');
+  const [detBusqueda, setDetBusqueda] = useState('');
   
   // Filtros
   const [filtros, setFiltros] = useState({
@@ -128,23 +139,52 @@ export default function VehiculosLista() {
     cargarMunicipios();
   }, []);
 
-  // Detectar cambios en la URL (búsqueda desde header)
+  // Detectar cambios en la URL (búsqueda desde header, sidebar links, etc.)
   useEffect(() => {
     const busquedaParam = searchParams.get('busqueda') || '';
     if (busquedaParam !== busqueda) {
       setBusqueda(busquedaParam);
     }
     
-    // Detectar cambios en el proveedor desde la URL
-    const proveedorParam = searchParams.get('proveedor') || '';
-    if (proveedorParam !== filtros.proveedor) {
-      setFiltros(prev => ({ ...prev, proveedor: proveedorParam }));
+    // Sincronizar filtros desde URL
+    const urlFiltros = {
+      proveedor: searchParams.get('proveedor') || '',
+      clasificacion: searchParams.get('clasificacion') || '',
+      estado_operativo: searchParams.get('estado_operativo') || '',
+      regimen: searchParams.get('regimen') || '',
+      condicion: searchParams.get('condicion') || '',
+      municipio: searchParams.get('municipio') || '',
+    };
+    
+    let changed = false;
+    const newFiltros = { ...filtros };
+    Object.entries(urlFiltros).forEach(([key, val]) => {
+      if (val !== filtros[key]) {
+        newFiltros[key] = val;
+        changed = true;
+      }
+    });
+    if (changed) {
+      setFiltros(newFiltros);
+    }
+    
+    // Detectar tab desde URL
+    const tabParam = searchParams.get('tab') || 'catalogo';
+    if (tabParam !== tabActivo) {
+      setTabActivo(tabParam);
     }
   }, [searchParams]);
 
   useEffect(() => {
     cargarVehiculos();
   }, [filtros, page, busqueda]);
+
+  // Cargar datos de determinación cuando se activa esa pestaña
+  useEffect(() => {
+    if (tabActivo === 'determinacion') {
+      cargarDeterminacion();
+    }
+  }, [tabActivo]);
 
   const cargarSecretarias = async () => {
     try {
@@ -175,6 +215,37 @@ export default function VehiculosLista() {
     } catch (error) {
       console.error('Error:', error);
     }
+  };
+
+  const cargarDeterminacion = async () => {
+    try {
+      setDetLoading(true);
+      const [detRes, propRes] = await Promise.all([
+        api.get('/vehiculos?limit=1000&busqueda=DIF-DET'),
+        api.get('/vehiculos?limit=1000'),
+      ]);
+      const conDET = (detRes.data.vehiculos || []).filter(v => v.numero_inventario?.includes('DIF-DET'));
+      const propuestos = (propRes.data.vehiculos || []).filter(v => 
+        v.propuesto_baja === 1 || v.propuesto_baja === '1' || v.propuesto_baja === true
+      );
+      setDetVehiculos(conDET);
+      setDetPropuestos(propuestos);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setDetLoading(false);
+    }
+  };
+
+  const cambiarTab = (tab) => {
+    setTabActivo(tab);
+    const params = new URLSearchParams(searchParams);
+    if (tab === 'catalogo') {
+      params.delete('tab');
+    } else {
+      params.set('tab', tab);
+    }
+    setSearchParams(params);
   };
 
   const cargarVehiculos = async () => {
@@ -221,7 +292,7 @@ export default function VehiculosLista() {
   };
 
   const limpiarFiltros = () => {
-    setFiltros({ estado_operativo: '', regimen: '', secretaria_id: '', marca: '' });
+    setFiltros({ estado_operativo: '', regimen: '', secretaria_id: '', marca: '', tipo: '', condicion: '', clasificacion: '', proveedor: '', municipio: '' });
     setBusqueda('');
     setSearchParams({});
     setPage(1);
@@ -294,12 +365,209 @@ export default function VehiculosLista() {
   // Determinar si el usuario puede agregar vehículos
   const puedeAgregarVehiculos = user?.rol === 'admin' || user?.rol === 'flota' || user?.rol === 'usuario_principal' || user?.rol === 'admin_secretaria';
 
+  // Puede ver pestaña de determinación
+  const puedeVerDeterminacion = ['admin', 'gobernacion', 'admin_secretaria'].includes(user?.rol);
+
+  // Datos filtrados de determinación
+  const detTodos = [...detVehiculos, ...detPropuestos.filter(p => !detVehiculos.find(v => v.id === p.id))];
+  const detMostrados = (() => {
+    let lista = detFiltro === 'dictaminados' ? detPropuestos : detFiltro === 'determinacion' ? detVehiculos : detTodos;
+    if (detBusqueda) {
+      const q = detBusqueda.toLowerCase();
+      lista = lista.filter(v =>
+        (v.marca||'').toLowerCase().includes(q) || (v.modelo||'').toLowerCase().includes(q) ||
+        (v.placas||'').toLowerCase().includes(q) || (v.numero_inventario||'').toLowerCase().includes(q)
+      );
+    }
+    return lista;
+  })();
+
   return (
     <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
       <div className="flex flex-1 overflow-hidden">
         {/* Contenido Principal */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Header con búsqueda */}
+
+          {/* ═══ TABS: Catálogo / Determinación ═══ */}
+          {puedeVerDeterminacion && (
+            <div className="bg-white border-b px-4 sm:px-6 pt-3 pb-0 flex items-center gap-1">
+              <button
+                onClick={() => cambiarTab('catalogo')}
+                className={`px-4 py-2.5 text-sm font-semibold rounded-t-lg border-b-2 transition-all ${
+                  tabActivo === 'catalogo'
+                    ? 'border-veracruz-600 text-veracruz-700 bg-veracruz-50/50'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <TruckIcon className="h-4 w-4 inline mr-1.5 -mt-0.5" />
+                Catálogo
+              </button>
+              <button
+                onClick={() => cambiarTab('determinacion')}
+                className={`px-4 py-2.5 text-sm font-semibold rounded-t-lg border-b-2 transition-all ${
+                  tabActivo === 'determinacion'
+                    ? 'border-amber-500 text-amber-700 bg-amber-50/50'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                <ExclamationTriangleIcon className="h-4 w-4 inline mr-1.5 -mt-0.5" />
+                Det. Administrativa
+                {stats?.propuestosBaja > 0 && (
+                  <span className="ml-1.5 text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-full font-bold">
+                    {detVehiculos.length || '…'}
+                  </span>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* ═══════════ PESTAÑA DETERMINACIÓN ═══════════ */}
+          {tabActivo === 'determinacion' && puedeVerDeterminacion ? (
+            <div className="flex-1 overflow-y-auto">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 py-5 space-y-5">
+                {/* Header Determinación */}
+                <div>
+                  <div className="flex items-center gap-3 mb-1">
+                    <ExclamationTriangleIcon className="h-7 w-7 text-amber-600" />
+                    <h1 className="text-2xl font-bold text-gray-900">Determinación Administrativa</h1>
+                  </div>
+                  <p className="text-sm text-gray-500">Vehículos pendientes de baja ante Secretaría de Hacienda</p>
+                </div>
+
+                {/* Alerta informativa */}
+                <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl">
+                  <div className="flex items-start gap-3">
+                    <ExclamationTriangleIcon className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h3 className="text-amber-800 font-semibold text-sm">Proceso de Baja</h3>
+                      <p className="text-amber-700 text-xs mt-0.5">
+                        Estos vehículos requieren trámite de baja ante la Secretaría de Hacienda. Están fuera de operación y pendientes de resolución administrativa.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {detLoading ? (
+                  <div className="flex items-center justify-center py-16">
+                    <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-amber-500"></div>
+                  </div>
+                ) : (
+                  <>
+                    {/* KPIs */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <button onClick={() => setDetFiltro(f => f === 'determinacion' ? 'todos' : 'determinacion')}
+                        className={`rounded-xl p-4 text-left transition-all border ${
+                          detFiltro === 'determinacion'
+                            ? 'bg-amber-600 text-white border-amber-600 shadow-lg ring-2 ring-amber-300'
+                            : 'bg-white hover:bg-amber-50 border-gray-100 shadow-sm'
+                        }`}>
+                        <p className={`text-xs font-medium ${detFiltro === 'determinacion' ? 'text-amber-100' : 'text-gray-500'}`}>Total Determinación</p>
+                        <p className={`text-2xl font-bold ${detFiltro === 'determinacion' ? 'text-white' : 'text-amber-600'}`}>{detVehiculos.length}</p>
+                      </button>
+                      <button onClick={() => setDetFiltro(f => f === 'dictaminados' ? 'todos' : 'dictaminados')}
+                        className={`rounded-xl p-4 text-left transition-all border ${
+                          detFiltro === 'dictaminados'
+                            ? 'bg-red-600 text-white border-red-600 shadow-lg ring-2 ring-red-300'
+                            : 'bg-white hover:bg-red-50 border-red-200 shadow-sm'
+                        }`}>
+                        <p className={`text-xs font-medium ${detFiltro === 'dictaminados' ? 'text-red-100' : 'text-gray-500'}`}>Dictaminados Baja</p>
+                        <p className={`text-2xl font-bold ${detFiltro === 'dictaminados' ? 'text-white' : 'text-red-600'}`}>{detPropuestos.length}</p>
+                      </button>
+                      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                        <p className="text-xs font-medium text-gray-500">Valor en Libros</p>
+                        <p className="text-xl font-bold text-gray-700">${detVehiculos.reduce((a, v) => a + (v.valor_libros || 0), 0).toLocaleString()}</p>
+                      </div>
+                      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4">
+                        <p className="text-xs font-medium text-gray-500">Antigüedad Promedio</p>
+                        <p className="text-2xl font-bold text-blue-600">
+                          {Math.round(detVehiculos.reduce((a, v) => a + (2026 - (v.anio || 2020)), 0) / (detVehiculos.length || 1))} años
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Buscador + indicador filtro */}
+                    <div className="flex flex-col sm:flex-row items-center gap-3">
+                      <div className="relative flex-1 max-w-md">
+                        <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                        <input type="text" placeholder="Buscar por placa, marca, inventario..."
+                          value={detBusqueda} onChange={e => setDetBusqueda(e.target.value)}
+                          className="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:border-amber-500 focus:ring-1 focus:ring-amber-500" />
+                      </div>
+                      {detFiltro !== 'todos' && (
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            detFiltro === 'determinacion' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {detFiltro === 'determinacion' ? 'Determinación' : 'Dictaminados Baja'}
+                          </span>
+                          <button onClick={() => setDetFiltro('todos')} className="text-gray-400 hover:text-gray-600">
+                            <XMarkIcon className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
+                      <span className="text-xs text-gray-400">{detMostrados.length} vehículos</span>
+                    </div>
+
+                    {/* Tabla */}
+                    <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full text-sm">
+                          <thead>
+                            <tr className="bg-gray-50 border-b text-left">
+                              <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Vehículo</th>
+                              <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Placas</th>
+                              <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden sm:table-cell">Año</th>
+                              <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider">Estado</th>
+                              <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden md:table-cell">Tipo</th>
+                              <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider hidden lg:table-cell">Valor</th>
+                              <th className="px-4 py-2.5 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Acciones</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {detMostrados.map((v) => (
+                              <tr key={v.id} className="hover:bg-gray-50/70 transition-colors">
+                                <td className="px-4 py-3">
+                                  <Link to={`/vehiculos/${v.id}`} className="group">
+                                    <p className="font-semibold text-gray-900 group-hover:text-veracruz-700 text-sm">{v.marca} {v.linea || v.modelo}</p>
+                                    <p className="text-[10px] text-gray-400 mt-0.5">{v.numero_inventario}</p>
+                                  </Link>
+                                </td>
+                                <td className="px-4 py-3 font-mono text-sm text-gray-700">{v.placas || '-'}</td>
+                                <td className="px-4 py-3 text-sm text-gray-600 hidden sm:table-cell">{v.anio}</td>
+                                <td className="px-4 py-3">
+                                  <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                    v.propuesto_baja ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
+                                  }`}>{v.propuesto_baja ? 'Dictaminado' : 'Determinación'}</span>
+                                </td>
+                                <td className="px-4 py-3 text-xs text-gray-500 hidden md:table-cell">{v.tipo || '-'}</td>
+                                <td className="px-4 py-3 text-xs text-green-700 font-medium hidden lg:table-cell">
+                                  {v.valor_libros ? `$${Number(v.valor_libros).toLocaleString()}` : '-'}
+                                </td>
+                                <td className="px-4 py-3 text-right">
+                                  <Link to={`/vehiculos/${v.id}`}
+                                    className="text-[10px] font-semibold px-2.5 py-1 bg-veracruz-50 text-veracruz-700 border border-veracruz-200 rounded-lg hover:bg-veracruz-100 transition-colors inline-flex items-center gap-1">
+                                    <EyeIcon className="h-3 w-3" /> Ver
+                                  </Link>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                      {detMostrados.length === 0 && (
+                        <div className="p-10 text-center">
+                          <ExclamationTriangleIcon className="h-10 w-10 text-gray-200 mx-auto mb-2" />
+                          <p className="text-sm text-gray-400">No hay vehículos en esta categoría</p>
+                        </div>
+                      )}
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          ) : (
+          <>
+          {/* ═══════════ PESTAÑA CATÁLOGO (existente) ═══════════ */}
           <div className="bg-white border-b px-4 sm:px-6 py-4">
             {puedeVerFiltrosCompletos ? (
               /* Vista completa para admin/flota */
@@ -981,6 +1249,7 @@ export default function VehiculosLista() {
             </div>
           )}
           </div>
+          </>)}
         </div>
       </div>
 

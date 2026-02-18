@@ -20,7 +20,6 @@ import VehiculoDetalle from './pages/vehiculos/VehiculoDetalle';
 import VehiculoNuevo from './pages/vehiculos/VehiculoNuevo';
 import VehiculoCargaMasiva from './pages/vehiculos/VehiculoCargaMasiva';
 import ComodatosLista from './pages/vehiculos/ComodatosLista';
-import DeterminacionLista from './pages/vehiculos/DeterminacionLista';
 import PrestamosLista from './pages/vehiculos/PrestamosLista';
 
 // Municipios
@@ -37,6 +36,9 @@ import ProveedoresLista from './pages/admin/ProveedoresLista';
 
 // Reportes
 import Reportes from './pages/reportes/Reportes';
+
+// Chat
+import ChatSecretarias from './pages/chat/ChatSecretarias';
 
 // Asignaciones
 import AsignacionesLista from './pages/asignaciones/AsignacionesLista';
@@ -163,14 +165,10 @@ function App() {
             } 
           />
 
-          {/* Determinación Administrativa */}
+          {/* Determinación Administrativa — redirige a vehículos con filtro */}
           <Route 
             path="/determinacion" 
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'gobernacion', 'admin_secretaria']}>
-                <DeterminacionLista />
-              </ProtectedRoute>
-            } 
+            element={<Navigate to="/vehiculos?clasificacion=determinacion" replace />} 
           />
 
           {/* Préstamos */}
@@ -247,6 +245,16 @@ function App() {
             element={
               <ProtectedRoute allowedRoles={['admin', 'gobernacion', 'admin_secretaria']}>
                 <Reportes />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Chat entre Secretarías */}
+          <Route 
+            path="/chat" 
+            element={
+              <ProtectedRoute allowedRoles={['admin', 'gobernacion', 'admin_secretaria']}>
+                <ChatSecretarias />
               </ProtectedRoute>
             } 
           />

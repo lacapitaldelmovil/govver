@@ -14,11 +14,10 @@ import {
   ArrowRightOnRectangleIcon,
   UserCircleIcon,
   ArrowsRightLeftIcon,
-  ExclamationTriangleIcon,
-  ArrowRightIcon,
   MagnifyingGlassIcon,
   MapPinIcon,
-  BuildingStorefrontIcon
+  BuildingStorefrontIcon,
+  ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 
 export default function MainLayout() {
@@ -78,30 +77,21 @@ export default function MainLayout() {
       icon: TruckIcon
     });
 
-    // Préstamos - vehículos prestados a otras dependencias
-    if (['admin', 'gobernacion', 'admin_secretaria'].includes(user?.rol)) {
-      baseNav.push({
-        name: 'Préstamos',
-        href: '/prestamos',
-        icon: ArrowRightIcon
-      });
-    }
-
-    // Determinación Administrativa - admin_secretaria, admin y gobernación
-    if (['admin', 'gobernacion', 'admin_secretaria'].includes(user?.rol)) {
-      baseNav.push({
-        name: 'Det. Administrativa',
-        href: '/determinacion',
-        icon: ExclamationTriangleIcon
-      });
-    }
-
     // Solicitudes - todos excepto conductores
     if (user?.rol !== 'conductor') {
       baseNav.push({
         name: 'Solicitudes',
         href: '/solicitudes',
         icon: DocumentTextIcon
+      });
+    }
+
+    // Chat entre Secretarías
+    if (['admin', 'gobernacion', 'admin_secretaria'].includes(user?.rol)) {
+      baseNav.push({
+        name: 'Chat',
+        href: '/chat',
+        icon: ChatBubbleLeftRightIcon
       });
     }
 
@@ -150,7 +140,13 @@ export default function MainLayout() {
     navigate('/login');
   };
 
-  const isActive = (path) => location.pathname === path;
+  const isActive = (path) => {
+    // Handle paths with query params (e.g. /vehiculos?clasificacion=determinacion)
+    if (path.includes('?')) {
+      return location.pathname + location.search === path;
+    }
+    return location.pathname === path;
+  };
 
   const navigation = getNavigation();
   const adminNavigation = getAdminNavigation();
