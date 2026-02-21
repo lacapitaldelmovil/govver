@@ -104,7 +104,7 @@ export default function AsignacionesLista() {
 
   const estadoConfig = {
     en_uso: { label: 'En Uso', icon: '🚗', bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-300' },
-    devuelto: { label: 'Devuelto', icon: '✅', bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-300' },
+    devuelto: { label: 'Devuelto', icon: '✅', bg: 'bg-veracruz-100', text: 'text-veracruz-800', border: 'border-veracruz-300' },
     cancelado: { label: 'Cancelado', icon: '❌', bg: 'bg-gray-100', text: 'text-gray-600', border: 'border-gray-300' }
   };
 
@@ -165,8 +165,8 @@ export default function AsignacionesLista() {
           <p className="text-2xl font-bold text-amber-600">{stats.en_uso}</p>
           <p className="text-sm text-gray-500 flex items-center gap-1">🚗 En uso</p>
         </button>
-        <button onClick={() => setFiltroEstado('devuelto')} className={`p-4 rounded-xl border-2 transition-all text-left ${filtroEstado === 'devuelto' ? 'border-green-500 bg-green-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}>
-          <p className="text-2xl font-bold text-green-600">{stats.devueltos}</p>
+        <button onClick={() => setFiltroEstado('devuelto')} className={`p-4 rounded-xl border-2 transition-all text-left ${filtroEstado === 'devuelto' ? 'border-veracruz-500 bg-veracruz-50 shadow-sm' : 'border-gray-200 hover:border-gray-300'}`}>
+          <p className="text-2xl font-bold text-veracruz-600">{stats.devueltos}</p>
           <p className="text-sm text-gray-500 flex items-center gap-1">✅ Devueltos</p>
         </button>
         <div className="p-4 rounded-xl border-2 border-gray-200 bg-gray-50">
@@ -263,7 +263,7 @@ export default function AsignacionesLista() {
                         </span>
                         {a.fecha_entrada && (
                           <span className="flex items-center gap-1">
-                            <ArrowLeftIcon className="h-3 w-3 text-green-500" />
+                            <ArrowLeftIcon className="h-3 w-3 text-veracruz-500" />
                             Entrada: {a.fecha_entrada}{a.hora_entrada ? ` ${a.hora_entrada}` : ''}
                             {a.km_entrada ? ` · ${Number(a.km_entrada).toLocaleString()} km` : ''}
                           </span>
@@ -285,7 +285,7 @@ export default function AsignacionesLista() {
                       <div className="flex gap-2 flex-shrink-0">
                         <button
                           onClick={() => abrirModalDevolver(a)}
-                          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium flex items-center gap-1.5 shadow-sm"
+                          className="px-4 py-2 bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700 text-sm font-medium flex items-center gap-1.5 shadow-sm"
                         >
                           <ArrowLeftIcon className="h-4 w-4" />
                           Registrar Entrada
@@ -315,7 +315,7 @@ export default function AsignacionesLista() {
             <div className="sticky top-0 bg-white border-b px-6 py-4 rounded-t-2xl flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
-                  <ArrowLeftIcon className="h-5 w-5 text-green-600" /> Registrar Entrada
+                  <ArrowLeftIcon className="h-5 w-5 text-veracruz-600" /> Registrar Entrada
                 </h2>
                 <p className="text-sm text-gray-500">{modalDevolver.folio}</p>
               </div>
@@ -348,12 +348,12 @@ export default function AsignacionesLista() {
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Fecha de Entrada *</label>
                   <input type="date" value={devForm.fecha_entrada} onChange={(e) => setDevForm({ ...devForm, fecha_entrada: e.target.value })}
-                    className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500" required />
+                    className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-veracruz-500 focus:border-veracruz-500" required />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Hora de Entrada</label>
                   <input type="time" value={devForm.hora_entrada} onChange={(e) => setDevForm({ ...devForm, hora_entrada: e.target.value })}
-                    className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500" />
+                    className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-veracruz-500 focus:border-veracruz-500" />
                 </div>
               </div>
 
@@ -362,12 +362,12 @@ export default function AsignacionesLista() {
                   <label className="block text-xs font-medium text-gray-600 mb-1">Km de Entrada</label>
                   <input type="number" value={devForm.km_entrada} onChange={(e) => setDevForm({ ...devForm, km_entrada: e.target.value })}
                     placeholder={modalDevolver.km_salida ? `Salió con ${modalDevolver.km_salida} km` : 'Km actual'}
-                    className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500" />
+                    className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-veracruz-500 focus:border-veracruz-500" />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Combustible</label>
                   <select value={devForm.combustible_entrada} onChange={(e) => setDevForm({ ...devForm, combustible_entrada: e.target.value })}
-                    className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white">
+                    className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-veracruz-500 focus:border-veracruz-500 bg-white">
                     <option value="">— Nivel —</option>
                     <option value="Lleno">⛽ Lleno</option>
                     <option value="3/4">⛽ 3/4</option>
@@ -386,7 +386,7 @@ export default function AsignacionesLista() {
                       onClick={() => setDevForm({ ...devForm, estado_devolucion: e })}
                       className={`py-2 px-3 rounded-lg text-sm font-medium border-2 transition-all ${
                         devForm.estado_devolucion === e
-                          ? e === 'Bueno' ? 'border-green-500 bg-green-50 text-green-700'
+                          ? e === 'Bueno' ? 'border-veracruz-500 bg-veracruz-50 text-veracruz-700'
                             : e === 'Regular' ? 'border-yellow-500 bg-yellow-50 text-yellow-700'
                             : 'border-red-500 bg-red-50 text-red-700'
                           : 'border-gray-200 text-gray-500 hover:border-gray-300'
@@ -402,7 +402,7 @@ export default function AsignacionesLista() {
                 <label className="block text-xs font-medium text-gray-600 mb-1">Observaciones</label>
                 <textarea value={devForm.observaciones_entrada} onChange={(e) => setDevForm({ ...devForm, observaciones_entrada: e.target.value })}
                   rows={2} placeholder="Novedades, daños, etc."
-                  className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500" />
+                  className="w-full px-3 py-2.5 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-veracruz-500 focus:border-veracruz-500" />
               </div>
 
               {/* Km recorridos preview */}
@@ -420,7 +420,7 @@ export default function AsignacionesLista() {
                 Cancelar
               </button>
               <button onClick={registrarDevolucion} disabled={devolviendo}
-                className="px-6 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium flex items-center gap-2 disabled:opacity-50">
+                className="px-6 py-2.5 bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700 font-medium flex items-center gap-2 disabled:opacity-50">
                 {devolviendo ? (
                   <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> Registrando...</>
                 ) : (

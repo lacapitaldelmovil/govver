@@ -26,12 +26,12 @@ import {
 function StatCard({ icon, label, value, color }) {
   const colors = {
     yellow: 'from-yellow-400 to-amber-500 shadow-amber-200',
-    green:  'from-green-500 to-emerald-600 shadow-green-200',
+    green:  'from-veracruz-500 to-veracruz-600 shadow-veracruz-200',
     red:    'from-red-500 to-rose-600 shadow-red-200',
     blue:   'from-blue-500 to-indigo-600 shadow-blue-200',
     gray:   'from-gray-400 to-gray-500 shadow-gray-200',
   };
-  const textColors = { yellow: 'text-amber-700', green: 'text-green-700', red: 'text-red-700', blue: 'text-blue-700', gray: 'text-gray-600' };
+  const textColors = { yellow: 'text-amber-700', green: 'text-veracruz-700', red: 'text-red-700', blue: 'text-blue-700', gray: 'text-gray-600' };
 
   return (
     <div className="bg-white rounded-xl border shadow-sm p-4 flex items-center gap-3">
@@ -195,7 +195,7 @@ export default function SolicitudesLista() {
 
   const getEstadoConfig = (estado) => ({
     pendiente:  { icon: '⏳', label: 'Pendiente',  badge: 'bg-amber-100 text-amber-700 border-amber-200', bar: 'from-amber-50 to-orange-50 border-amber-100' },
-    aprobada:   { icon: '✅', label: 'Aprobada',   badge: 'bg-green-100 text-green-700 border-green-200', bar: 'from-green-50 to-emerald-50 border-green-100' },
+    aprobada:   { icon: '✅', label: 'Aprobada',   badge: 'bg-veracruz-100 text-veracruz-700 border-veracruz-200', bar: 'from-veracruz-50 to-veracruz-50 border-veracruz-100' },
     rechazada:  { icon: '❌', label: 'Rechazada',  badge: 'bg-red-100 text-red-700 border-red-200', bar: 'from-red-50 to-rose-50 border-red-100' },
     en_curso:   { icon: '🔄', label: 'En Curso',   badge: 'bg-blue-100 text-blue-700 border-blue-200', bar: 'from-blue-50 to-indigo-50 border-blue-100' },
     completada: { icon: '✓',  label: 'Completada', badge: 'bg-gray-100 text-gray-600 border-gray-200', bar: 'from-gray-50 to-slate-50 border-gray-100' },
@@ -475,7 +475,7 @@ export default function SolicitudesLista() {
                         {/* Respuesta del autorizador */}
                         {sol.observaciones && sol.estado !== 'pendiente' && (
                           <div className={`p-3 rounded-lg text-sm border-l-4 ${
-                            sol.estado === 'aprobada' ? 'bg-green-50 text-green-700 border-green-500' :
+                            sol.estado === 'aprobada' ? 'bg-veracruz-50 text-veracruz-700 border-veracruz-500' :
                             sol.estado === 'rechazada' ? 'bg-red-50 text-red-700 border-red-500' :
                             'bg-gray-50 text-gray-600 border-gray-300'
                           }`}>
@@ -492,7 +492,7 @@ export default function SolicitudesLista() {
                             {sol.vehiculo_id ? (
                               <>
                                 <button onClick={() => confirmarAprobacionDirecta(sol)}
-                                  className="flex items-center justify-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-xs font-semibold transition-colors flex-1 lg:flex-none">
+                                  className="flex items-center justify-center gap-1.5 px-3 py-2 bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700 text-xs font-semibold transition-colors flex-1 lg:flex-none">
                                   <CheckCircleIcon className="h-4 w-4" /> Aprobar
                                 </button>
                                 <button onClick={() => abrirModalAsignar(sol)}
@@ -502,7 +502,7 @@ export default function SolicitudesLista() {
                               </>
                             ) : (
                               <button onClick={() => abrirModalAsignar(sol)}
-                                className="flex items-center justify-center gap-1.5 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-xs font-semibold transition-colors flex-1 lg:flex-none">
+                                className="flex items-center justify-center gap-1.5 px-3 py-2 bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700 text-xs font-semibold transition-colors flex-1 lg:flex-none">
                                 <CheckCircleIcon className="h-4 w-4" /> Aprobar y Asignar
                               </button>
                             )}
@@ -548,11 +548,11 @@ export default function SolicitudesLista() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
             {/* Header */}
-            <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-6 py-4 flex-shrink-0">
+            <div className="bg-gradient-to-r from-veracruz-600 to-veracruz-600 text-white px-6 py-4 flex-shrink-0">
               <div className="flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-bold">Aprobar y Asignar Vehículo</h2>
-                  <p className="text-green-100 text-sm mt-0.5">
+                  <p className="text-veracruz-100 text-sm mt-0.5">
                     Solicitud #{solicitudSeleccionada?.folio} — {solicitudSeleccionada?.secretaria_origen_siglas || solicitudSeleccionada?.secretaria_solicitante_siglas}
                   </p>
                 </div>
@@ -586,7 +586,7 @@ export default function SolicitudesLista() {
                 <MagnifyingGlassIcon className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input type="text" placeholder="Buscar marca, modelo, placas..."
                   value={busqueda} onChange={(e) => setBusqueda(e.target.value)}
-                  className="w-full pl-9 pr-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500" />
+                  className="w-full pl-9 pr-4 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-veracruz-500 focus:border-veracruz-500" />
               </div>
               <select value={filtroTipo} onChange={(e) => setFiltroTipo(e.target.value)}
                 className="px-3 py-2 border rounded-lg text-sm bg-white font-medium text-gray-700">
@@ -603,7 +603,7 @@ export default function SolicitudesLista() {
             <div className="overflow-y-auto flex-1 p-4">
               {loadingVehiculos ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-green-500" />
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-veracruz-500" />
                 </div>
               ) : (
                 <div className="grid gap-2">
@@ -619,17 +619,17 @@ export default function SolicitudesLista() {
                       return (
                         <div key={v.id} onClick={() => setVehiculoSeleccionado(v)}
                           className={`p-3 rounded-xl border-2 cursor-pointer transition-all ${
-                            isSelected ? 'border-green-500 bg-green-50 shadow-md' : 'border-gray-200 hover:border-green-300 hover:bg-gray-50'
+                            isSelected ? 'border-veracruz-500 bg-veracruz-50 shadow-md' : 'border-gray-200 hover:border-veracruz-300 hover:bg-gray-50'
                           }`}>
                           <div className="flex items-center gap-3">
-                            <TruckIcon className={`h-6 w-6 flex-shrink-0 ${isSelected ? 'text-green-500' : 'text-gray-300'}`} />
+                            <TruckIcon className={`h-6 w-6 flex-shrink-0 ${isSelected ? 'text-veracruz-500' : 'text-gray-300'}`} />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="font-bold text-gray-900 text-sm">{v.marca} {v.modelo}</span>
                                 <span className="text-gray-400 text-xs">({v.anio || '-'})</span>
                                 {v.estatus && (
                                   <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                                    v.estatus === 'Bueno' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                                    v.estatus === 'Bueno' ? 'bg-veracruz-100 text-veracruz-700' : 'bg-yellow-100 text-yellow-700'
                                   }`}>{v.estatus}</span>
                                 )}
                               </div>
@@ -641,7 +641,7 @@ export default function SolicitudesLista() {
                                 </span>
                               </div>
                             </div>
-                            {isSelected && <CheckCircleIcon className="h-6 w-6 text-green-500 flex-shrink-0" />}
+                            {isSelected && <CheckCircleIcon className="h-6 w-6 text-veracruz-500 flex-shrink-0" />}
                           </div>
                         </div>
                       );
@@ -664,7 +664,7 @@ export default function SolicitudesLista() {
               <div className="text-sm text-gray-600">
                 {vehiculoSeleccionado ? (
                   <span className="flex items-center gap-2">
-                    <CheckCircleIcon className="h-4 w-4 text-green-500" />
+                    <CheckCircleIcon className="h-4 w-4 text-veracruz-500" />
                     <strong>{vehiculoSeleccionado.marca} {vehiculoSeleccionado.modelo}</strong>
                     <span className="text-gray-400">de {vehiculoSeleccionado.secretaria_siglas}</span>
                   </span>
@@ -677,7 +677,7 @@ export default function SolicitudesLista() {
                   className="px-4 py-2 text-gray-600 bg-gray-200 rounded-lg hover:bg-gray-300 text-sm font-medium">Cancelar</button>
                 <button onClick={confirmarAsignacion} disabled={!vehiculoSeleccionado || asignando}
                   className={`px-5 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 transition-colors ${
-                    vehiculoSeleccionado && !asignando ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    vehiculoSeleccionado && !asignando ? 'bg-veracruz-600 text-white hover:bg-veracruz-700' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}>
                   {asignando ? (
                     <><div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" /> Asignando...</>

@@ -83,7 +83,7 @@ export default function ComodatosLista() {
         </div>
         <div className="bg-white rounded-xl shadow p-6">
           <p className="text-gray-600 text-sm">Operando</p>
-          <p className="text-3xl font-bold text-green-600">
+          <p className="text-3xl font-bold text-veracruz-600">
             {vehiculos.filter(v => v.estado_operativo === 'Operando').length}
           </p>
         </div>
@@ -109,7 +109,7 @@ export default function ComodatosLista() {
                       {vehiculo.marca} {vehiculo.modelo}
                     </h3>
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      vehiculo.estado_operativo === 'Operando' ? 'bg-green-100 text-green-800' :
+                      vehiculo.estado_operativo === 'Operando' ? 'bg-veracruz-100 text-veracruz-800' :
                       vehiculo.estado_operativo === 'En taller' ? 'bg-yellow-100 text-yellow-800' :
                       'bg-red-100 text-red-800'
                     }`}>

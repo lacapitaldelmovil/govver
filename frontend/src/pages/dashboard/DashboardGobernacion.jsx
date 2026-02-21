@@ -98,7 +98,7 @@ export default function DashboardGobernacion() {
           titulo="Operando"
           valor={stats?.vehiculosPorEstado?.find(e => e.estado === 'Operando')?.cantidad || 0}
           icono={icons.check}
-          color="bg-green-500"
+          color="bg-veracruz-500"
           onClick={() => navegarConFiltro('estado_operativo', 'Operando')}
         />
         <CardIndicador
@@ -162,7 +162,7 @@ export default function DashboardGobernacion() {
               >
                 <div className="flex items-center gap-2">
                   <span className={`w-3 h-3 rounded-full ${
-                    item.estado === 'Operando' ? 'bg-green-500' :
+                    item.estado === 'Operando' ? 'bg-veracruz-500' :
                     item.estado === 'En taller' ? 'bg-yellow-500' :
                     item.estado === 'Mal estado' ? 'bg-red-500' : 'bg-gray-500'
                   }`}></span>
@@ -182,7 +182,7 @@ export default function DashboardGobernacion() {
             <Link to="/vehiculos" className="block w-full p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-center font-medium">
               Ver todos los vehículos
             </Link>
-            <Link to="/solicitudes" className="block w-full p-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors text-center font-medium">
+            <Link to="/solicitudes" className="block w-full p-3 bg-veracruz-50 text-veracruz-700 rounded-lg hover:bg-veracruz-100 transition-colors text-center font-medium">
               Revisar solicitudes ({stats?.solicitudesPendientes || 0} pendientes)
             </Link>
             <Link to="/reportes" className="block w-full p-3 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors text-center font-medium">
@@ -197,7 +197,7 @@ export default function DashboardGobernacion() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
           <h3 className="text-lg sm:text-xl font-semibold text-gray-800">Semáforo de Eficiencia por Dependencia</h3>
           <div className="flex flex-wrap gap-2 sm:gap-4 text-xs sm:text-sm">
-            <span className="flex items-center gap-1"><span className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500"></span> Eficiente (≥80%)</span>
+            <span className="flex items-center gap-1"><span className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-veracruz-500"></span> Eficiente (≥80%)</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-500"></span> Medio (50-79%)</span>
             <span className="flex items-center gap-1"><span className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500"></span> Atención (&lt;50%)</span>
           </div>
@@ -209,7 +209,7 @@ export default function DashboardGobernacion() {
               key={dep.id}
               onClick={() => navegarConFiltro('secretaria_id', dep.id)}
               className={`p-4 rounded-xl border-2 transition-all hover:scale-105 ${
-                dep.color === 'verde' ? 'border-green-500 bg-green-50' :
+                dep.color === 'verde' ? 'border-veracruz-500 bg-veracruz-50' :
                 dep.color === 'amarillo' ? 'border-yellow-500 bg-yellow-50' :
                 'border-red-500 bg-red-50'
               }`}
@@ -217,7 +217,7 @@ export default function DashboardGobernacion() {
               <div className="flex items-center justify-between mb-2">
                 <span className="font-bold text-lg">{dep.siglas}</span>
                 <span className={`w-4 h-4 rounded-full ${
-                  dep.color === 'verde' ? 'bg-green-500' :
+                  dep.color === 'verde' ? 'bg-veracruz-500' :
                   dep.color === 'amarillo' ? 'bg-yellow-500' : 'bg-red-500'
                 }`}></span>
               </div>
@@ -229,7 +229,7 @@ export default function DashboardGobernacion() {
               <div className="mt-2 bg-gray-200 rounded-full h-2">
                 <div 
                   className={`h-2 rounded-full ${
-                    dep.color === 'verde' ? 'bg-green-500' :
+                    dep.color === 'verde' ? 'bg-veracruz-500' :
                     dep.color === 'amarillo' ? 'bg-yellow-500' : 'bg-red-500'
                   }`}
                   style={{ width: `${dep.eficiencia}%` }}

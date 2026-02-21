@@ -23,10 +23,10 @@ function StatCard({ icon, label, value, color, small }) {
   const colors = {
     blue:   'from-blue-500 to-blue-600 shadow-blue-200',
     purple: 'from-purple-500 to-purple-600 shadow-purple-200',
-    green:  'from-green-500 to-green-600 shadow-green-200',
+    green:  'from-veracruz-500 to-veracruz-600 shadow-veracruz-200',
     amber:  'from-amber-500 to-amber-600 shadow-amber-200',
   };
-  const textColors = { blue: 'text-blue-700', purple: 'text-purple-700', green: 'text-green-700', amber: 'text-amber-700' };
+  const textColors = { blue: 'text-blue-700', purple: 'text-purple-700', green: 'text-veracruz-700', amber: 'text-amber-700' };
 
   return (
     <div className="bg-white rounded-xl border shadow-sm p-4 flex items-center gap-3">
@@ -59,7 +59,7 @@ function GrupoVehiculos({ titulo, subtitulo, vehiculos, color, esAdmin, abrirMod
   const cc = {
     blue:   { bg: 'bg-blue-50', text: 'text-blue-700', badge: 'bg-blue-100 text-blue-700', border: 'border-blue-200', dot: 'bg-blue-500' },
     purple: { bg: 'bg-purple-50', text: 'text-purple-700', badge: 'bg-purple-100 text-purple-700', border: 'border-purple-200', dot: 'bg-purple-500' },
-    green:  { bg: 'bg-green-50', text: 'text-green-700', badge: 'bg-green-100 text-green-700', border: 'border-green-200', dot: 'bg-green-500' },
+    green:  { bg: 'bg-veracruz-50', text: 'text-veracruz-700', badge: 'bg-veracruz-100 text-veracruz-700', border: 'border-veracruz-200', dot: 'bg-veracruz-500' },
   }[color] || { bg: 'bg-blue-50', text: 'text-blue-700', badge: 'bg-blue-100 text-blue-700', border: 'border-blue-200', dot: 'bg-blue-500' };
 
   return (
@@ -126,7 +126,7 @@ function GrupoVehiculos({ titulo, subtitulo, vehiculos, color, esAdmin, abrirMod
                   )}
                   <td className="px-4 py-2.5">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                      v.estado_operativo === 'Operando' ? 'bg-green-100 text-green-700' :
+                      v.estado_operativo === 'Operando' ? 'bg-veracruz-100 text-veracruz-700' :
                       v.estado_operativo === 'En taller' ? 'bg-yellow-100 text-yellow-700' :
                       v.estado_operativo === 'Mal estado' ? 'bg-red-100 text-red-700' :
                       'bg-gray-100 text-gray-600'
@@ -136,7 +136,7 @@ function GrupoVehiculos({ titulo, subtitulo, vehiculos, color, esAdmin, abrirMod
                     <span className="text-xs text-gray-500">{v.kilometraje ? `${v.kilometraje.toLocaleString()} km` : '-'}</span>
                   </td>
                   <td className="px-4 py-2.5 hidden lg:table-cell">
-                    <span className="text-xs text-green-700 font-medium">{v.valor_libros ? `$${Number(v.valor_libros).toLocaleString()}` : '-'}</span>
+                    <span className="text-xs text-veracruz-700 font-medium">{v.valor_libros ? `$${Number(v.valor_libros).toLocaleString()}` : '-'}</span>
                   </td>
                   <td className="px-4 py-2.5 text-right">
                     <div className="flex items-center justify-end gap-1.5">
@@ -405,7 +405,7 @@ export default function PrestamosLista() {
                 <p className="font-semibold text-gray-900">{vehiculoDevolver.marca} {vehiculoDevolver.linea || vehiculoDevolver.modelo}</p>
                 <p className="text-sm text-gray-500">Placas: <span className="font-mono font-medium">{vehiculoDevolver.placas}</span></p>
                 <p className="text-sm text-gray-500">Prestado a: <span className="font-medium text-purple-700">{vehiculoDevolver.municipio || vehiculoDevolver.ubicacion_fisica}</span></p>
-                <p className="text-sm text-gray-500">Propietario: <span className="font-medium text-green-700">{vehiculoDevolver.secretaria_siglas}</span></p>
+                <p className="text-sm text-gray-500">Propietario: <span className="font-medium text-veracruz-700">{vehiculoDevolver.secretaria_siglas}</span></p>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>

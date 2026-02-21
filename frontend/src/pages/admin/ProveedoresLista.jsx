@@ -33,7 +33,7 @@ import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 /* Colores fijos para giros */
 const giroColors = {
   'Venta de vehículos': 'bg-blue-100 text-blue-700',
-  'Mantenimiento': 'bg-green-100 text-green-700',
+  'Mantenimiento': 'bg-veracruz-100 text-veracruz-700',
   'Refacciones': 'bg-orange-100 text-orange-700',
   'Combustible': 'bg-red-100 text-red-700',
   'Seguros': 'bg-purple-100 text-purple-700',
@@ -53,7 +53,7 @@ function getGiroColor(giro) {
 const avatarColors = [
   'from-veracruz-500 to-veracruz-700',
   'from-blue-500 to-indigo-600',
-  'from-emerald-500 to-green-700',
+  'from-veracruz-500 to-veracruz-700',
   'from-amber-500 to-orange-600',
   'from-purple-500 to-violet-700',
   'from-rose-500 to-red-700',
@@ -344,7 +344,7 @@ export default function ProveedoresLista() {
               )}
             </div>
             <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0 ${
-              esActivo ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+              esActivo ? 'bg-veracruz-100 text-veracruz-700' : 'bg-gray-100 text-gray-500'
             }`}>
               {esActivo ? '● Activo' : '○ Inactivo'}
             </span>
@@ -508,7 +508,7 @@ export default function ProveedoresLista() {
             </div>
             <div className="bg-white/10 rounded-lg px-3 py-2 text-center">
               <p className="text-lg font-black leading-tight">{estadisticas?.activos || 0}</p>
-              <p className="text-[9px] text-green-300 uppercase tracking-wider">Activos</p>
+              <p className="text-[9px] text-veracruz-300 uppercase tracking-wider">Activos</p>
             </div>
             <div className="bg-white/10 rounded-lg px-3 py-2 text-center">
               <p className="text-lg font-black leading-tight">{estadisticas?.promedio_anios || 0}</p>
@@ -732,7 +732,7 @@ export default function ProveedoresLista() {
                       <td className="px-4 py-3 text-center">
                         <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
                           proveedor.estado_proveeduria === 'Activo'
-                            ? 'bg-green-100 text-green-700'
+                            ? 'bg-veracruz-100 text-veracruz-700'
                             : 'bg-gray-100 text-gray-500'
                         }`}>
                           {proveedor.estado_proveeduria === 'Activo' ? '● Activo' : '○ Inactivo'}

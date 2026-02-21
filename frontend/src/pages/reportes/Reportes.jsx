@@ -94,7 +94,7 @@ export default function Reportes() {
       titulo: 'Solicitudes de Préstamo',
       descripcion: 'Historial de solicitudes en el período seleccionado',
       icon: ClockIcon,
-      color: 'bg-green-500',
+      color: 'bg-veracruz-500',
       formato: 'CSV'
     },
     {
@@ -147,7 +147,7 @@ export default function Reportes() {
             <p className="text-xs sm:text-sm text-gray-500">Vehículos Totales</p>
           </div>
           <div className="card text-center p-3 sm:p-4">
-            <p className="text-2xl sm:text-3xl font-bold text-green-600">{stats.vehiculos_operando || 0}</p>
+            <p className="text-2xl sm:text-3xl font-bold text-veracruz-600">{stats.vehiculos_operando || 0}</p>
             <p className="text-xs sm:text-sm text-gray-500">Operando</p>
           </div>
           <div className="card text-center p-3 sm:p-4">
@@ -242,7 +242,7 @@ export default function Reportes() {
               estado de documentación, antigüedad de flota, y recomendaciones estratégicas.
             </p>
             <div className="flex flex-wrap gap-2 mt-3">
-              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full">KPIs principales</span>
+              <span className="px-2 py-1 bg-veracruz-100 text-veracruz-700 text-xs rounded-full">KPIs principales</span>
               <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">Análisis de costos</span>
               <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs rounded-full">Por secretaría</span>
               <span className="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">Recomendaciones</span>

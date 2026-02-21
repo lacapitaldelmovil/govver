@@ -275,14 +275,14 @@ export default function NuevaSolicitud() {
           <div className="flex items-center gap-3 bg-white/10 backdrop-blur rounded-2xl px-5 py-3">
             <div className={`flex items-center gap-2 transition-all ${paso >= 1 ? 'opacity-100' : 'opacity-50'}`}>
               <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${
-                paso > 1 ? 'bg-green-400 text-white' : paso === 1 ? 'bg-white text-veracruz-700 shadow-lg' : 'bg-white/20 text-white/50'
+                paso > 1 ? 'bg-veracruz-400 text-white' : paso === 1 ? 'bg-white text-veracruz-700 shadow-lg' : 'bg-white/20 text-white/50'
               }`}>
                 {paso > 1 ? <CheckCircleSolid className="h-5 w-5" /> : '1'}
               </div>
               <span className="text-sm font-medium hidden lg:block">Vehículo</span>
             </div>
 
-            <div className={`w-10 h-0.5 rounded-full ${paso > 1 ? 'bg-green-400' : 'bg-white/20'}`}></div>
+            <div className={`w-10 h-0.5 rounded-full ${paso > 1 ? 'bg-veracruz-400' : 'bg-white/20'}`}></div>
 
             <div className={`flex items-center gap-2 transition-all ${paso >= 2 ? 'opacity-100' : 'opacity-50'}`}>
               <div className={`w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${
@@ -538,7 +538,7 @@ export default function NuevaSolicitud() {
 
                 return (
                   <div key={sec.secretaria_id} className={`bg-white rounded-2xl shadow-sm border overflow-hidden transition-all ${
-                    tieneSeleccion ? 'border-green-300 ring-2 ring-green-100' : 'border-gray-100 hover:border-gray-200'
+                    tieneSeleccion ? 'border-veracruz-300 ring-2 ring-veracruz-100' : 'border-gray-100 hover:border-gray-200'
                   }`}>
                     {/* Header de Secretaría */}
                     <button
@@ -547,10 +547,10 @@ export default function NuevaSolicitud() {
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                          tieneSeleccion ? 'bg-green-100' : 'bg-gradient-to-br from-veracruz-100 to-blue-100'
+                          tieneSeleccion ? 'bg-veracruz-100' : 'bg-gradient-to-br from-veracruz-100 to-blue-100'
                         }`}>
                           {tieneSeleccion
-                            ? <CheckCircleSolid className="h-6 w-6 text-green-500" />
+                            ? <CheckCircleSolid className="h-6 w-6 text-veracruz-500" />
                             : <BuildingOfficeIcon className="h-5 w-5 text-veracruz-600" />
                           }
                         </div>
@@ -558,7 +558,7 @@ export default function NuevaSolicitud() {
                           <div className="flex items-center gap-2 flex-wrap">
                             <h3 className="font-bold text-gray-900 text-sm md:text-base">{sec.secretaria_siglas}</h3>
                             <span className={`px-2.5 py-0.5 rounded-lg text-xs font-bold ${
-                              tieneSeleccion ? 'bg-green-100 text-green-700' : 'bg-veracruz-100 text-veracruz-700'
+                              tieneSeleccion ? 'bg-veracruz-100 text-veracruz-700' : 'bg-veracruz-100 text-veracruz-700'
                             }`}>
                               {vehiculosFiltrados.length}
                             </span>
@@ -585,13 +585,13 @@ export default function NuevaSolicitud() {
                                 onClick={() => seleccionarVehiculo(v, sec)}
                                 className={`group p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
                                   isSelected
-                                    ? 'border-green-500 bg-green-50/70 shadow-md ring-2 ring-green-200'
+                                    ? 'border-veracruz-500 bg-veracruz-50/70 shadow-md ring-2 ring-veracruz-200'
                                     : 'border-gray-200 hover:border-veracruz-300 hover:bg-veracruz-50/30 hover:shadow-sm'
                                 }`}
                               >
                                 <div className="flex items-start gap-4">
                                   <div className={`flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center text-3xl transition-all ${
-                                    isSelected ? 'bg-green-100 scale-105' : 'bg-gray-100 group-hover:bg-veracruz-100'
+                                    isSelected ? 'bg-veracruz-100 scale-105' : 'bg-gray-100 group-hover:bg-veracruz-100'
                                   }`}>
                                     {tipoIcono(v.tipo)}
                                   </div>
@@ -624,7 +624,7 @@ export default function NuevaSolicitud() {
                                     </div>
                                   </div>
                                   {isSelected && (
-                                    <CheckCircleSolid className="h-7 w-7 text-green-500 flex-shrink-0 mt-1" />
+                                    <CheckCircleSolid className="h-7 w-7 text-veracruz-500 flex-shrink-0 mt-1" />
                                   )}
                                 </div>
                               </div>
@@ -638,18 +638,18 @@ export default function NuevaSolicitud() {
                               onClick={() => seleccionarVehiculo(v, sec)}
                               className={`group relative p-3.5 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
                                 isSelected
-                                  ? 'border-green-500 bg-green-50/70 shadow-md ring-2 ring-green-200'
+                                  ? 'border-veracruz-500 bg-veracruz-50/70 shadow-md ring-2 ring-veracruz-200'
                                   : 'border-gray-200 hover:border-veracruz-300 hover:bg-veracruz-50/30 hover:shadow-sm'
                               }`}
                             >
                               {isSelected && (
                                 <div className="absolute top-2 right-2">
-                                  <CheckCircleSolid className="h-6 w-6 text-green-500" />
+                                  <CheckCircleSolid className="h-6 w-6 text-veracruz-500" />
                                 </div>
                               )}
                               <div className="flex items-center gap-3">
                                 <div className={`w-11 h-11 rounded-xl flex items-center justify-center text-2xl flex-shrink-0 transition-all ${
-                                  isSelected ? 'bg-green-100' : 'bg-gray-100 group-hover:bg-veracruz-100 group-hover:scale-105'
+                                  isSelected ? 'bg-veracruz-100' : 'bg-gray-100 group-hover:bg-veracruz-100 group-hover:scale-105'
                                 }`}>
                                   {tipoIcono(v.tipo)}
                                 </div>
@@ -689,12 +689,12 @@ export default function NuevaSolicitud() {
           }`}>
             <div className="max-w-7xl mx-auto px-4 pb-4">
               <div className={`rounded-2xl shadow-2xl border-2 p-4 transition-all backdrop-blur-lg ${
-                vehiculoSeleccionado ? 'bg-white/95 border-green-300' : 'bg-white/90 border-gray-200'
+                vehiculoSeleccionado ? 'bg-white/95 border-veracruz-300' : 'bg-white/90 border-gray-200'
               }`}>
                 {vehiculoSeleccionado ? (
                   <div className="flex flex-col md:flex-row items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center text-2xl flex-shrink-0">
+                      <div className="w-12 h-12 rounded-xl bg-veracruz-100 flex items-center justify-center text-2xl flex-shrink-0">
                         {tipoIcono(vehiculoSeleccionado.tipo)}
                       </div>
                       <div className="min-w-0">
@@ -706,7 +706,7 @@ export default function NuevaSolicitud() {
                           <BuildingOfficeIcon className="h-3.5 w-3.5 text-veracruz-500 flex-shrink-0" />
                           De: <strong className="text-veracruz-700">{vehiculoSeleccionado.secretaria_origen_siglas}</strong>
                           <ArrowsRightLeftIcon className="h-3 w-3 text-gray-400 flex-shrink-0" />
-                          Para: <strong className="text-green-700">{user?.secretaria_siglas || user?.nombre}</strong>
+                          Para: <strong className="text-veracruz-700">{user?.secretaria_siglas || user?.nombre}</strong>
                         </p>
                       </div>
                     </div>
@@ -746,22 +746,22 @@ export default function NuevaSolicitud() {
 
           {/* ── Vehículo seleccionado (resumen compacto) ── */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-            <div className="bg-gradient-to-r from-green-50 via-emerald-50 to-teal-50 border-b border-green-100 px-5 py-3 flex items-center justify-between">
-              <h2 className="text-sm font-bold text-green-800 flex items-center gap-2">
-                <CheckCircleSolid className="h-4 w-4 text-green-500" />
+            <div className="bg-gradient-to-r from-veracruz-50 via-veracruz-50 to-veracruz-50 border-b border-veracruz-100 px-5 py-3 flex items-center justify-between">
+              <h2 className="text-sm font-bold text-veracruz-800 flex items-center gap-2">
+                <CheckCircleSolid className="h-4 w-4 text-veracruz-500" />
                 Vehículo Seleccionado
               </h2>
               <button
                 type="button"
                 onClick={volverAPaso1}
-                className="text-xs text-green-700 hover:text-green-900 font-semibold flex items-center gap-1 bg-white/60 px-3 py-1 rounded-lg hover:bg-white/80 transition-colors"
+                className="text-xs text-veracruz-700 hover:text-veracruz-900 font-semibold flex items-center gap-1 bg-white/60 px-3 py-1 rounded-lg hover:bg-white/80 transition-colors"
               >
                 <ArrowsRightLeftIcon className="h-3.5 w-3.5" /> Cambiar
               </button>
             </div>
             <div className="p-5">
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center text-4xl flex-shrink-0 shadow-sm">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-veracruz-100 to-veracruz-100 flex items-center justify-center text-4xl flex-shrink-0 shadow-sm">
                   {tipoIcono(vehiculoSeleccionado.tipo)}
                 </div>
                 <div className="flex-1 min-w-0">

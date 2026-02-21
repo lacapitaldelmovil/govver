@@ -114,13 +114,13 @@ export default function VehiculoCargaMasiva() {
       </div>
 
       {/* Descargar plantilla */}
-      <div className="card bg-green-50 border-green-200">
+      <div className="card bg-veracruz-50 border-veracruz-200">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <h3 className="font-medium text-green-900">📥 Descarga la plantilla Excel</h3>
-            <p className="text-sm text-green-700">Incluye hoja de catálogos con todas las opciones válidas</p>
+            <h3 className="font-medium text-veracruz-900">📥 Descarga la plantilla Excel</h3>
+            <p className="text-sm text-veracruz-700">Incluye hoja de catálogos con todas las opciones válidas</p>
           </div>
-          <button onClick={descargarPlantilla} className="btn-primary flex items-center gap-2 bg-green-600 hover:bg-green-700">
+          <button onClick={descargarPlantilla} className="btn-primary flex items-center gap-2 bg-veracruz-600 hover:bg-veracruz-700">
             <ArrowDownTrayIcon className="h-5 w-5" />
             Descargar Excel
           </button>
@@ -215,12 +215,12 @@ export default function VehiculoCargaMasiva() {
             <div className="space-y-4">
               {/* Resumen */}
               <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <CheckCircleIcon className="h-8 w-8 mx-auto text-green-500" />
-                  <p className="text-2xl font-bold text-green-700 mt-2">
+                <div className="text-center p-4 bg-veracruz-50 rounded-lg">
+                  <CheckCircleIcon className="h-8 w-8 mx-auto text-veracruz-500" />
+                  <p className="text-2xl font-bold text-veracruz-700 mt-2">
                     {resultado.insertados || 0}
                   </p>
-                  <p className="text-sm text-green-600">Insertados</p>
+                  <p className="text-sm text-veracruz-600">Insertados</p>
                 </div>
                 <div className="text-center p-4 bg-blue-50 rounded-lg">
                   <DocumentIcon className="h-8 w-8 mx-auto text-blue-500" />

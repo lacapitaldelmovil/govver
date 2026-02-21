@@ -217,7 +217,7 @@ export default function VehiculoDetalle() {
     const hoy=new Date(); const en30=new Date(); en30.setDate(hoy.getDate()+30);
     if (fecha<hoy) return { label:'Vencido', clase:'text-red-600 font-semibold' };
     if (fecha<=en30) return { label:'Por vencer', clase:'text-yellow-600 font-semibold' };
-    return { label:'Vigente', clase:'text-green-600 font-semibold' };
+    return { label:'Vigente', clase:'text-veracruz-600 font-semibold' };
   };
 
   const puedeEditar = ['usuario_principal','admin','responsable_flota','admin_secretaria'].includes(user?.rol);
@@ -824,10 +824,10 @@ export default function VehiculoDetalle() {
 
           <Sec forceState={seccionesAbiertas} t="8. Estatus">
             <Row l="Estatus Operativo" v={vehiculo.estatus_operativo||vehiculo.estado_operativo} vc={
-              (vehiculo.estatus_operativo||vehiculo.estado_operativo||'').toLowerCase().includes('operando')?'text-green-600 font-semibold':
+              (vehiculo.estatus_operativo||vehiculo.estado_operativo||'').toLowerCase().includes('operando')?'text-veracruz-600 font-semibold':
               (vehiculo.estatus_operativo||vehiculo.estado_operativo||'').toLowerCase().includes('mantenimiento')?'text-yellow-600 font-semibold':
               (vehiculo.estatus_operativo||vehiculo.estado_operativo||'').toLowerCase().includes('fuera')?'text-red-600 font-semibold':''} />
-            <Row l="Estatus Administrativo" v={vehiculo.estatus_administrativo} vc={vehiculo.estatus_administrativo==='Activo'?'text-green-600 font-semibold':vehiculo.estatus_administrativo==='Baja'?'text-red-600 font-semibold':'text-yellow-600 font-semibold'} />
+            <Row l="Estatus Administrativo" v={vehiculo.estatus_administrativo} vc={vehiculo.estatus_administrativo==='Activo'?'text-veracruz-600 font-semibold':vehiculo.estatus_administrativo==='Baja'?'text-red-600 font-semibold':'text-yellow-600 font-semibold'} />
             <Row l="Status General (STAT_GEN)" v={vehiculo.stat_gen} />
             <Row l="En Uso" v={vehiculo.en_uso?'Sí':'No'} />
             <Row l="Propuesto para Baja" v={vehiculo.propuesto_baja?'Sí':'No'} vc={vehiculo.propuesto_baja?'text-red-600 font-semibold':''} />
@@ -1028,7 +1028,7 @@ export default function VehiculoDetalle() {
                         </div>
                         {puedeAsignar && (
                           <button onClick={abrirEntrada}
-                            className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-xs font-bold transition-all shadow-sm">
+                            className="flex items-center gap-1 px-3 py-1.5 bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700 text-xs font-bold transition-all shadow-sm">
                             <ArrowLeftIcon className="h-3 w-3" /> Registrar Entrada
                           </button>
                         )}
@@ -1055,7 +1055,7 @@ export default function VehiculoDetalle() {
                   </div>
                 ) : (
                   <div className="p-6 text-center">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium border border-green-200">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 bg-veracruz-50 text-veracruz-700 rounded-full text-sm font-medium border border-veracruz-200">
                       <CheckCircleIcon className="h-4 w-4" />
                       Vehículo disponible — sin asignación activa
                     </div>
@@ -1075,14 +1075,14 @@ export default function VehiculoDetalle() {
                           <div key={a.id} className="px-4 py-3 flex items-center gap-3 hover:bg-gray-50/60 transition-colors">
                             <div className={`flex-shrink-0 w-2 h-2 rounded-full ${
                               a.estado === 'en_uso' ? 'bg-amber-400 animate-pulse' :
-                              a.estado === 'devuelto' ? 'bg-green-400' : 'bg-gray-300'
+                              a.estado === 'devuelto' ? 'bg-veracruz-400' : 'bg-gray-300'
                             }`} />
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2">
                                 <span className="font-semibold text-gray-800 text-sm truncate">{a.conductor_nombre}</span>
                                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
                                   a.estado === 'en_uso' ? 'bg-amber-100 text-amber-700' :
-                                  a.estado === 'devuelto' ? 'bg-green-100 text-green-700' :
+                                  a.estado === 'devuelto' ? 'bg-veracruz-100 text-veracruz-700' :
                                   'bg-gray-100 text-gray-500'
                                 }`}>{a.estado === 'en_uso' ? 'En uso' : a.estado === 'devuelto' ? 'Devuelto' : 'Cancelado'}</span>
                               </div>
@@ -1274,8 +1274,8 @@ export default function VehiculoDetalle() {
       {modalEntrada && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b bg-green-50 rounded-t-2xl">
-              <h3 className="text-lg font-bold text-green-800 flex items-center gap-2">
+            <div className="px-6 py-4 border-b bg-veracruz-50 rounded-t-2xl">
+              <h3 className="text-lg font-bold text-veracruz-800 flex items-center gap-2">
                 <ArrowLeftIcon className="h-5 w-5" /> Registrar Entrada (Devolución)
               </h3>
               <p className="text-sm text-gray-500 mt-1">
@@ -1346,7 +1346,7 @@ export default function VehiculoDetalle() {
                 Cancelar
               </button>
               <button onClick={registrarEntrada} disabled={enviandoAsg}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-semibold disabled:opacity-50">
+                className="px-6 py-2 bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700 text-sm font-semibold disabled:opacity-50">
                 {enviandoAsg ? 'Registrando...' : 'Registrar Entrada'}
               </button>
             </div>
@@ -1616,7 +1616,7 @@ function BitacoraCard({ ev }) {
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className="font-semibold text-gray-800 text-sm">{ev.conductor_nombre}</span>
               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                isEnUso ? 'bg-amber-100 text-amber-700' : isDevuelto ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                isEnUso ? 'bg-amber-100 text-amber-700' : isDevuelto ? 'bg-veracruz-100 text-veracruz-700' : 'bg-gray-100 text-gray-500'
               }`}>{isEnUso ? 'Salida' : isDevuelto ? 'Devuelto' : 'Cancelado'}</span>
               {ev.destino && <span className="text-xs text-gray-400">→ {ev.destino}</span>}
             </div>
@@ -1641,14 +1641,14 @@ function BitacoraCard({ ev }) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold text-blue-700 text-sm">{ev.litros} L</span>
-              {ev.costo_total && <span className="text-sm text-green-700 font-medium">${Number(ev.costo_total).toLocaleString()}</span>}
+              {ev.costo_total && <span className="text-sm text-veracruz-700 font-medium">${Number(ev.costo_total).toLocaleString()}</span>}
               {ev.tipo_combustible && <span className="text-[10px] text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded capitalize">{ev.tipo_combustible.replace(/_/g, ' ')}</span>}
               {ev.conductor_nombre && <span className="text-xs text-gray-400">· {ev.conductor_nombre}</span>}
             </div>
             <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-400 flex-wrap">
               {ev.estacion && <span>🏪 {ev.estacion}</span>}
               {ev.km_actual && <span>· {Number(ev.km_actual).toLocaleString()} km</span>}
-              {ev.rendimiento_km_litro && <span className="text-green-600 font-semibold">· {ev.rendimiento_km_litro} km/L</span>}
+              {ev.rendimiento_km_litro && <span className="text-veracruz-600 font-semibold">· {ev.rendimiento_km_litro} km/L</span>}
             </div>
           </div>
           <div className="text-right flex-shrink-0">
@@ -1669,11 +1669,11 @@ function BitacoraCard({ ev }) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                ev.estado_evento === 'completado' ? 'bg-green-100 text-green-700' :
+                ev.estado_evento === 'completado' ? 'bg-veracruz-100 text-veracruz-700' :
                 ev.estado_evento === 'en_proceso' ? 'bg-yellow-100 text-yellow-700' :
                 'bg-purple-100 text-purple-700'
               }`}>{ev.tipo_mantenimiento === 'preventivo' ? 'Preventivo' : ev.tipo_mantenimiento === 'correctivo' ? 'Correctivo' : 'Mantenimiento'}</span>
-              {ev.costo && <span className="text-sm font-medium text-green-700">${Number(ev.costo).toLocaleString()}</span>}
+              {ev.costo && <span className="text-sm font-medium text-veracruz-700">${Number(ev.costo).toLocaleString()}</span>}
               {ev.proveedor && <span className="text-xs text-gray-400">· {ev.proveedor}</span>}
             </div>
             {ev.descripcion && <p className="text-xs text-gray-500 mt-0.5 line-clamp-1">{ev.descripcion}</p>}
@@ -1689,7 +1689,7 @@ function BitacoraCard({ ev }) {
   // === INCIDENCIA ===
   if (ev.categoria === 'incidencia') {
     const tipoL = { choque:'Choque', robo:'Robo', vandalismo:'Vandalismo', falla_mecanica:'Falla mec.', ponchadura:'Ponchadura', inundacion:'Inundación', incendio:'Incendio', volcadura:'Volcadura', atropello:'Atropello' };
-    const gravC = { leve:'text-green-600', moderado:'text-yellow-600', grave:'text-red-600', perdida_total:'text-red-800 font-bold' };
+    const gravC = { leve:'text-veracruz-600', moderado:'text-yellow-600', grave:'text-red-600', perdida_total:'text-red-800 font-bold' };
     return (
       <div className={`px-4 py-3 border-l-4 ${cat.border} hover:bg-gray-50/50 transition-all`}>
         <div className="flex items-center gap-2.5">
@@ -1725,7 +1725,7 @@ function BitacoraCard({ ev }) {
           <div className="flex items-center gap-1.5">
             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
               ev.tipo_movimiento === 'salida' ? 'bg-amber-50 text-amber-600' :
-              ev.tipo_movimiento === 'entrada' ? 'bg-green-50 text-green-600' :
+              ev.tipo_movimiento === 'entrada' ? 'bg-veracruz-50 text-veracruz-600' :
               'bg-gray-100 text-gray-500'
             }`}>{ev.tipo_movimiento || 'Movimiento'}</span>
             {ev.usuario_nombre && <span className="text-xs text-gray-400">por {ev.usuario_nombre}</span>}

@@ -102,7 +102,7 @@ export default function SecretariasLista() {
 
   const getRolBadge = (activa) => {
     return activa ? (
-      <span className="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+      <span className="px-2 py-1 text-xs font-medium rounded-full bg-veracruz-100 text-veracruz-800">
         Activa
       </span>
     ) : (
@@ -164,7 +164,7 @@ export default function SecretariasLista() {
       'admin_secretaria': { bg: 'bg-blue-100', text: 'text-blue-800', label: 'Admin' },
       'gobernacion': { bg: 'bg-amber-100', text: 'text-amber-800', label: 'Gobernación' },
       'conductor': { bg: 'bg-gray-100', text: 'text-gray-800', label: 'Conductor' },
-      'flota': { bg: 'bg-green-100', text: 'text-green-800', label: 'Flota' }
+      'flota': { bg: 'bg-veracruz-100', text: 'text-veracruz-800', label: 'Flota' }
     };
     const r = roles[rol] || { bg: 'bg-gray-100', text: 'text-gray-800', label: rol };
     return <span className={`px-2 py-1 text-xs font-medium rounded-full ${r.bg} ${r.text}`}>{r.label}</span>;
@@ -173,7 +173,7 @@ export default function SecretariasLista() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-veracruz-600"></div>
       </div>
     );
   }
@@ -188,7 +188,7 @@ export default function SecretariasLista() {
         </div>
         <button
           onClick={abrirModalNuevo}
-          className="flex items-center justify-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors w-full sm:w-auto"
+          className="flex items-center justify-center gap-2 bg-veracruz-600 text-white px-4 py-2 rounded-lg hover:bg-veracruz-700 transition-colors w-full sm:w-auto"
         >
           <PlusIcon className="h-5 w-5" />
           Nueva Secretaria
@@ -201,8 +201,8 @@ export default function SecretariasLista() {
           <div key={secretaria.id} className="bg-white rounded-xl shadow-sm border p-4">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
-                  <BuildingOfficeIcon className="h-5 w-5 text-green-600" />
+                <div className="h-10 w-10 bg-veracruz-100 rounded-full flex items-center justify-center">
+                  <BuildingOfficeIcon className="h-5 w-5 text-veracruz-600" />
                 </div>
                 <div>
                   <p className="font-semibold text-gray-900 text-sm">{secretaria.nombre}</p>
@@ -239,7 +239,7 @@ export default function SecretariasLista() {
               </button>
               <button
                 onClick={() => abrirModalEditar(secretaria)}
-                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100"
+                className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-veracruz-50 text-veracruz-700 rounded-lg hover:bg-veracruz-100"
               >
                 <PencilIcon className="h-4 w-4" />
                 Editar
@@ -280,8 +280,8 @@ export default function SecretariasLista() {
               <tr key={secretaria.id} className="hover:bg-gray-50">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex-shrink-0 h-10 w-10 bg-green-100 rounded-full flex items-center justify-center">
-                      <span className="text-green-700 font-bold text-sm">{secretaria.siglas?.substring(0,3)}</span>
+                    <div className="flex-shrink-0 h-10 w-10 bg-veracruz-100 rounded-full flex items-center justify-center">
+                      <span className="text-veracruz-700 font-bold text-sm">{secretaria.siglas?.substring(0,3)}</span>
                     </div>
                     <div>
                       <div className="text-sm font-medium text-gray-900">{secretaria.nombre}</div>
@@ -313,7 +313,7 @@ export default function SecretariasLista() {
                     </button>
                     <button
                       onClick={() => abrirModalEditar(secretaria)}
-                      className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
+                      className="p-2 text-veracruz-600 hover:bg-veracruz-50 rounded-lg"
                       title="Editar secretaría"
                     >
                       <PencilIcon className="h-5 w-5" />
@@ -350,7 +350,7 @@ export default function SecretariasLista() {
                   type="text"
                   value={formData.nombre}
                   onChange={(e) => setFormData({...formData, nombre: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-veracruz-500 focus:border-veracruz-500"
                   required
                 />
               </div>
@@ -363,7 +363,7 @@ export default function SecretariasLista() {
                   type="text"
                   value={formData.siglas}
                   onChange={(e) => setFormData({...formData, siglas: e.target.value.toUpperCase()})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-veracruz-500 focus:border-veracruz-500"
                   required
                 />
               </div>
@@ -376,7 +376,7 @@ export default function SecretariasLista() {
                   type="text"
                   value={formData.titular}
                   onChange={(e) => setFormData({...formData, titular: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-veracruz-500 focus:border-veracruz-500"
                 />
               </div>
 
@@ -388,7 +388,7 @@ export default function SecretariasLista() {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-veracruz-500 focus:border-veracruz-500"
                 />
               </div>
 
@@ -400,7 +400,7 @@ export default function SecretariasLista() {
                   type="tel"
                   value={formData.telefono}
                   onChange={(e) => setFormData({...formData, telefono: e.target.value})}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-veracruz-500 focus:border-veracruz-500"
                 />
               </div>
 
@@ -414,7 +414,7 @@ export default function SecretariasLista() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                  className="flex-1 px-4 py-2 bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700"
                 >
                   {secretariaEditar ? 'Actualizar' : 'Crear'}
                 </button>
@@ -448,7 +448,7 @@ export default function SecretariasLista() {
             <div className="flex-1 overflow-y-auto p-4">
               {loadingUsuarios ? (
                 <div className="flex items-center justify-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-veracruz-600"></div>
                 </div>
               ) : (
                 <>
@@ -458,8 +458,8 @@ export default function SecretariasLista() {
                       {usuariosSecretaria.map((usuario) => (
                         <div key={usuario.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border">
                           <div className="flex items-center gap-3">
-                            <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
-                              <span className="text-green-700 font-bold text-lg">
+                            <div className="h-12 w-12 bg-veracruz-100 rounded-full flex items-center justify-center">
+                              <span className="text-veracruz-700 font-bold text-lg">
                                 {usuario.nombre?.charAt(0) || 'U'}
                               </span>
                             </div>
@@ -516,7 +516,7 @@ export default function SecretariasLista() {
                               type="text"
                               value={nuevoUsuario.nombre}
                               onChange={(e) => setNuevoUsuario({...nuevoUsuario, nombre: e.target.value})}
-                              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-veracruz-500"
                               required
                             />
                           </div>
@@ -526,7 +526,7 @@ export default function SecretariasLista() {
                               type="email"
                               value={nuevoUsuario.email}
                               onChange={(e) => setNuevoUsuario({...nuevoUsuario, email: e.target.value})}
-                              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-veracruz-500"
                               required
                             />
                           </div>
@@ -538,7 +538,7 @@ export default function SecretariasLista() {
                               type="password"
                               value={nuevoUsuario.password}
                               onChange={(e) => setNuevoUsuario({...nuevoUsuario, password: e.target.value})}
-                              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-veracruz-500"
                               required
                               minLength={6}
                             />
@@ -548,7 +548,7 @@ export default function SecretariasLista() {
                             <select
                               value={nuevoUsuario.rol}
                               onChange={(e) => setNuevoUsuario({...nuevoUsuario, rol: e.target.value})}
-                              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-green-500"
+                              className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-veracruz-500"
                             >
                               <option value="admin_secretaria">Administrador</option>
                               <option value="conductor">Conductor</option>
@@ -566,7 +566,7 @@ export default function SecretariasLista() {
                           </button>
                           <button
                             type="submit"
-                            className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                            className="flex-1 px-4 py-2 bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700"
                           >
                             Crear Usuario
                           </button>
@@ -576,7 +576,7 @@ export default function SecretariasLista() {
                   ) : (
                     <button
                       onClick={() => setShowNuevoUsuario(true)}
-                      className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-green-500 hover:text-green-600 transition-colors"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg text-gray-600 hover:border-veracruz-500 hover:text-veracruz-600 transition-colors"
                     >
                       <UserPlusIcon className="h-5 w-5" />
                       Agregar Usuario

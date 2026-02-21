@@ -7,18 +7,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Colores institucionales del Gobierno de Veracruz
+        // Colores institucionales del Gobierno de Veracruz (guinda/burgundy)
         veracruz: {
-          50: '#e6f7ed',
-          100: '#ccefdb',
-          200: '#99dfb7',
-          300: '#66cf93',
-          400: '#33bf6f',
-          500: '#00A651', // Verde oficial de Veracruz
-          600: '#008541',
-          700: '#006431',
-          800: '#004321',
-          900: '#002210',
+          50: '#fdf2f4',
+          100: '#f9e0e5',
+          200: '#f3c1cb',
+          300: '#e99aaa',
+          400: '#d9687f',
+          500: '#722F37', // Guinda oficial
+          600: '#63282F',
+          700: '#542128',
+          800: '#451A20',
+          900: '#361318',
         },
         rojo: {
           50: '#fef2f2',

@@ -128,10 +128,10 @@ export default function NuevaAsignacion() {
         {/* Indicador de pasos */}
         <div className="hidden md:flex items-center gap-2">
           <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium ${
-            paso === 1 ? 'bg-veracruz-100 text-veracruz-700' : 'bg-green-100 text-green-700'
+            paso === 1 ? 'bg-veracruz-100 text-veracruz-700' : 'bg-veracruz-100 text-veracruz-700'
           }`}>
             <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white ${
-              paso >= 2 ? 'bg-green-600' : 'bg-veracruz-600'
+              paso >= 2 ? 'bg-veracruz-600' : 'bg-veracruz-600'
             }`}>{paso >= 2 ? '✓' : '1'}</span>
             Vehículo
           </div>
@@ -181,11 +181,11 @@ export default function NuevaAsignacion() {
                   <div key={v.id}
                     onClick={() => { setVehiculoSeleccionado(v); setPaso(2); }}
                     className={`p-4 bg-white rounded-xl border-2 cursor-pointer transition-all hover:shadow-sm ${
-                      sel ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-veracruz-300'
+                      sel ? 'border-veracruz-500 bg-veracruz-50' : 'border-gray-200 hover:border-veracruz-300'
                     }`}
                   >
                     <div className="flex items-center gap-4">
-                      <div className={`w-11 h-11 rounded-lg flex items-center justify-center text-xl ${sel ? 'bg-green-100' : 'bg-gray-100'}`}>
+                      <div className={`w-11 h-11 rounded-lg flex items-center justify-center text-xl ${sel ? 'bg-veracruz-100' : 'bg-gray-100'}`}>
                         🚗
                       </div>
                       <div className="flex-1 min-w-0">

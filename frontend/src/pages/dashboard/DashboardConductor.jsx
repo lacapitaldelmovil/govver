@@ -102,7 +102,7 @@ export default function DashboardConductor() {
                 <span className="text-gray-600">Estado:</span>
                 <span className={`px-2 py-1 rounded text-sm ${
                   vehiculoAsignado.estado_operativo === 'Operando' 
-                    ? 'bg-green-100 text-green-800' 
+                    ? 'bg-veracruz-100 text-veracruz-800' 
                     : 'bg-yellow-100 text-yellow-800'
                 }`}>
                   {vehiculoAsignado.estado_operativo}
@@ -129,7 +129,7 @@ export default function DashboardConductor() {
         <div className="grid grid-cols-2 gap-4 mb-8">
           <button
             onClick={() => { setTipoRegistro('salida'); setMostrarFormulario(true); }}
-            className="bg-green-500 hover:bg-green-600 text-white rounded-xl p-6 text-center transition-colors"
+            className="bg-veracruz-500 hover:bg-veracruz-600 text-white rounded-xl p-6 text-center transition-colors"
           >
             <div className="flex justify-center mb-2">
               <ArrowRightOnRectangleIcon className="h-10 w-10" />
@@ -179,7 +179,7 @@ export default function DashboardConductor() {
                 onClick={registrarMovimiento}
                 className={`flex-1 text-white py-3 rounded-lg transition-colors ${
                   tipoRegistro === 'salida' 
-                    ? 'bg-green-500 hover:bg-green-600' 
+                    ? 'bg-veracruz-500 hover:bg-veracruz-600' 
                     : 'bg-blue-500 hover:bg-blue-600'
                 }`}
               >
@@ -201,7 +201,7 @@ export default function DashboardConductor() {
             {registros.map((reg) => (
               <div key={reg.id} className={`p-4 rounded-lg border-l-4 ${
                 reg.tipo === 'salida' 
-                  ? 'border-green-500 bg-green-50' 
+                  ? 'border-veracruz-500 bg-veracruz-50' 
                   : 'border-blue-500 bg-blue-50'
               }`}>
                 <div className="flex justify-between items-center">

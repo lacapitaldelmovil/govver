@@ -53,7 +53,7 @@ export default function DashboardSecretaria() {
 
   const getEstadoColor = (estado) => {
     const map = {
-      'Operando': 'text-green-700 bg-green-100',
+      'Operando': 'text-veracruz-700 bg-veracruz-100',
       'Disponible': 'text-blue-700 bg-blue-100',
       'En taller': 'text-yellow-700 bg-yellow-100',
       'Mal estado': 'text-orange-700 bg-orange-100',
@@ -65,7 +65,7 @@ export default function DashboardSecretaria() {
   const getSolEstadoStyle = (estado) => {
     const map = {
       'pendiente': { bg: 'bg-amber-100 text-amber-800', icon: ClockIcon, label: 'Pendiente' },
-      'aprobada': { bg: 'bg-green-100 text-green-800', icon: CheckCircleIcon, label: 'Aprobada' },
+      'aprobada': { bg: 'bg-veracruz-100 text-veracruz-800', icon: CheckCircleIcon, label: 'Aprobada' },
       'rechazada': { bg: 'bg-red-100 text-red-800', icon: XCircleIcon, label: 'Rechazada' },
       'completada': { bg: 'bg-blue-100 text-blue-800', icon: CheckCircleIcon, label: 'Completada' },
       'cancelada': { bg: 'bg-gray-100 text-gray-600', icon: XCircleIcon, label: 'Cancelada' },
@@ -137,7 +137,7 @@ export default function DashboardSecretaria() {
           </div>
           <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
             {estadosData.find(e => e.estado === 'Operando') && (
-              <span className="px-2 py-0.5 bg-green-50 text-green-700 rounded-full font-medium">
+              <span className="px-2 py-0.5 bg-veracruz-50 text-veracruz-700 rounded-full font-medium">
                 {estadosData.find(e => e.estado === 'Operando')?.cantidad || 0} operando
               </span>
             )}
@@ -189,15 +189,15 @@ export default function DashboardSecretaria() {
               <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Seguros</p>
               <p className="text-3xl font-bold text-gray-900 mt-1">{segurosStats.vencidos || 0}</p>
             </div>
-            <div className={`p-2.5 rounded-xl ${segurosStats.vencidos > 0 ? 'bg-red-50' : 'bg-green-50'}`}>
-              <ShieldCheckIcon className={`h-6 w-6 ${segurosStats.vencidos > 0 ? 'text-red-600' : 'text-green-600'}`} />
+            <div className={`p-2.5 rounded-xl ${segurosStats.vencidos > 0 ? 'bg-red-50' : 'bg-veracruz-50'}`}>
+              <ShieldCheckIcon className={`h-6 w-6 ${segurosStats.vencidos > 0 ? 'text-red-600' : 'text-veracruz-600'}`} />
             </div>
           </div>
           <div className="mt-3 flex items-center gap-2 text-xs">
             {segurosStats.vencidos > 0 ? (
               <span className="text-red-600 font-medium">Vencidos — Atención</span>
             ) : (
-              <span className="text-green-600 font-medium">Todo en orden</span>
+              <span className="text-veracruz-600 font-medium">Todo en orden</span>
             )}
           </div>
         </div>
@@ -222,7 +222,7 @@ export default function DashboardSecretaria() {
                   const pct = (e.cantidad / totalVehiculos) * 100;
                   if (pct < 1) return null;
                   const colors = {
-                    'Operando': 'bg-green-500', 'Disponible': 'bg-blue-500',
+                    'Operando': 'bg-veracruz-500', 'Disponible': 'bg-blue-500',
                     'En taller': 'bg-yellow-500', 'Mal estado': 'bg-orange-500',
                     'Baja': 'bg-red-500',
                   };
@@ -275,7 +275,7 @@ export default function DashboardSecretaria() {
             {segurosStats.total > 0 && (
               <div className="flex rounded-full overflow-hidden h-4 mb-4">
                 {[
-                  { key: 'vigentes', color: 'bg-green-500' },
+                  { key: 'vigentes', color: 'bg-veracruz-500' },
                   { key: 'por_vencer', color: 'bg-amber-400' },
                   { key: 'vencidos', color: 'bg-red-500' },
                   { key: 'sin_seguro', color: 'bg-gray-300' },
@@ -292,11 +292,11 @@ export default function DashboardSecretaria() {
 
             {/* Grid de categorías */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-green-50 border border-green-100">
-                <div className="w-3 h-3 rounded-full bg-green-500 flex-shrink-0"></div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-veracruz-50 border border-veracruz-100">
+                <div className="w-3 h-3 rounded-full bg-veracruz-500 flex-shrink-0"></div>
                 <div>
-                  <p className="text-lg font-bold text-green-800">{segurosStats.vigentes || 0}</p>
-                  <p className="text-[10px] text-green-600 font-medium uppercase">Vigentes</p>
+                  <p className="text-lg font-bold text-veracruz-800">{segurosStats.vigentes || 0}</p>
+                  <p className="text-[10px] text-veracruz-600 font-medium uppercase">Vigentes</p>
                 </div>
               </div>
               <div className={`flex items-center gap-3 p-3 rounded-xl border ${

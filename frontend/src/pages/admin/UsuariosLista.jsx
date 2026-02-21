@@ -226,7 +226,7 @@ export default function UsuariosLista() {
                 className={`flex-1 px-3 py-2 rounded-lg font-medium ${
                   usuario.activo 
                     ? 'bg-red-50 text-red-600 hover:bg-red-100' 
-                    : 'bg-green-50 text-green-600 hover:bg-green-100'
+                    : 'bg-veracruz-50 text-veracruz-600 hover:bg-veracruz-100'
                 }`}
               >
                 {usuario.activo ? 'Desactivar' : 'Activar'}
@@ -304,7 +304,7 @@ export default function UsuariosLista() {
                         className={`px-3 py-1 text-sm rounded-lg ${
                           usuario.activo 
                             ? 'text-red-600 hover:bg-red-50' 
-                            : 'text-green-600 hover:bg-green-50'
+                            : 'text-veracruz-600 hover:bg-veracruz-50'
                         }`}
                       >
                         {usuario.activo ? 'Desactivar' : 'Activar'}

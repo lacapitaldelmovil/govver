@@ -340,7 +340,7 @@ export default function VehiculosLista() {
     } else if (fecha <= en30Dias) {
       return { label: 'P', clase: 'bg-orange-100 text-orange-700', titulo: 'Seguro por vencer' };
     } else {
-      return { label: 'OK', clase: 'bg-green-100 text-green-700', titulo: 'Seguro vigente' };
+      return { label: 'OK', clase: 'bg-veracruz-100 text-veracruz-700', titulo: 'Seguro vigente' };
     }
   };
 
@@ -540,7 +540,7 @@ export default function VehiculosLista() {
                                   }`}>{v.propuesto_baja ? 'Dictaminado' : 'Determinación'}</span>
                                 </td>
                                 <td className="px-4 py-3 text-xs text-gray-500 hidden md:table-cell">{v.tipo || '-'}</td>
-                                <td className="px-4 py-3 text-xs text-green-700 font-medium hidden lg:table-cell">
+                                <td className="px-4 py-3 text-xs text-veracruz-700 font-medium hidden lg:table-cell">
                                   {v.valor_libros ? `$${Number(v.valor_libros).toLocaleString()}` : '-'}
                                 </td>
                                 <td className="px-4 py-3 text-right">
@@ -883,7 +883,7 @@ export default function VehiculosLista() {
               <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
                 {[
                   { label: 'Total', value: stats.totalVehiculos, filter: '', color: 'gray', activeBg: 'bg-gray-800', hoverBg: 'hover:bg-gray-50' },
-                  { label: 'Operando', value: stats.vehiculosPorEstado?.find(e => e.estado === 'Operando')?.cantidad || 0, filter: 'Operando', color: 'green', activeBg: 'bg-green-600', hoverBg: 'hover:bg-green-50' },
+                  { label: 'Operando', value: stats.vehiculosPorEstado?.find(e => e.estado === 'Operando')?.cantidad || 0, filter: 'Operando', color: 'green', activeBg: 'bg-veracruz-600', hoverBg: 'hover:bg-veracruz-50' },
                   { label: 'Disponible', value: stats.vehiculosPorEstado?.find(e => e.estado === 'Disponible')?.cantidad || 0, filter: 'Disponible', color: 'blue', activeBg: 'bg-blue-600', hoverBg: 'hover:bg-blue-50' },
                   { label: 'Taller', value: stats.vehiculosEnTaller || 0, filter: 'En taller', color: 'yellow', activeBg: 'bg-yellow-600', hoverBg: 'hover:bg-yellow-50' },
                   { label: 'Mal Estado', value: stats.vehiculosPorEstado?.find(e => e.estado === 'Mal estado')?.cantidad || 0, filter: 'Mal estado', color: 'orange', activeBg: 'bg-orange-600', hoverBg: 'hover:bg-orange-50' },
@@ -927,8 +927,8 @@ export default function VehiculosLista() {
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
                     Por Vencer: {segurosStats.por_vencer}
                   </span>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-veracruz-100 text-veracruz-700">
+                    <span className="w-1.5 h-1.5 rounded-full bg-veracruz-500"></span>
                     Vigentes: {segurosStats.vigentes}
                   </span>
                   {segurosStats.sin_seguro > 0 && (
@@ -1011,14 +1011,14 @@ export default function VehiculosLista() {
                           <td className="px-3 py-2.5">
                             <div className="flex flex-col gap-1">
                               <span className={`inline-block text-center px-2 py-0.5 rounded text-[10px] font-semibold w-fit ${
-                                v.estado_operativo === 'Operando' ? 'bg-green-100 text-green-700' :
+                                v.estado_operativo === 'Operando' ? 'bg-veracruz-100 text-veracruz-700' :
                                 v.estado_operativo === 'En taller' ? 'bg-yellow-100 text-yellow-700' :
                                 v.estado_operativo === 'Mal estado' ? 'bg-red-100 text-red-700' :
                                 'bg-gray-100 text-gray-600'
                               }`}>{v.estado_operativo}</span>
                               {v.estatus && (
                                 <span className={`text-[10px] ${
-                                  v.estatus === 'Bueno' ? 'text-green-600' :
+                                  v.estatus === 'Bueno' ? 'text-veracruz-600' :
                                   v.estatus === 'Regular' ? 'text-yellow-600' :
                                   v.estatus === 'Malo' ? 'text-red-600' : 'text-gray-500'
                                 }`}>{v.estatus}</span>
@@ -1042,13 +1042,13 @@ export default function VehiculosLista() {
                             <span className="text-xs font-medium text-gray-700">{v.kilometraje ? `${v.kilometraje.toLocaleString()}` : '-'}</span>
                           </td>
                           <td className="px-3 py-2.5 hidden xl:table-cell">
-                            <span className="text-xs text-green-700 font-medium">{v.valor_libros ? `$${Number(v.valor_libros).toLocaleString()}` : '-'}</span>
+                            <span className="text-xs text-veracruz-700 font-medium">{v.valor_libros ? `$${Number(v.valor_libros).toLocaleString()}` : '-'}</span>
                           </td>
                           {puedeAsignar && (
                             <td className="px-3 py-2.5">
                               {v.asignacion_id ? (
                                 <button onClick={() => abrirEntrada(v)}
-                                  className="flex items-center gap-1 px-2.5 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 text-[10px] font-semibold transition-colors w-full justify-center">
+                                  className="flex items-center gap-1 px-2.5 py-1.5 bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700 text-[10px] font-semibold transition-colors w-full justify-center">
                                   <ArrowLeftIcon className="h-3 w-3" /> Entrada
                                 </button>
                               ) : (
@@ -1121,7 +1121,7 @@ export default function VehiculosLista() {
                       )}
                     </div>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      v.estado_operativo === 'Operando' ? 'bg-green-100 text-green-800' :
+                      v.estado_operativo === 'Operando' ? 'bg-veracruz-100 text-veracruz-800' :
                       v.estado_operativo === 'En taller' ? 'bg-yellow-100 text-yellow-800' :
                       'bg-red-100 text-red-800'
                     }`}>
@@ -1150,7 +1150,7 @@ export default function VehiculosLista() {
                       <div className="flex justify-between">
                         <span className="text-gray-500">Condición:</span>
                         <span className={`px-2 py-0.5 rounded text-xs ${
-                          v.estatus === 'Bueno' ? 'bg-green-100 text-green-700' :
+                          v.estatus === 'Bueno' ? 'bg-veracruz-100 text-veracruz-700' :
                           v.estatus === 'Regular' ? 'bg-yellow-100 text-yellow-700' :
                           v.estatus === 'Malo' ? 'bg-red-100 text-red-700' :
                           'bg-gray-100 text-gray-700'
@@ -1193,7 +1193,7 @@ export default function VehiculosLista() {
                     {v.valor_libros && (
                       <div className="flex justify-between">
                         <span className="text-gray-500">Valor:</span>
-                        <span className="text-green-700 font-medium">${v.valor_libros?.toLocaleString()}</span>
+                        <span className="text-veracruz-700 font-medium">${v.valor_libros?.toLocaleString()}</span>
                       </div>
                     )}
                   </div>
@@ -1205,7 +1205,7 @@ export default function VehiculosLista() {
                       {v.asignacion_id ? (
                         <button
                           onClick={(e) => { e.stopPropagation(); abrirEntrada(v); }}
-                          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-xs font-semibold transition-colors"
+                          className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700 text-xs font-semibold transition-colors"
                         >
                           <ArrowLeftIcon className="h-3.5 w-3.5" />
                           Registrar Entrada — {v.asignacion_conductor}
@@ -1343,8 +1343,8 @@ export default function VehiculosLista() {
       {modalEntrada && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b bg-green-50 rounded-t-2xl">
-              <h3 className="text-lg font-bold text-green-800 flex items-center gap-2">
+            <div className="px-6 py-4 border-b bg-veracruz-50 rounded-t-2xl">
+              <h3 className="text-lg font-bold text-veracruz-800 flex items-center gap-2">
                 <ArrowLeftIcon className="h-5 w-5" /> Registrar Entrada (Devolución)
               </h3>
               <p className="text-sm text-gray-500 mt-1">
@@ -1413,7 +1413,7 @@ export default function VehiculosLista() {
                 Cancelar
               </button>
               <button onClick={registrarEntrada} disabled={enviandoAsg}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-semibold disabled:opacity-50">
+                className="px-6 py-2 bg-veracruz-600 text-white rounded-lg hover:bg-veracruz-700 text-sm font-semibold disabled:opacity-50">
                 {enviandoAsg ? 'Registrando...' : 'Registrar Entrada'}
               </button>
             </div>
